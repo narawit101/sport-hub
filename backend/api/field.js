@@ -1,146 +1,30 @@
 const express = require("express");
-const multer = require("multer");
 const router = express.Router();
-const pool = require("../db");
+const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
-const { Resend } = require("resend");
 require("dotenv").config();
-const resend = new Resend(process.env.Resend_API);
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../server");
+const { createUploader } = require("../utils/upload");
+const { deleteCloudinaryFile, deleteMultipleCloudinaryFiles } = require("../utils/delete");
+const { sendEmail } = require("../utils/email");
+const {
+  fieldRegistered,
+  fieldRegisteredNotifyAdmin,
+  fieldAppealNotifyAdmin,
+  fieldEditNotifyAdmin,
+  fieldApproved,
+  fieldRejected
+} = require("../utils/emailTemplates");
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    let folder = "uploads";
-    let resourceType = "auto";
-    let format = undefined;
-
-    if (file.fieldname === "documents") {
-      folder = "documents";
-      if (file.mimetype.startsWith("image/")) {
-        resourceType = "image";
-      } else if (file.mimetype === "application/pdf") {
-        resourceType = "raw";
-        format = "pdf";
-      } else {
-        resourceType = "raw";
-        format = file.mimetype.split("/")[1];
-      }
-    } else if (file.fieldname === "img_field") {
-      folder = "field-profile";
-      resourceType = "image";
-    } else if (
-      file.fieldname === "facility_image" ||
-      file.fieldname.startsWith("facility_image_")
-    ) {
-      folder = "field-facility-images";
-      resourceType = "image";
-    }
-
-    const config = {
-      folder,
-      resource_type: resourceType,
-      public_id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    };
-    if (format) config.format = format;
-    if (resourceType === "image") {
-      config.transformation = [
-        { quality: "auto:good" },
-        { fetch_format: "auto" },
-      ];
-    }
-    return config;
+const upload = createUploader(
+  {
+    documents: "documents",
+    img_field: "field-profile",
+    facility_image: "field-facility-images",
   },
-});
+  { maxFiles: 30 }
+);
+const { invalidateCache, invalidatePattern } = require("../config/cache");
 
-const upload = multer({
-  storage,
-  limits: { files: 30, fileSize: 8 * 1024 * 1024 },
-});
-
-async function deleteCloudinaryFile(fileUrl) {
-  try {
-    console.log("กำลังลบไฟล์:", fileUrl);
-
-    const urlParts = fileUrl.split("/");
-
-    const uploadIndex = urlParts.findIndex((part) => part === "upload");
-    if (uploadIndex === -1) {
-      console.error("URL ไม่ถูกต้อง - ไม่มี 'upload'");
-      return;
-    }
-    let pathStartIndex = uploadIndex + 1;
-    if (urlParts[pathStartIndex] && urlParts[pathStartIndex].startsWith("v")) {
-      pathStartIndex++;
-    }
-    const pathParts = urlParts.slice(pathStartIndex);
-    const fullPath = pathParts.join("/");
-
-    const isRawFile = fileUrl.includes("/raw/upload/");
-    const isImageFile =
-      fileUrl.includes("/image/upload/") ||
-      (!fileUrl.includes("/raw/") && !fileUrl.includes("/video/"));
-
-    let publicId, resourceType;
-
-    if (isRawFile) {
-      publicId = fullPath;
-      resourceType = "raw";
-      console.log("ไฟล์เอกสาร (raw):", publicId);
-    } else {
-      const lastDotIndex = fullPath.lastIndexOf(".");
-      publicId =
-        lastDotIndex > 0 ? fullPath.substring(0, lastDotIndex) : fullPath;
-      resourceType = "image";
-      console.log("ไฟล์รูปภาพ:", publicId);
-    }
-
-    console.log(`กำลังลบ: ${publicId} (${resourceType})`);
-
-    const result = await cloudinary.uploader.destroy(publicId, {
-      resource_type: resourceType,
-    });
-
-    if (result.result === "ok") {
-      console.log(`ลบ Cloudinary สำเร็จ: ${publicId}`);
-    } else if (result.result === "not found") {
-      console.warn(`ไม่พบไฟล์: ${publicId} (${resourceType})`);
-      const alternativeType = resourceType === "raw" ? "image" : "raw";
-      console.log(`ลองลบด้วย resource_type: ${alternativeType}`);
-
-      const retryResult = await cloudinary.uploader.destroy(publicId, {
-        resource_type: alternativeType,
-      });
-
-      if (retryResult.result === "ok") {
-        console.log(`ลบสำเร็จด้วย ${alternativeType}: ${publicId}`);
-      } else {
-        console.warn(`ลบไม่สำเร็จทั้งสองแบบ: ${publicId}`, retryResult);
-      }
-    } else {
-      console.warn(`ผลลัพธ์ไม่คาดคิด: ${publicId}`, result);
-    }
-  } catch (error) {
-    console.error("ลบ Cloudinary ไม่สำเร็จ:", error);
-  }
-}
-
-async function deleteMultipleCloudinaryFiles(fileUrls) {
-  if (!fileUrls || fileUrls.length === 0) {
-    console.log("ℹไม่มีไฟล์ที่ต้องลบ");
-    return;
-  }
-
-  console.log(`กำลังลบไฟล์ ${fileUrls.length} ไฟล์`);
-
-  for (const url of fileUrls) {
-    if (url && url.trim()) {
-      await deleteCloudinaryFile(url.trim());
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-  }
-}
 
 router.post("/register", upload.any(), authMiddleware, async (req, res) => {
   const client = await pool.connect();
@@ -303,73 +187,33 @@ router.post("/register", upload.any(), authMiddleware, async (req, res) => {
     console.log("Transaction committed successfully");
 
     try {
-      await resend.emails.send({
-        from: process.env.Sender_Email,
+      await sendEmail({
         to: userEmail,
         subject: "การลงทะเบียนสนาม",
-        html: `
-<div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); text-align:center;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center">
-        <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" 
-             alt="Sport-Hub Online Logo" 
-             style="display: block; max-width: 300px; margin-bottom: 10px;" />
-      </td>
-    </tr>
-  </table>
-  <h1 style="color: #03045e; margin-bottom: 16px; text-align: center">การลงทะเบียนสนาม</h1>
-  <p style="font-size: 16px; text-align: center; color: #9ca3af;">
-    <strong>คุณได้ลงทะเบียนสนามเรียบร้อยแล้ว<br>กรุณารอผู้ดูแลระบบตรวจสอบ ขอบคุณที่ใช้บริการ</strong>
-  </p>
-  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-  <p style="font-size: 12px; color: #9ca3af;text-align: center">
-    หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-  </p>
-</div>`,
-      });
-      await resend.emails.send({
-        from: process.env.Sender_Email,
-        to: process.env.Owner_Email,
-        subject: "มีการลงทะเบียนสนามกีฬาใหม่",
-        html: `
-<div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); text-align:center;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center">
-        <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" 
-             alt="Sport-Hub Online Logo" 
-             style="display: block; max-width: 300px; margin-bottom: 10px;" />
-      </td>
-    </tr>
-  </table>
-  <h1 style="color: #03045e; margin-bottom: 16px;">การลงทะเบียนสนาม</h1>
-  <p style="font-size: 20px;">
-    <h3>${userfirstName}</h3>
-    ได้ลงทะเบียนสนามกีฬา
-  </p>
-  <div style="margin: 20px 0;">
-    <a href="${process.env.FONT_END_URL}/login?redirect=/check-field/${field_id}" 
-       style="display: inline-block; background-color: #03045e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; width:160px;" 
-       target="_blank">
-      ตรวจสอบสนามกีฬา #${field_id}
-    </a>
-  </div>
-  <p style="font-size: 14px; color: #6b7280;">
-    กรุณาตรวจสอบและอัปเดตสถานะให้เสร็จสิ้น
-  </p>
-  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-  <p style="font-size: 12px; color: #9ca3af;">
-    หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-  </p>
-</div>`,
+        html: fieldRegistered(),
       });
 
-      console.log("อีเมลส่งสำเร็จ");
+      console.log("อีเมลแจ้งผู้ใช้ส่งสำเร็จ");
       try {
         const admins = await pool.query(
-          `SELECT user_id FROM users WHERE role = 'admin'`
+          `SELECT user_id, email FROM users WHERE role = 'admin'`
         );
+        let adminEmails = admins.rows.map(r => r.email).filter(Boolean);
+        if (adminEmails.length === 0 && process.env.ADMIN_EMAIL) {
+          adminEmails = [process.env.ADMIN_EMAIL];
+        }
+        for (const adminEmail of adminEmails) {
+          try {
+            await sendEmail({
+              to: adminEmail,
+              subject: "มีการลงทะเบียนสนามกีฬาใหม่",
+              html: fieldRegisteredNotifyAdmin({ userName: userfirstName, fieldId: field_id }),
+            });
+          } catch (sendErr) {
+            console.error(`Failed to send field registered email to ${adminEmail}:`, sendErr.message);
+          }
+        }
+
         const io = req.app?.get("io") || req.io;
         for (const a of admins.rows) {
           await pool.query(
@@ -391,11 +235,8 @@ router.post("/register", upload.any(), authMiddleware, async (req, res) => {
             });
           }
         }
-      } catch (notifyErr) {
-        console.error(
-          "Create/send field_registered notification failed:",
-          notifyErr.message
-        );
+      } catch (adminErr) {
+        console.error("Admin notification/email error:", adminErr);
       }
     } catch (emailError) {
       console.error("ส่งอีเมลไม่สำเร็จ:", emailError);
@@ -463,87 +304,31 @@ router.put("/appeal/:field_id", authMiddleware, async (req, res) => {
       [status, field_id]
     );
 
+    await invalidateCache(`field_profile:${field_id}`);
+
     console.log("ข้อมูลอัปเดตสำเร็จ:", result.rows[0]);
 
     try {
-      const data = await resend.emails.send({
-        from: process.env.Sender_Email,
-        to: process.env.Owner_Email,
-        subject: "มีการส่งลงทะเบียนสนามกีฬาอีกครั้ง",
-        html: `
-<div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); text-align:center;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center">
-        <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" alt="Sport-Hub Online Logo" style="display: block; max-width: 300px; margin-bottom: 10px;" />
-      </td>
-    </tr>
-  </table>
-  <h1 style="color: #03045e; margin-bottom: 16px;">คำขอลงทะเบียนสนามกีฬาอีกครั้ง</h1>
+      const admins = await pool.query(
+        `SELECT user_id, email FROM users WHERE role = 'admin'`
+      );
+      let adminEmails = admins.rows.map(r => r.email).filter(Boolean);
+      if (adminEmails.length === 0 && process.env.ADMIN_EMAIL) {
+        adminEmails = [process.env.ADMIN_EMAIL];
+      }
+      for (const adminEmail of adminEmails) {
+        try {
+          await sendEmail({
+            to: adminEmail,
+            subject: "มีการส่งลงทะเบียนสนามกีฬาอีกครั้ง",
+            html: fieldAppealNotifyAdmin({ fieldName, fieldId: field_id }) + fieldEditNotifyAdmin({ fieldName, fieldId: field_id }),
+          });
+        } catch (sendErr) {
+          console.error(`Failed to send field appeal email to ${adminEmail}:`, sendErr.message);
+        }
+      }
 
-  <p style="font-size: 16px; color: #111827;">
-    <strong style="color: #0f172a;">
-      <h3>สนาม ${fieldName}</h3>
-    </strong>
-  <p style="font-size: 18px;">ได้ส่งคำขอลงทะเบียนสนามกีฬาอีกครั้ง</p>
-  </p>
-
-  <div style="margin: 20px 0;">
-    <a href="${process.env.FONT_END_URL}/login?redirect=/check-field/${field_id}" style="display: inline-block; background-color: #03045e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;
-                 width:160px;" target="_blank">
-      ตรวจสอบสนามกีฬา #${field_id}
-    </a>
-  </div>
-
-  <p style="font-size: 14px; color: #6b7280;">
-    กรุณาตรวจสอบและอัปเดตสถานะให้เสร็จสิ้น
-  </p>
-
-  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-
-  <p style="font-size: 12px; color: #9ca3af;">
-    หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-  </p>
-</div><div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); text-align:center;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center">
-        <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" alt="Sport-Hub Online Logo" style="display: block; max-width: 300px; margin-bottom: 10px;" />
-      </td>
-    </tr>
-  </table>
-  <h1 style="color: #03045e; margin-bottom: 16px;">คำขอแก้ไขสนามกีฬา</h1>
-
-  <p style="font-size: 16px; color: #111827;">
-    <strong style="color: #0f172a;">
-      <h3>${fieldName}</h3>
-    </strong>
-  <p style="font-size: 18px;">ได้ส่งคำขอแก้ไขสนามกีฬา</p>
-  </p>
-
-  <div style="margin: 20px 0;">
-    <a href="${process.env.FONT_END_URL}/login?redirect=/check-field/${field_id}" style="display: inline-block; background-color: #03045e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;
-                 width:160px;" target="_blank">
-      ตรวจสอบสนามกีฬา #${field_id}
-    </a>
-  </div>
-
-  <p style="font-size: 14px; color: #6b7280;">
-    กรุณาตรวจสอบและอัปเดตสถานะให้เสร็จสิ้น
-  </p>
-
-  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-
-  <p style="font-size: 12px; color: #9ca3af;">
-    หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-  </p>
-</div>
-      `,
-      });
       try {
-        const admins = await pool.query(
-          `SELECT user_id FROM users WHERE role = 'admin'`
-        );
         const io = req.app?.get("io") || req.io;
         for (const a of admins.rows) {
           await pool.query(
@@ -579,7 +364,7 @@ router.put("/appeal/:field_id", authMiddleware, async (req, res) => {
         data: result.rows[0],
       });
     } catch (error) {
-      console.error("Resend Error:", error);
+      console.error("Email Error:", error);
       return res.status(500).json({
         message: "อัปเดตสำเร็จแต่ส่ง email ไม่สำเร็จ",
         data: result.rows[0],
@@ -644,9 +429,8 @@ router.get("/:field_id", authMiddleware, async (req, res) => {
       return res.json(result.rows[0]);
     }
 
-    if (role === "field_owner") {
-      const result = await pool.query(
-        `SELECT 
+    const result = await pool.query(
+      `SELECT 
           f.field_id, f.field_name, f.address, f.gps_location, f.documents,
           f.open_hours, f.close_hours, f.img_field, f.name_bank, 
           f.number_bank, f.account_holder, f.status, f.price_deposit, 
@@ -679,18 +463,13 @@ router.get("/:field_id", authMiddleware, async (req, res) => {
         LEFT JOIN sports_types sp ON s.sport_id = sp.sport_id
         WHERE f.field_id = $1 AND f.user_id = $2
         GROUP BY f.field_id, u.user_id;`,
-        [field_id, user_id]
-      );
+      [field_id, user_id]
+    );
 
-      if (result.rows.length === 0) {
-        return res
-          .status(404)
-          .json({ error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้" });
-      }
-      return res.json(result.rows[0]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้" });
     }
-
-    return res.status(403).json({ error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้" });
+    return res.json(result.rows[0]);
   } catch (error) {
     console.error("Database Error:", error);
     res.status(500).json({ error: "เกิดข้อผิดพลาดในการดึงข้อมูลสนามกีฬา" });
@@ -745,30 +524,10 @@ router.put("/update-status/:field_id", authMiddleware, async (req, res) => {
       }
 
       try {
-        const resultEmail = await resend.emails.send({
-          from: process.env.Sender_Email,
+        const resultEmail = await sendEmail({
           to: userData.rows[0].email,
           subject: "การอนุมัติสนามกีฬา",
-          html: `
-        <div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); text-align:center;">
-          <table width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td align="center">
-                <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" alt="Sport-Hub Online Logo" style="display: block; max-width: 300px; margin-bottom: 10px;" />
-              </td>
-            </tr>
-          </table>
-          <h1 style="color: #347433; margin-bottom: 16px; text-align: center">สนามกีฬาได้รับการอนุมัติ</h1>
-
-          <p style="font-size: 16px; text-align: center; color: #333538ff;">
-            <strong> สนามกีฬาของคุณ ${userfirstName} ได้รับการอนุมัติเรียบร้อยแล้ว </br >ขอบคุณที่ใช้บริการ</strong>
-          </p>
-          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-
-          <p style="font-size: 12px; color: #9ca3af;text-align: center ">
-            หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-          </p>
-        </div>`,
+          html: fieldApproved({ userName: userfirstName }),
         });
         console.log("อีเมลส่งสำเร็จ:", resultEmail);
         const io = req.app?.get("io") || req.io;
@@ -816,41 +575,10 @@ router.put("/update-status/:field_id", authMiddleware, async (req, res) => {
       }
 
       try {
-        const resultEmail = await resend.emails.send({
-          from: process.env.Sender_Email,
+        const resultEmail = await sendEmail({
           to: userData.rows[0].email,
           subject: "การอนุมัติสนามกีฬา",
-          html: `
-        <div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); text-align:center;">
-          <table width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td align="center">
-                <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" alt="Sport-Hub Online Logo" style="display: block; max-width: 300px; margin-bottom: 10px;" />
-              </td>
-            </tr>
-          </table>
-          <h1 style="color: #DC2525; margin-bottom: 16px; text-align: center">สนามกีฬาไม่ได้รับการอนุมัติ</h1>
-
-          <p style="font-size: 16px; text-align: center; color: #333538ff;">
-          <strong>สนามกีฬาของคุณ ${userfirstName} ไม่ได้รับการอนุมัติ</strong><br/><br/>
-        </p>
-
-        <div style="margin: 16px 0; text-align:center;font-size: 18px;">
-          <strong>เหตุผลที่ไม่ผ่านการอนุมัติ:</strong><br/>
-          ${reasoning ? reasoning : "ไม่มีการระบุเหตุผล"}
-        </div>
-
-        <p style="font-size: 16px; text-align: center; color: #333538ff;">
-          กรุณาตรวจสอบสนามกีฬาของคุณและส่งคำขอลงทะเบียนใหม่
-        </p>
-
-          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-
-          <p style="font-size: 12px; color: #9ca3af;text-align: center ">
-            หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-          </p>
-        </div>
-                  `,
+          html: fieldRejected({ userName: userfirstName, reasoning }),
         });
         console.log("อีเมลส่งสำเร็จ:", resultEmail);
         const io = req.app?.get("io") || req.io;
@@ -897,6 +625,11 @@ router.put("/update-status/:field_id", authMiddleware, async (req, res) => {
        RETURNING *;`,
       [status, field_id]
     );
+
+    await invalidateCache(`field_profile:${field_id}`);
+    await invalidateCache(`user:profile:${checkField.rows[0].user_id}`, "users:all");
+    await invalidatePattern(`statistics:field:${field_id}:*`);
+    await invalidatePattern("search:*");
 
     console.log("ข้อมูลอัปเดตสำเร็จ:", result.rows[0]);
     if (req.io) {
@@ -959,22 +692,6 @@ router.delete("/delete/field/:id", authMiddleware, async (req, res) => {
       `SELECT pi.image_url FROM post_images pi JOIN posts p ON pi.post_id = p.post_id WHERE p.field_id = $1`,
       [fieldId]
     );
-
-    for (const img of postImages.rows) {
-      await deleteCloudinaryFile(img.image_url);
-    }
-    await client.query(
-      `DELETE FROM post_images WHERE post_id IN 
-       (SELECT post_id FROM posts WHERE field_id = $1)`,
-      [fieldId]
-    );
-
-    await client.query(
-      `DELETE FROM post_images WHERE post_id IN (SELECT post_id FROM posts WHERE field_id = $1)`,
-      [fieldId]
-    );
-
-    await client.query("DELETE FROM posts WHERE field_id = $1", [fieldId]);
 
     const imageUrls = postImages.rows.map((img) => img.image_url);
     await deleteMultipleCloudinaryFiles(imageUrls);
@@ -1042,6 +759,9 @@ router.delete("/delete/field/:id", authMiddleware, async (req, res) => {
     }
 
     await client.query("DELETE FROM field WHERE field_id = $1", [fieldId]);
+    await invalidateCache(`field_profile:${fieldId}`, `facilities:field:${fieldId}`, `posts:field:${fieldId}`);
+    await invalidatePattern(`statistics:field:${fieldId}:*`);
+    await invalidatePattern("search:*");
 
     const allField = await client.query("SELECT FROM field WHERE user_id =$1", [
       user_id,
@@ -1160,6 +880,9 @@ router.put("/edit/:field_id", authMiddleware, async (req, res) => {
       );
 
       console.log("ข้อมูลอัปเดตสำเร็จ:", result.rows[0]);
+      await invalidateCache(`field_profile:${field_id}`);
+      await invalidatePattern(`statistics:field:${field_id}:*`);
+      await invalidatePattern("search:*");
       return res.json({ message: "อัปเดตข้อมูลสำเร็จ", data: result.rows[0] });
     }
 
@@ -1211,6 +934,9 @@ router.put("/edit/:field_id", authMiddleware, async (req, res) => {
       }
 
       console.log("ข้อมูลอัปเดตสำเร็จ:", result.rows[0]);
+      await invalidateCache(`field_profile:${field_id}`);
+      await invalidatePattern(`statistics:field:${field_id}:*`);
+      await invalidatePattern("search:*");
       return res.json({ message: "อัปเดตข้อมูลสำเร็จ", data: result.rows[0] });
     }
 
@@ -1267,15 +993,15 @@ router.post(
   async (req, res) => {
     try {
       const { field_id } = req.params;
-      const { existing_documents } = req.body; 
+      const { existing_documents } = req.body;
 
       if (!req.files || req.files.length === 0) {
         return res.status(400).json({ error: "ไม่พบไฟล์เอกสาร" });
       }
       const newFilePaths = req.files.map((file) => file.path);
-      
+
       let allDocuments = [];
-      
+
       if (existing_documents) {
         const existingPaths = existing_documents
           .split(",")
@@ -1283,7 +1009,7 @@ router.post(
           .filter(Boolean);
         allDocuments = [...existingPaths];
       }
-      
+
       allDocuments = [...allDocuments, ...newFilePaths];
 
       await pool.query(`UPDATE field SET documents = $1 WHERE field_id = $2`, [
@@ -1291,10 +1017,10 @@ router.post(
         field_id,
       ]);
 
-      res.json({ 
-        message: "อัปโหลดเอกสารสำเร็จ", 
+      res.json({
+        message: "อัปโหลดเอกสารสำเร็จ",
         paths: newFilePaths,
-        all_documents: allDocuments 
+        all_documents: allDocuments
       });
       console.log("New file paths:", newFilePaths);
       console.log("All documents:", allDocuments);
@@ -1323,7 +1049,7 @@ router.delete(
         "SELECT documents FROM field WHERE field_id = $1",
         [field_id]
       );
-      
+
       if (!currentDocs.rows[0]?.documents) {
         return res.status(404).json({ error: "ไม่พบเอกสารในระบบ" });
       }
@@ -1347,15 +1073,15 @@ router.delete(
         [updatedDocuments.join(", "), field_id]
       );
 
-      res.json({ 
+      res.json({
         message: "ลบเอกสารสำเร็จ",
         remaining_documents: updatedDocuments
       });
     } catch (error) {
       console.error("Delete document error:", error);
-      res.status(500).json({ 
-        error: "ลบเอกสารไม่สำเร็จ", 
-        details: error.message 
+      res.status(500).json({
+        error: "ลบเอกสารไม่สำเร็จ",
+        details: error.message
       });
     }
   }
@@ -1382,7 +1108,7 @@ router.post(
         "SELECT documents FROM field WHERE field_id = $1",
         [field_id]
       );
-      
+
       if (!currentDocs.rows[0]?.documents) {
         return res.status(404).json({ error: "ไม่พบเอกสารในระบบ" });
       }
@@ -1411,16 +1137,16 @@ router.post(
         [documentsList.join(", "), field_id]
       );
 
-      res.json({ 
+      res.json({
         message: "แก้ไขเอกสารสำเร็จ",
         new_document_url: req.file.path,
         all_documents: documentsList
       });
     } catch (error) {
       console.error("Replace single document error:", error);
-      res.status(500).json({ 
-        error: "แก้ไขเอกสารไม่สำเร็จ", 
-        details: error.message 
+      res.status(500).json({
+        error: "แก้ไขเอกสารไม่สำเร็จ",
+        details: error.message
       });
     }
   }
@@ -1459,6 +1185,10 @@ router.post("/subfield/:field_id", authMiddleware, async (req, res) => {
       ]
     );
 
+    await invalidateCache(`field_profile:${field_id}`);
+    await invalidatePattern(`statistics:field:${field_id}:*`);
+    await invalidatePattern("search:*");
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error("เพิ่ม sub_field ผิดพลาด:", error);
@@ -1480,6 +1210,14 @@ router.post("/addon", authMiddleware, async (req, res) => {
       [sub_field_id, content, price]
     );
 
+    const subField = await pool.query("SELECT field_id FROM sub_field WHERE sub_field_id = $1", [sub_field_id]);
+    const field_id = subField.rows[0]?.field_id;
+    if (field_id) {
+      await invalidateCache(`field_profile:${field_id}`);
+      await invalidatePattern(`statistics:field:${field_id}:*`);
+      await invalidatePattern("search:*");
+    }
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error("เพิ่ม Add-on ผิดพลาด:", error);
@@ -1496,7 +1234,7 @@ router.delete("/delete/addon/:id", authMiddleware, async (req, res) => {
 
   try {
     const check = await pool.query(
-      "SELECT * FROM add_on WHERE add_on_id = $1",
+      "SELECT a.*, s.field_id FROM add_on a JOIN sub_field s ON a.sub_field_id = s.sub_field_id WHERE a.add_on_id = $1",
       [addOnId]
     );
 
@@ -1504,7 +1242,15 @@ router.delete("/delete/addon/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "ไม่พบ Add-on ที่ต้องการลบ" });
     }
 
+    const field_id = check.rows[0]?.field_id;
+
     await pool.query("DELETE FROM add_on WHERE add_on_id = $1", [addOnId]);
+
+    if (field_id) {
+      await invalidateCache(`field_profile:${field_id}`);
+      await invalidatePattern(`statistics:field:${field_id}:*`);
+      await invalidatePattern("search:*");
+    }
 
     res.status(200).json({ message: "ลบ Add-on สำเร็จ" });
   } catch (error) {
@@ -1541,6 +1287,13 @@ router.put("/supfiled/:sub_field_id", authMiddleware, async (req, res) => {
         sub_field_id,
       ]
     );
+    const subField = await pool.query("SELECT field_id FROM sub_field WHERE sub_field_id = $1", [sub_field_id]);
+    const field_id = subField.rows[0]?.field_id;
+    if (field_id) {
+      await invalidateCache(`field_profile:${field_id}`);
+      await invalidatePattern(`statistics:field:${field_id}:*`);
+      await invalidatePattern("search:*");
+    }
     res.json({ message: "สำเร็จ" });
   } catch (error) {
     console.error("Error updating sub-field:", error);
@@ -1559,6 +1312,13 @@ router.put("/add_on/:add_on_id", authMiddleware, async (req, res) => {
       `UPDATE add_on SET content = $1, price = $2 WHERE add_on_id = $3`,
       [content, price, add_on_id]
     );
+    const addOn = await pool.query("SELECT s.field_id FROM add_on a JOIN sub_field s ON a.sub_field_id = s.sub_field_id WHERE a.add_on_id = $1", [add_on_id]);
+    const field_id = addOn.rows[0]?.field_id;
+    if (field_id) {
+      await invalidateCache(`field_profile:${field_id}`);
+      await invalidatePattern(`statistics:field:${field_id}:*`);
+      await invalidatePattern("search:*");
+    }
     res.json({ message: "สำเร็จ" });
   } catch (error) {
     console.error("Error updating add-on:", error);
@@ -1582,9 +1342,17 @@ router.delete("/delete/subfield/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "Subfield not found" });
     }
 
+    const field_id = subFieldQuery.rows[0]?.field_id;
+
     await pool.query("DELETE FROM sub_field WHERE sub_field_id = $1", [
       subFieldId,
     ]);
+
+    if (field_id) {
+      await invalidateCache(`field_profile:${field_id}`);
+      await invalidatePattern(`statistics:field:${field_id}:*`);
+      await invalidatePattern("search:*");
+    }
 
     return res.status(200).json({ message: "Subfield deleted successfully" });
   } catch (error) {
@@ -1606,6 +1374,7 @@ router.post("/facilities/:field_id", authMiddleware, async (req, res) => {
         [field_id, facId, facPrice]
       );
     }
+    await invalidateCache(`facilities:field:${field_id}`);
 
     res.status(200).json({ message: "บันทึกสำเร็จ" });
   } catch (error) {
@@ -1660,6 +1429,7 @@ router.delete(
       if (bookingFacResult.rowCount > 0) {
         message += ` (ลบข้อมูลการจองที่เกี่ยวข้อง ${bookingFacResult.rowCount} รายการ)`;
       }
+      await invalidateCache(`facilities:field:${field_id}`);
 
       res.status(200).json({ message });
     } catch (error) {
@@ -1838,13 +1608,14 @@ router.put(
       }
 
       const checkFacility = await pool.query(
-        "SELECT field_fac_id, image_path FROM field_facilities WHERE field_fac_id = $1",
+        "SELECT field_fac_id, image_path, field_id FROM field_facilities WHERE field_fac_id = $1",
         [field_fac_id]
       );
 
       if (checkFacility.rowCount === 0) {
         return res.status(404).json({ message: "ไม่พบสิ่งอำนวยความสะดวกนี้" });
       }
+      const fieldId = checkFacility.rows[0].field_id;
 
       const oldImagePath = checkFacility.rows[0].image_path;
       let newImagePath = oldImagePath;
@@ -1872,6 +1643,8 @@ router.put(
           field_fac_id,
         ]
       );
+
+      await invalidateCache(`facilities:field:${fieldId}`);
 
       res.status(200).json({
         message: "แก้ไขสิ่งอำนวยความสะดวกสำเร็จ",
@@ -1911,6 +1684,9 @@ router.put("/edit-location/:field_id", authMiddleware, async (req, res) => {
     }
 
     console.log("[EDIT-LOCATION] Updated field:", result.rows[0]);
+    await invalidateCache(`field_profile:${field_id}`);
+    await invalidatePattern(`statistics:field:${field_id}:*`);
+    await invalidatePattern("search:*");
     res.status(200).json({
       message: "อัปเดตตำแหน่งสนามเรียบร้อย",
       field: result.rows[0],

@@ -1,50 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
-const multer = require("multer");
+const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../server");
+const { createUploader } = require("../utils/upload");
+const { getCache, setCache, invalidateCache } = require("../config/cache");
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    let folder = "uploads";
-    let resourceType = "auto";
-    let format = undefined;
+const upload = createUploader(
+  { facility_image: "field-facility-images" },
+  { maxFiles: 1, maxFileSize: 5 * 1024 * 1024 }
+);
 
-    if (
-      file.fieldname === "facility_image" ||
-      file.fieldname.startsWith("facility_image_")
-    ) {
-      folder = "field-facility-images";
-      resourceType = "image";
-    }
-
-    const config = {
-      folder,
-      resource_type: resourceType,
-      public_id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    };
-    if (format) config.format = format;
-    if (resourceType === "image") {
-      config.transformation = [
-        { quality: "auto:good" },
-        { fetch_format: "auto" },
-      ];
-    }
-    return config;
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { files: 1, fileSize: 5 * 1024 * 1024 },
-});
 
 router.get("/:field_id", async (req, res) => {
   const { field_id } = req.params;
   try {
+    const cacheKey = `facilities:field:${field_id}`;
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json({ success: true, data: cached });
+    }
+
     const result = await pool.query(
       `SELECT field_fac_id, field_id, fac_name, fac_price, quantity_total, description, image_path
        FROM field_facilities
@@ -52,7 +27,9 @@ router.get("/:field_id", async (req, res) => {
        ORDER BY field_fac_id`,
       [field_id]
     );
-    return res.status(200).json({ success: true, data: result.rows || [] });
+    const data = result.rows || [];
+    await setCache(cacheKey, data, 300); // cache for 5 minutes
+    return res.status(200).json({ success: true, data });
   } catch (err) {
     console.error("GET /facilities/:field_id error:", err);
     return res
@@ -102,6 +79,7 @@ router.post("/:field_id",authMiddleware, upload.single("facility_image"), async 
       image_path,
     ];
     const r = await pool.query(q, values);
+    await invalidateCache(`facilities:field:${field_id}`);
 
     return res.status(201).json({ success: true, inserted: r.rows[0] });
   } catch (err) {
@@ -194,30 +172,7 @@ router.put("/update/:id", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/:field_id",authMiddleware, async (req, res) => {
-  const { field_id } = req.params;
 
-  try {
-    const result = await pool.query(
-      `SELECT  ff.field_fac_id,f.fac_id, f.fac_name, ff.fac_price
-       FROM field_facilities ff
-       INNER JOIN facilities f ON ff.facility_id = f.fac_id
-       WHERE ff.field_id = $1`,
-      [field_id]
-    );
-
-    if (result.rows.length === 0) {
-      return res
-        .status(200)
-        .json({ message: "No facilities found for this field." });
-    }
-
-    res.status(200).json({ data: result.rows });
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error: "Database error fetching facilities" });
-  }
-});
 
 router.get("/availability/:field_id/:bookingDate/:slots",authMiddleware, async (req, res) => {
   const { field_id, bookingDate, slots } = req.params;

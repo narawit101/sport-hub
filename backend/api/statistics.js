@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
+const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
 const XLSX = require("xlsx");
+const { getCache, setCache } = require("../config/cache");
 
 router.get("/:field_id", authMiddleware, async (req, res) => {
   const { field_id } = req.params;
@@ -11,6 +12,13 @@ router.get("/:field_id", authMiddleware, async (req, res) => {
   const user_role = req.user.role;
 
   try {
+    const queryParamsString = JSON.stringify({ startDate, endDate, status, bookingDate });
+    const cacheKey = `statistics:field:${field_id}:params:${queryParamsString}`;
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json(cached);
+    }
+
     const fieldQuery = await pool.query(
       `SELECT user_id, field_name, status AS field_status FROM field WHERE field_id = $1`,
       [field_id]
@@ -113,7 +121,7 @@ WHERE b.field_id = $1
         .reduce((sum, row) => sum + parseFloat(row.total_price || 0), 0),
     };
 
-    res.status(200).json({
+    const responseData = {
       data: result.rows,
       fieldInfo: {
         field_name: field.field_name,
@@ -124,7 +132,11 @@ WHERE b.field_id = $1
         startDate: startDate || null,
         endDate: endDate || null,
       },
-    });
+    };
+
+    await setCache(cacheKey, responseData, 60); // cache for 1 minute
+
+    res.status(200).json(responseData);
   } catch (error) {
     console.error("Error fetching bookings:", error);
     res.status(500).json({ success: false, error: "Failed to get bookings" });

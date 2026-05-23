@@ -43,6 +43,12 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, [fetchUser]);
 
+  const userRef = useRef(user);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
   useEffect(() => {
     const socket = io(API_URL, {
       transports: ["websocket"],
@@ -56,13 +62,15 @@ export function AuthProvider({ children }) {
     });
 
     socket.on("updated_status", (data) => {
-      if (user && parseInt(user.user_id) === parseInt(data.userId)) {
+      const currentUser = userRef.current;
+      if (currentUser && parseInt(currentUser.user_id) === parseInt(data.userId)) {
         fetchUser();
       }
     });
 
     socket.on("profile_updated", (data) => {
-      if (user && parseInt(user.user_id) === parseInt(data.userId)) {
+      const currentUser = userRef.current;
+      if (currentUser && parseInt(currentUser.user_id) === parseInt(data.userId)) {
         fetchUser();
       }
     });
@@ -72,7 +80,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => socket.disconnect();
-  }, [API_URL, user, fetchUser]);
+  }, [API_URL, fetchUser]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading }}>

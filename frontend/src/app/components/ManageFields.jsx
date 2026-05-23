@@ -34,10 +34,6 @@ export default function MyFieldPage() {
     if (user?.status !== "ตรวจสอบแล้ว") {
       router.replace("/verification");
     }
-
-    if (user?.role !== "admin" && user?.role !== "field_owner") {
-      router.replace("/");
-    }
   }, [user, isLoading, router]);
 
   useEffect(() => {
@@ -311,7 +307,19 @@ export default function MyFieldPage() {
           </div>
         ) : (
           <div className="custom-no-fields-message-myfield">
-            <p>ไม่มีสนามที่ตรงกับสถานะที่เลือก</p>
+            {myFields.length === 0 ? (
+              <>
+                <p>คุณยังไม่มีสนามกีฬาในระบบ</p>
+                <button
+                  onClick={() => router.push("/register-field")}
+                  className="register-field-btn-myfield"
+                >
+                  ลงทะเบียนสนามตอนนี้
+                </button>
+              </>
+            ) : (
+              <p>ไม่มีสนามที่ตรงกับสถานะที่เลือก</p>
+            )}
           </div>
         )}
         {showDeleteModal && (

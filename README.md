@@ -66,7 +66,7 @@ Sport Hub is a full-stack sports venue booking platform designed for three user 
 - JWT authentication
 - Socket.IO
 - Multer + Cloudinary
-- Resend
+- Nodemailer (Gmail SMTP)
 - PromptPay QR + QRCode generation
 - XLSX export
 - Express Rate Limit
@@ -89,10 +89,10 @@ Core backend modules include:
 ## Notable Integrations
 
 - `Cloudinary` for image and document storage
-- `Resend` for transactional emails
+- `Nodemailer (Gmail SMTP)` for transactional emails
 - `Longdo Map` for location picking and map search
 - `PromptPay QR` for Thai payment QR generation
-- `SlipOK API` for payment slip validation
+
 
 ## Local Setup
 
@@ -106,8 +106,9 @@ cd backend
 npm install
 
 cd ../frontend
-npm install
-```
+- Nodemailer (Gmail SMTP) for transactional emails
+
+...
 
 ### 2. Configure environment variables
 
@@ -119,14 +120,14 @@ Create `.env` files in both `backend/` and `frontend/`.
 NODE_ENV=development
 DATABASE_URL=<your_postgresql_connection_string>
 JWT_SECRET=<your_jwt_secret>
-Resend_API=<your_resend_api_key>
-Sender_Email=<your_sender_email>
-Owner_Email=<admin_or_owner_notification_email>
+SMTP_USER=<your_gmail_address>
+SMTP_PASS=<your_gmail_app_password>
+SENDER_EMAIL=<from_address_shown_in_emails>
+ADMIN_EMAIL=<admin_notification_email>
 FONT_END_URL=http://localhost:3000
 CLOUND_NAME=<your_cloudinary_name>
 CLOUND_API_KEY=<your_cloudinary_api_key>
 CLOUND_API_SECRET=<your_cloudinary_api_secret>
-SLIPOK_API_KEY=<your_slipok_api_key>
 ```
 
 #### `frontend/.env`

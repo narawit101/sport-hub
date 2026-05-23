@@ -1,11 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
+const pool = require("../config/db");
+const { getCache, setCache } = require("../config/cache");
 
 router.get("/", async (req, res) => {
   const { query } = req.query;
 
   try {
+    const cacheKey = `search:${query || ""}`;
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json({ data: cached });
+    }
+
     const keyword = `%${query}%`;
 
     const exactResult = await pool.query(
@@ -48,6 +55,7 @@ router.get("/", async (req, res) => {
     );
 
     if (exactResult.rows.length > 0) {
+      await setCache(cacheKey, exactResult.rows, 60); // cache for 60 seconds
       return res.status(200).json({ data: exactResult.rows });
     }
 
@@ -90,6 +98,7 @@ router.get("/", async (req, res) => {
       [query]
     );
 
+    await setCache(cacheKey, fuzzyResult.rows, 60); // cache for 60 seconds
     return res.status(200).json({ data: fuzzyResult.rows });
   } catch (error) {
     console.error("error", error);

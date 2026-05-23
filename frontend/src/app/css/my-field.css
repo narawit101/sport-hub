@@ -259,6 +259,27 @@
   text-align: center;
   color: #333;
   font-size: 1.25rem;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.register-field-btn-myfield {
+  background-color: var(--text-color);
+  color: white !important;
+  padding: 12px 24px !important;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: none;
+}
+
+.register-field-btn-myfield:hover {
+  background-color: #10127c;
 }
 
 .field-section-title {

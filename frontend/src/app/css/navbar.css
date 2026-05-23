@@ -359,15 +359,15 @@
   position: absolute;
   top: 120%;
   right: 0;
-  width: 300px;
-  max-height: 650px;
+  width: 320px;
+  max-height: 80vh;
   overflow-y: auto;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 12px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   padding: 8px 0;
-  z-index: 110;
+  z-index: 1100;
   transform-origin: top right;
   animation: dropDown 0.15s ease-out;
 }
@@ -378,13 +378,17 @@
   padding: 6px 14px 10px 14px;
   border-bottom: 1px solid #e5e7eb;
   color: #111827;
+  position: sticky;
+  top: -8px;
+  background: white;
+  z-index: 10;
 }
 
 .notification-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 540px;
+  max-height: calc(80vh - 100px);
   overflow-y: auto;
 }
 

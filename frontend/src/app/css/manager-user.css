@@ -253,6 +253,26 @@
   width: 90%;
   max-width: 400px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content-manager::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content-manager::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.modal-content-manager::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.modal-content-manager::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .modal-content-manager h3 {

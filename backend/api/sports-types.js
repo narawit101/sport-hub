@@ -1,11 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
+const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
+const { getCache, setCache, invalidateCache } = require("../config/cache");
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
+    const cacheKey = "sports_types:all";
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
     const result = await pool.query("SELECT * FROM sports_types");
+    await setCache(cacheKey, result.rows, 3600); // cache for 1 hour
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: "Database error fetching sports types" });
@@ -33,6 +40,7 @@ router.post("/add", authMiddleware, async (req, res) => {
       "INSERT INTO sports_types (sport_name) VALUES ($1) RETURNING *",
       [sport_name]
     );
+    await invalidateCache("sports_types:all");
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: "Database error adding sports type" });
@@ -52,6 +60,7 @@ router.delete("/delete/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "Sport type not found" });
     }
 
+    await invalidateCache("sports_types:all");
     res.json({ message: "Sport type deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "Database error deleting sport type" });
@@ -85,6 +94,7 @@ router.put("/update/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "Sport type not found" });
     }
 
+    await invalidateCache("sports_types:all");
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: "Database error updating sport type" });
@@ -165,7 +175,13 @@ router.get("/preview", async (req, res) => {
 
 router.get("/preview/type", async (req, res) => {
   try {
+    const cacheKey = "sports_types:all";
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
     const result = await pool.query("SELECT * FROM sports_types");
+    await setCache(cacheKey, result.rows, 3600); // cache for 1 hour
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: "Database error fetching sports types" });

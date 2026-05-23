@@ -1,10 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
+const pool = require("../config/db");
+const { getCache, setCache } = require("../config/cache");
 
 router.get("/:field_id", async (req, res) => {
   try {
     const { field_id } = req.params;
+    const cacheKey = `field_profile:${field_id}`;
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json({ data: cached });
+    }
 
     const result = await pool.query(
       `SELECT 
@@ -46,7 +52,9 @@ router.get("/:field_id", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "ไม่พบข้อมูลสนามกีฬา" });
     }
-    return res.status(200).json({ data: result.rows[0] });
+    const data = result.rows[0];
+    await setCache(cacheKey, data, 300); // Cache for 5 minutes
+    return res.status(200).json({ data });
   } catch (error) {
     console.error("Database Error:", error);
     res.status(500).json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูลสนามกีฬา" });

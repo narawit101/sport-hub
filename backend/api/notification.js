@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
+const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
 
 router.get("/all/:userId", authMiddleware, async (req, res) => {
@@ -31,7 +31,7 @@ router.get("/all/:userId", authMiddleware, async (req, res) => {
         n.key_id,
         n.messages,
         n.status,
-        (n.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Bangkok')::text AS created_at,
+        n.created_at,
         u_sender.first_name AS sender_first_name,
         u_sender.last_name AS sender_last_name,
         u_recive.first_name AS recive_first_name,

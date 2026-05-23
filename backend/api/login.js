@@ -1,5 +1,5 @@
 const express = require("express");
-const pool = require("../db");
+const pool = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");

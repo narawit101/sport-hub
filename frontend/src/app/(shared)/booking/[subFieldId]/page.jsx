@@ -338,6 +338,7 @@ export default function Booking() {
 
   function slotTimes(openHours, closeHours, slot_duration) {
     const slots = [];
+    const duration = Number(slot_duration) || 60;
     let [openHour, openMinute] = openHours.split(":").map(Number);
     let [closeHour, closeMinute] = closeHours.split(":").map(Number);
 
@@ -365,7 +366,7 @@ export default function Booking() {
 
     while (currentTime < closeDate) {
       const nextTime = new Date(currentTime);
-      nextTime.setMinutes(currentTime.getMinutes() + slot_duration);
+      nextTime.setMinutes(currentTime.getMinutes() + duration);
 
       const slot = `${currentTime
         .getHours()
@@ -382,7 +383,7 @@ export default function Booking() {
         .padStart(2, "0")}`;
       slots.push(slot);
 
-      currentTime.setMinutes(currentTime.getMinutes() + slot_duration);
+      currentTime.setMinutes(currentTime.getMinutes() + duration);
     }
 
     return slots;

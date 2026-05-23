@@ -1,18 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
+const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
 
 router.get("/myfields", authMiddleware, async (req, res) => {
   const { user_id,role } = req.user;
 
   try {
-    if (role !== "admin" && role !== "field_owner") {
-      return res
-        .status(403)
-        .json({ error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูลสนามกีฬา" });
-    }
-
     let query = `
       SELECT DISTINCT
         users.user_id,
@@ -32,7 +26,7 @@ router.get("/myfields", authMiddleware, async (req, res) => {
 
     if (role === "admin") {
       query += ` ORDER BY field.field_id DESC`;
-    } else if (role === "field_owner") {
+    } else {
       query += ` AND field.user_id = $1 ORDER BY field.field_id DESC`;
       values = [user_id];
     }

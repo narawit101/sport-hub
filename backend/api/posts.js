@@ -1,85 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const pool = require("../db");
+const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../server");
+const { createUploader } = require("../utils/upload");
+const { deleteCloudinaryFile } = require("../utils/delete");
+const { getCache, setCache, invalidateCache } = require("../config/cache");
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    let folder = "uploads/images/posts";
-    let resourceType = "auto";
-    let format = undefined;
+const upload = createUploader(
+  { img_url: "uploads/images/posts" },
+  { maxFiles: 10 }
+);
 
-    if (file.mimetype.startsWith("image/")) {
-      resourceType = "image";
-      format = undefined;
-    } else {
-      resourceType = "raw";
-      format = file.mimetype.split("/")[1];
-    }
-
-    const config = {
-      folder: folder,
-      resource_type: resourceType,
-      public_id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    };
-
-    if (format) {
-      config.format = format;
-    }
-
-    if (resourceType === "image") {
-      config.transformation = [
-        { quality: "auto:good" },
-        { fetch_format: "auto" },
-      ];
-    }
-
-    return config;
-  },
-});
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    files: 10,
-    fileSize: 8 * 1024 * 1024,
-  },
-});
-
-async function deleteCloudinaryFile(fileUrl) {
-  if (!fileUrl) return;
-
-  try {
-    const urlParts = fileUrl.split("/");
-    const uploadIndex = urlParts.findIndex((part) => part === "upload");
-    if (uploadIndex === -1) return;
-
-    let pathStartIndex = uploadIndex + 1;
-    if (urlParts[pathStartIndex].startsWith("v")) {
-      pathStartIndex++;
-    }
-
-    const pathParts = urlParts.slice(pathStartIndex);
-    const fullPath = pathParts.join("/");
-    const isRaw = fileUrl.includes("/raw/");
-
-    const resourceType = isRaw ? "raw" : "image";
-    const lastDotIndex = fullPath.lastIndexOf(".");
-    const publicId = isRaw ? fullPath : fullPath.substring(0, lastDotIndex);
-
-    const result = await cloudinary.uploader.destroy(publicId, {
-      resource_type: resourceType,
-    });
-
-    console.log("Deleted:", publicId, result);
-  } catch (err) {
-    console.error("Failed to delete Cloudinary file:", err);
-  }
-}
 
 router.post(
   "/post",
@@ -131,7 +62,7 @@ router.post(
            p.field_id,
            p.title,
            p.content,
-          (p.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Bangkok')::text AS created_at,
+           p.created_at,
            COALESCE(
              json_agg(json_build_object('image_url', pi.image_url)) 
              FILTER (WHERE pi.image_url IS NOT NULL), '[]'
@@ -202,6 +133,7 @@ router.post(
         );
       }
       await client.query("COMMIT");
+      await invalidateCache(`posts:field:${field_id}`, "posts:latest");
       res.status(201).json({
         message: "Post created successfully",
         post: insertedPost.rows[0],
@@ -219,6 +151,11 @@ router.post(
 router.get("/:field_id", async (req, res) => {
   try {
     const { field_id } = req.params;
+    const cacheKey = `posts:field:${field_id}`;
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json({ data: cached });
+    }
 
     const result = await pool.query(
       `SELECT 
@@ -226,7 +163,7 @@ router.get("/:field_id", async (req, res) => {
           p.field_id,
           p.title,
           p.content,
-         (p.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Bangkok')::text AS created_at,
+          p.created_at,
           COALESCE(
             json_agg(
               json_build_object('image_url', pi.image_url)
@@ -240,11 +177,13 @@ router.get("/:field_id", async (req, res) => {
       [field_id]
     );
 
-    if (result.rows.length === 0) {
+    const data = result.rows || [];
+    if (data.length === 0) {
       return res.status(200).json({ message: "ไม่มีโพส" });
     }
 
-    res.status(200).json({ data: result.rows });
+    await setCache(cacheKey, data, 300); // cache for 5 minutes
+    res.status(200).json({ data });
   } catch (error) {
     console.error("Database Error:", error);
     res.status(500).json({ error: "เกิดข้อผิดพลาดในการดึงข้อมูลโพส" });
@@ -253,6 +192,12 @@ router.get("/:field_id", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
+    const cacheKey = "posts:latest";
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json({ data: cached });
+    }
+
     const result = await pool.query(
       `SELECT 
           p.post_id,
@@ -261,7 +206,7 @@ router.get("/", async (req, res) => {
           p.content,
           f.field_name,
           f.img_field,
-          (p.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Bangkok')::text AS created_at,
+          p.created_at,
           COALESCE(
             json_agg(
               json_build_object('image_url', pi.image_url)
@@ -275,11 +220,13 @@ router.get("/", async (req, res) => {
         LIMIT 5;`
     );
 
-    if (result.rows.length === 0) {
+    const data = result.rows || [];
+    if (data.length === 0) {
       return res.status(200).json({ message: "ไม่มีโพส" });
     }
 
-    res.status(200).json({ data: result.rows });
+    await setCache(cacheKey, data, 300); // cache for 5 minutes
+    res.status(200).json({ data });
   } catch (error) {
     console.error("Database Error:", error);
     res.status(500).json({ error: "เกิดข้อผิดพลาดในการดึงข้อมูลโพส" });
@@ -324,6 +271,7 @@ router.patch(
       }
 
       await client.query("COMMIT");
+      await invalidateCache(`posts:field:${post.field_id}`, "posts:latest");
       const updated = await client.query(
         `
       SELECT 
@@ -331,7 +279,7 @@ router.patch(
         p.field_id,
         p.title,
         p.content,
-        (p.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Bangkok') AS created_at,
+        p.created_at,
         COALESCE(
           json_agg(
             json_build_object('image_url', pi.image_url)
@@ -409,6 +357,7 @@ router.delete("/delete/:post_id", authMiddleware, async (req, res) => {
       console.log("ไม่พบ io socket connection สำหรับการลบโพส");
     }
 
+    await invalidateCache(`posts:field:${post.field_id}`, "posts:latest");
     res.status(200).json({ message: "Post deleted" });
   } catch (err) {
     console.error(err);

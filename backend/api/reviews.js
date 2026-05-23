@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
+const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
+const { invalidateCache, invalidatePattern } = require("../config/cache");
 
 router.post("/post", authMiddleware, async (req, res) => {
   const { user_id, field_id, booking_id, rating, comment } = req.body;
@@ -16,6 +17,10 @@ router.post("/post", authMiddleware, async (req, res) => {
         bookingId: booking_id,
       });
     }
+
+    await invalidateCache(`field_profile:${field_id}`);
+    await invalidatePattern(`statistics:field:${field_id}:*`);
+    await invalidatePattern("search:*");
 
     res.json({ data: result.rows[0] });
   } catch (error) {

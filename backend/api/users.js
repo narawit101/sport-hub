@@ -1,163 +1,45 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const multer = require("multer");
 const router = express.Router();
 const authMiddleware = require("../middlewares/auth");
 const cookieParser = require("cookie-parser");
-const pool = require("../db");
-const { Resend } = require("resend");
-const resend = new Resend(process.env.Resend_API);
-const crypto = require("crypto");
+const pool = require("../config/db");
 const jwt = require("jsonwebtoken");
 router.use(cookieParser());
-const { DateTime } = require("luxon");
-const rateLimit = require("express-rate-limit");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../server");
+const { createUploader } = require("../utils/upload");
+const { deleteCloudinaryFile } = require("../utils/delete");
+const { sendEmail } = require("../utils/email");
+const { resetPasswordOtp, contactAdmin: contactAdminTemplate } = require("../utils/emailTemplates");
+const { generateNumericOtp } = require("../utils/otp");
+const { createRateLimiter } = require("../utils/rateLimiter");
+const { getCache, setCache, invalidateCache } = require("../config/cache");
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    let folder = "uploads";
-    let resourceType = "auto";
-    let format = undefined;
-    if (file.fieldname === "user_profile") {
-      folder = "user-profile";
-      resourceType = "image";
-      format = undefined;
-    }
+const upload = createUploader(
+  { user_profile: "user-profile" },
+  { maxFiles: 11 }
+);
 
-    const config = {
-      folder: folder,
-      resource_type: resourceType,
-      public_id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    };
-
-    if (format) {
-      config.format = format;
-      console.log(`กำหนด format เป็น: ${format}`);
-    }
-
-    if (resourceType === "image") {
-      config.transformation = [
-        { quality: "auto:good" },
-        { fetch_format: "auto" },
-      ];
-    }
-
-    return config;
-  },
-});
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    files: 11,
-    fileSize: 8 * 1024 * 1024,
-  },
-});
-
-async function deleteCloudinaryFile(fileUrl) {
-  try {
-    console.log("กำลังลบไฟล์:", fileUrl);
-
-    const urlParts = fileUrl.split("/");
-
-    const uploadIndex = urlParts.findIndex((part) => part === "upload");
-    if (uploadIndex === -1) {
-      console.error("URL ไม่ถูกต้อง - ไม่มี 'upload'");
-      return;
-    }
-
-    let pathStartIndex = uploadIndex + 1;
-    if (urlParts[pathStartIndex] && urlParts[pathStartIndex].startsWith("v")) {
-      pathStartIndex++;
-    }
-
-    const pathParts = urlParts.slice(pathStartIndex);
-    const fullPath = pathParts.join("/");
-
-    const isRawFile = fileUrl.includes("/raw/upload/");
-    const isImageFile =
-      fileUrl.includes("/image/upload/") ||
-      (!fileUrl.includes("/raw/") && !fileUrl.includes("/video/"));
-
-    let publicId, resourceType;
-
-    if (isRawFile) {
-      publicId = fullPath;
-      resourceType = "raw";
-      console.log("ไฟล์เอกสาร (raw):", publicId);
-    } else {
-      const lastDotIndex = fullPath.lastIndexOf(".");
-      publicId =
-        lastDotIndex > 0 ? fullPath.substring(0, lastDotIndex) : fullPath;
-      resourceType = "image";
-      console.log("ไฟล์รูปภาพ:", publicId);
-    }
-
-    console.log(`กำลังลบ: ${publicId} (${resourceType})`);
-
-    const result = await cloudinary.uploader.destroy(publicId, {
-      resource_type: resourceType,
-    });
-
-    if (result.result === "ok") {
-      console.log(`ลบ Cloudinary สำเร็จ: ${publicId}`);
-    } else if (result.result === "not found") {
-      console.warn(`ไม่พบไฟล์: ${publicId} (${resourceType})`);
-
-      const alternativeType = resourceType === "raw" ? "image" : "raw";
-      console.log(`ลองลบด้วย resource_type: ${alternativeType}`);
-
-      const retryResult = await cloudinary.uploader.destroy(publicId, {
-        resource_type: alternativeType,
-      });
-
-      if (retryResult.result === "ok") {
-        console.log(`ลบสำเร็จด้วย ${alternativeType}: ${publicId}`);
-      } else {
-        console.warn(`ลบไม่สำเร็จทั้งสองแบบ: ${publicId}`, retryResult);
-      }
-    } else {
-      console.warn(`ผลลัพธ์ไม่คาดคิด: ${publicId}`, result);
-    }
-  } catch (error) {
-    console.error("ลบ Cloudinary ไม่สำเร็จ:", error);
-  }
-}
-
-const LimiterRequestContact = rateLimit({
+const LimiterRequestContact = createRateLimiter({
   windowMs: 60 * 60 * 1000,
   max: 5,
-  keyGenerator: (req, res) => {
+  keyGenerator: (req) => {
     try {
       return req.body.email?.toLowerCase().trim() || req.ip;
     } catch {
       return req.ip;
     }
   },
-  handler: (req, res, next, options) => {
-    console.warn("Rate limit email เกิน:", {
-      email: req.body?.email,
-      ip: req.ip,
-      path: req.originalUrl,
-      time: DateTime.now()
-        .setZone("Asia/Bangkok")
-        .toFormat("dd/MM/yyyy HH:mm:ss"),
-    });
-
-    res.status(429).json({
-      code: "RATE_LIMIT",
-      message:
-        "Email ของคุณส่งคำขอเกินกำหนด (5ครั้ง/ชั่วโมง) กรุณารอสักครู่แล้วลองใหม่อีกครั้ง",
-    });
-  },
+  message: "Email ของคุณส่งคำขอเกินกำหนด (5ครั้ง/ชั่วโมง) กรุณารอสักครู่แล้วลองใหม่อีกครั้ง",
 });
 
 router.get("/me", authMiddleware, async (req, res) => {
   try {
     const user_id = req.user.user_id;
+    const cacheKey = `user:profile:${user_id}`;
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json(cached);
+    }
 
     const result = await pool.query(
       "SELECT user_id, user_name, first_name, last_name, email, role, status, created_at,user_profile FROM users WHERE user_id = $1",
@@ -169,6 +51,7 @@ router.get("/me", authMiddleware, async (req, res) => {
     }
 
     const user = result.rows[0];
+    await setCache(cacheKey, user, 300); // cache for 5 minutes
 
     res.status(200).json(user);
   } catch (error) {
@@ -183,6 +66,12 @@ router.get("/", authMiddleware, async (req, res) => {
       return res.status(403).json({ message: "คุณไม่มีสิทธิ์เข้าถึงหน้านี้!" });
     }
 
+    const cacheKey = "users:all";
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json(cached);
+    }
+
     const result =
       await pool.query(`SELECT user_id, user_name, first_name, last_name, email, role, status,user_profile
             FROM users
@@ -195,6 +84,7 @@ router.get("/", authMiddleware, async (req, res) => {
             END,
             user_id DESC;
 `);
+    await setCache(cacheKey, result.rows, 300); // cache for 5 minutes
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching manager data:", error);
@@ -243,6 +133,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
     }
     console.log("role", result.rows[0].role);
     console.log("ข้อมูลอัปเดตสำเร็จ:", id);
+    await invalidateCache(`user:profile:${id}`, "users:all");
 
     res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
@@ -312,6 +203,7 @@ router.put(
       }
 
       console.log("ข้อมูลอัปเดตสำเร็จ");
+      await invalidateCache(`user:profile:${id}`, "users:all");
 
       res.status(200).json({
         message: "อัปโหลดรูปสำเร็จ",
@@ -354,6 +246,7 @@ router.put("/update-profile/:id", authMiddleware, async (req, res) => {
       });
     }
     console.log("ข้อมูลอัปเดตสำเร็จ:", first_name, last_name);
+    await invalidateCache(`user:profile:${id}`, "users:all");
 
     res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
@@ -371,10 +264,11 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     }
 
     await pool.query("DELETE FROM notifications WHERE sender_id = $1", [id]);
-    
+
     await pool.query("DELETE FROM notifications WHERE recive_id = $1", [id]);
 
     await pool.query("DELETE FROM users WHERE user_id = $1", [id]);
+    await invalidateCache(`user:profile:${id}`, "users:all");
 
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
@@ -453,11 +347,6 @@ router.post("/reset-password", async (req, res) => {
       user_id,
     ]);
 
-    function generateNumericOtp(length) {
-      const otp = crypto.randomBytes(length).toString("hex").slice(0, length);
-      return otp;
-    }
-
     const otp = generateNumericOtp(6);
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
@@ -467,34 +356,10 @@ router.post("/reset-password", async (req, res) => {
     );
 
     if (otp_reset.rowCount > 0) {
-      resend.emails.send({
-        from: process.env.Sender_Email,
+      await sendEmail({
         to: email,
         subject: "รีเซ็ตรหัสผ่าน",
-        html: `
-<div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center">
-        <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" alt="Sport-Hub Online Logo" style="display: block; max-width: 300px; margin-bottom: 10px;" />
-      </td>
-    </tr>
-  </table>
-  <h1 style="color: #03045e; margin-bottom: 16px; text-align: center">รีเซ็ตรหัสผ่าน</h1>
-  <h2 style="color: #03045e; margin-bottom: 16px; text-align: center"> OTP ของคุณคือ  <strong style="display: inline-block; font-weight: bold; font-size: 35px; color: #80D8C3;">
-    ${otp}
-  </strong> </h2>
-
-  <p style="font-size: 16px; text-align: center; color: #9ca3af;">
-    <strong> กรุณาใช้รหัสนี้เพื่อรีเซ็ตรหัสผ่านของคุณ</strong>
-  </p>
-  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-
-  <p style="font-size: 12px; color: #9ca3af;text-align: center ">
-    หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-  </p>
-</div>
-`,
+        html: resetPasswordOtp(otp),
       });
     }
 
@@ -530,11 +395,6 @@ router.post("/resent-reset-password", async (req, res) => {
       user_id,
     ]);
 
-    function generateNumericOtp(length) {
-      const otp = crypto.randomBytes(length).toString("hex").slice(0, length);
-      return otp;
-    }
-
     const otp = generateNumericOtp(6);
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
@@ -544,34 +404,10 @@ router.post("/resent-reset-password", async (req, res) => {
     );
 
     if (otp_reset.rowCount > 0) {
-      resend.emails.send({
-        from: process.env.Sender_Email,
+      await sendEmail({
         to: email,
         subject: "รีเซ็ตรหัสผ่าน",
-        html: `
-<div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center">
-        <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" alt="Sport-Hub Online Logo" style="display: block; max-width: 300px; margin-bottom: 10px;" />
-      </td>
-    </tr>
-  </table>
-  <h1 style="color: #03045e; margin-bottom: 16px; text-align: center">รีเซ็ตรหัสผ่าน</h1>
-  <h2 style="color: #03045e; margin-bottom: 16px; text-align: center"> OTP ของคุณคือ  <strong style="display: inline-block; font-weight: bold; font-size: 35px; color: #80D8C3;">
-    ${otp}
-  </strong> </h2>
-
-  <p style="font-size: 16px; text-align: center; color: #9ca3af;">
-    <strong> กรุณาใช้รหัสนี้เพื่อรีเซ็ตรหัสผ่านของคุณ</strong>
-  </p>
-  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-
-  <p style="font-size: 12px; color: #9ca3af;text-align: center ">
-    หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-  </p>
-</div>
-`,
+        html: resetPasswordOtp(otp),
       });
     }
 
@@ -686,46 +522,33 @@ router.post("/contact-admin", LimiterRequestContact, async (req, res) => {
   const { email, subJect, conTent } = req.body;
 
   try {
-    const data = await resend.emails.send({
-      from: process.env.Sender_Email,
-      to: process.env.Owner_Email,
-      subject: subJect,
-      html: `
-       <div style="font-family: 'Kanit', sans-serif; max-width: 600px; margin: 10px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; margin-top:80px;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center">
-        <img src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1750926689/logo2small_lzsrwa.png" alt="Sport-Hub Online Logo" style="display: block; max-width: 300px; margin-bottom: 10px;" />
-      </td>
-    </tr>
-  </table>
-  <h1 style="color: #03045e; margin-bottom: 16px; text-align: center">
-    <p><strong>เรื่อง:</strong> ${subJect}</p>
-  </h1>
-  <h2 style="color: #03045e; margin-bottom: 16px; text-align: center">
-    <p><strong>จาก:</strong> ${email}
-</p><strong style="  font-weight: bold;
- ;  font-size: 24px;color: #333;
-">
-      <p>${conTent}</p>
-    </strong>
-  </h2>
-  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
+    const adminRes = await pool.query(
+      "SELECT email FROM users WHERE role = 'admin'"
+    );
+    let adminEmails = adminRes.rows.map(r => r.email).filter(Boolean);
+    if (adminEmails.length === 0 && process.env.ADMIN_EMAIL) {
+      adminEmails = [process.env.ADMIN_EMAIL];
+    }
 
-  <p style="font-size: 12px; color: #9ca3af;text-align: center ">
-    หากคุณไม่ได้เป็นผู้ดำเนินการ กรุณาเพิกเฉยต่ออีเมลฉบับนี้
-  </p>
-</div>
-      `,
-      reply_to: email,
-    });
+    if (adminEmails.length > 0) {
+      for (const adminEmail of adminEmails) {
+        try {
+          await sendEmail({
+            to: adminEmail,
+            subject: subJect,
+            html: contactAdminTemplate({ email, subJect, conTent }),
+          });
+        } catch (sendErr) {
+          console.error(`Failed to send contact-admin email to ${adminEmail}:`, sendErr.message);
+        }
+      }
+    }
 
-    console.log("Email sent successfully:", data);
     res.status(200).json({
       message: `ส่งคำขอเรียบร้อย กรุณารอข้อความตอบกลับจากผู้ดูแลระบบที่ ${email}`,
     });
   } catch (error) {
-    console.error("Resend Error:", error);
+    console.error("Email Error:", error);
     res.status(500).json({ message: "เกิดข้อผิดพลาดในการส่ง email" });
   }
 });

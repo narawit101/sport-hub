@@ -1,9 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
 require("dotenv").config();
-// const path = require("path");
-const cloudinary = require("cloudinary").v2;
+// Initialize cloudinary (config is in config/cloudinary.js)
+require("./config/cloudinary");
 const cookieParser = require("cookie-parser");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -11,11 +13,9 @@ const app = express();
 app.set("trust proxy", 1);
 const server = http.createServer(app);
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://www.sporthub-online.me",
-  "https://sporthub-online.me",
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+  : ["http://localhost:3000"];
 
 const io = new Server(server, {
   cors: {
@@ -38,20 +38,10 @@ app.use(
   })
 );
 
+app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
-// app.use(express.json());
-// app.use('/uploads/images/field-profile', express.static(path.join(__dirname, 'uploads/images/field-profile')));
-// app.use('/uploads/images/posts', express.static(path.join(__dirname, 'uploads/images/posts')));
-// app.use('/uploads/images/slip', express.static(path.join(__dirname, 'uploads/images/slip')));
-// app.use('/uploads/documents', express.static(path.join(__dirname, 'uploads/documents')));
-
-cloudinary.config({
-  cloud_name: process.env.CLOUND_NAME,
-  api_key: process.env.CLOUND_API_KEY,
-  api_secret: process.env.CLOUND_API_SECRET,
-});
-module.exports = cloudinary;
 
 const registerRoute = require("./api/register");
 const loginRoute = require("./api/login");
@@ -64,6 +54,7 @@ const myfieldRoute = require("./api/my-field");
 const profile = require("./api/profile");
 const posts = require("./api/posts");
 const booking = require("./api/booking")(io);
+require("./cron/bookingCron")(io);
 const reviews = require("./api/reviews");
 const statistics = require("./api/statistics");
 const search = require("./api/search");
@@ -102,7 +93,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
