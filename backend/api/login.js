@@ -52,8 +52,7 @@ router.post("/", async (req, res) => {
       httpOnly: true,
       secure: isProd && isHttps,
       sameSite: isProd && isHttps ? "None" : "Lax",
-      maxAge: expiresIn,
-      ...(isProd && { domain: ".sporthub-online.me" })
+      maxAge: expiresIn
     });
 
     const responseData = {

@@ -8,8 +8,7 @@ router.post("/", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: isProd && isHttps,
-    sameSite: isProd && isHttps ? "None" : "Lax",
-    ...(isProd && { domain: ".sporthub-online.me" }),
+    sameSite: isProd && isHttps ? "None" : "Lax"
   });
 
   res.status(200).json({ message: "ออกจากระบบสำเร็จ" });
