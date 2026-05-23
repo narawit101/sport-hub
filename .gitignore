@@ -1,0 +1,14 @@
+# VS Code Local History
+.history/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
