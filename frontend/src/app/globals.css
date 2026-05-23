@@ -4,11 +4,11 @@
 @tailwind utilities;
  */
 
+@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap");
+
 :root {
   --text-color: #03045e;
 }
-
-@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap");
 
 * {
   margin: 0;
