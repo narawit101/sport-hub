@@ -66,7 +66,7 @@ Sport Hub is a full-stack sports venue booking platform designed for three user 
 - JWT authentication
 - Socket.IO
 - Multer + Cloudinary
-- Nodemailer (Gmail SMTP)
+- Brevo HTTP API (transactional emails)
 - PromptPay QR + QRCode generation
 - XLSX export
 - Express Rate Limit
@@ -89,7 +89,7 @@ Core backend modules include:
 ## Notable Integrations
 
 - `Cloudinary` for image and document storage
-- `Nodemailer (Gmail SMTP)` for transactional emails
+- `Brevo HTTP API` for transactional emails (cloud-host compatible, no SMTP port needed)
 - `Longdo Map` for location picking and map search
 - `PromptPay QR` for Thai payment QR generation
 
@@ -106,7 +106,7 @@ cd backend
 npm install
 
 cd ../frontend
-- Nodemailer (Gmail SMTP) for transactional emails
+- Brevo HTTP API for transactional emails
 
 ...
 
@@ -120,10 +120,9 @@ Create `.env` files in both `backend/` and `frontend/`.
 NODE_ENV=development
 DATABASE_URL=<your_postgresql_connection_string>
 JWT_SECRET=<your_jwt_secret>
-SMTP_USER=<your_gmail_address>
-SMTP_PASS=<your_gmail_app_password>
-SENDER_EMAIL=<from_address_shown_in_emails>
-ADMIN_EMAIL=<admin_notification_email>
+BREVO_API_KEY=<your_brevo_api_key>
+SENDER_EMAIL=<verified_sender_email_in_brevo>
+SENDER_NAME=Sport Hub
 FONT_END_URL=http://localhost:3000
 CLOUND_NAME=<your_cloudinary_name>
 CLOUND_API_KEY=<your_cloudinary_api_key>

@@ -45,13 +45,13 @@ The project is structured as a monorepo with two main applications:
 -   **Real-time:** Socket.IO
 -   **Auth:** JWT (stored in HTTP-only cookies)
 -   **Storage:** Cloudinary (via `multer` and `multer-storage-cloudinary`)
--   **Email:** Gmail SMTP (via Nodemailer)
+-   **Email:** Brevo HTTP API (via `@getbrevo/brevo`)
 -   **Payments:** PromptPay QR (via `promptpay-qr` and `qrcode`)
 
 ### Frontend
 -   **Framework:** Next.js 15 (App Router)
 -   **UI Library:** React 19
--   **Styling:** Tailwind CSS + Custom CSS modules
+-   **Styling:**  CSS
 -   **Maps:** Longdo Map API
 -   **Editor:** TinyMCE
 -   **Date Handling:** Day.js
