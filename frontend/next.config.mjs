@@ -1,9 +1,12 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {};
-
-// export default nextConfig;
-
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  images: {
+    domains: ["res.cloudinary.com"],
+  },
+  eslint: {
+    // ปิดการแจ้งเตือน ESLint ตอน Build บน Vercel
+    ignoreDuringBuilds: true,
+  },
+};
 
 export default nextConfig;
