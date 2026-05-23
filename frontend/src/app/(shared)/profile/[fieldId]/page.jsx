@@ -11,7 +11,7 @@ import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 import LongdoMapPicker from "@/app/components/LongdoMapPicker";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 
 dayjs.extend(relativeTime);
 dayjs.locale("th");
@@ -56,10 +56,8 @@ export default function CheckFieldDetail() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const socket = createSocket(API_URL);
+    if (!socket) return;
     console.log("Socket initialized:", socket);
     socketRef.current = socket;
     socket.on("connect", () => {
@@ -94,6 +92,9 @@ export default function CheckFieldDetail() {
           return filteredPosts;
         });
       }
+    });
+    socket.on("connect_error", (err) => {
+      logSocketError("FieldProfile", err);
     });
     return () => {
       socket.disconnect();

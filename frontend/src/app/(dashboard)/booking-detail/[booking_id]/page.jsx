@@ -6,7 +6,7 @@ import NotFoundCard from "@/app/components/NotFoundCard";
 import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 
 import "@/app/css/order-detail.css";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 
 const getStatusLabel = (status) => {
   switch (status) {
@@ -243,10 +243,8 @@ export default function BookingDetail() {
   }, [fetchData]);
 
   useEffect(() => {
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const socket = createSocket(API_URL);
+    if (!socket) return;
 
     socketRef.current = socket;
 
@@ -269,7 +267,7 @@ export default function BookingDetail() {
     });
 
     socket.on("connect_error", (err) => {
-      console.error(" Socket connect_error:", err.message);
+      logSocketError("BookingDetail", err);
     });
 
     return () => {

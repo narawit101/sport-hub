@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useRouter, useParams } from "next/navigation";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 import "@/app/css/my-order.css";
 import "@/app/css/field-statistics.css";
 import { verify } from "jsonwebtoken";
@@ -91,10 +91,8 @@ export default function Statistics() {
   }, [fetchData]);
 
   useEffect(() => {
-    socketRef.current = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    socketRef.current = createSocket(API_URL);
+    if (!socketRef.current) return;
 
     const socket = socketRef.current;
 
@@ -108,7 +106,7 @@ export default function Statistics() {
     });
 
     socket.on("connect_error", (err) => {
-      console.error(" Socket connect_error:", err.message);
+      logSocketError("Statistics", err);
     });
 
     return () => {

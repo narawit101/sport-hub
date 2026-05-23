@@ -1,5 +1,5 @@
 "use client";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
@@ -246,10 +246,8 @@ export default function Page() {
 
   useEffect(() => {
     if (!API_URL || !user?.user_id) return;
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const socket = createSocket(API_URL);
+    if (!socket) return;
     socketRef.current = socket;
     socket.on("new_notification", (data) => {
       if (parseInt(data?.reciveId) !== parseInt(user.user_id)) return;
@@ -265,6 +263,9 @@ export default function Page() {
       if (now - lastLoadTime.current < 1500) return;
       lastLoadTime.current = now;
       fetchNotifications();
+    });
+    socket.on("connect_error", (err) => {
+      logSocketError("Notifications", err);
     });
     return () => socket.disconnect();
   }, [API_URL, user?.user_id, fetchNotifications]);

@@ -7,7 +7,7 @@ import Category from "@/app/components/SportType";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/th";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 
 dayjs.extend(relativeTime);
 dayjs.locale("th");
@@ -27,10 +27,8 @@ export default function HomePage() {
 
   // Socket connection สำหรับ real-time updates
   useEffect(() => {
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const socket = createSocket(API_URL);
+    if (!socket) return;
     console.log("Home Socket initialized:", socket);
     socketRef.current = socket;
     
@@ -71,7 +69,7 @@ export default function HomePage() {
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Home Socket error:", err.message);
+      logSocketError("Home", err);
     });
 
     return () => {

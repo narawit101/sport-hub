@@ -8,7 +8,7 @@ import "@/app/css/navbar.css";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/th";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 
 dayjs.extend(relativeTime);
 dayjs.locale("th");
@@ -136,10 +136,8 @@ export default function Navbar() {
     }
 
     console.log("Initializing socket with API_URL:", API_URL);
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const socket = createSocket(API_URL);
+    if (!socket) return;
 
     socketRef.current = socket;
 
@@ -188,7 +186,7 @@ export default function Navbar() {
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket error:", err.message);
+      logSocketError("Navbar", err);
     });
 
     return () => {

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useRouter, useParams } from "next/navigation";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 import "@/app/css/my-order.css";
 import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 
@@ -95,10 +95,8 @@ export default function Myorder() {
   }, [fetchData]);
 
   useEffect(() => {
-    socketRef.current = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    socketRef.current = createSocket(API_URL);
+    if (!socketRef.current) return;
 
     const socket = socketRef.current;
 
@@ -112,7 +110,7 @@ export default function Myorder() {
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket connect_error:", err.message);
+      logSocketError("ManageFieldOrder", err);
     });
 
     return () => {

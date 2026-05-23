@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import "@/app/css/my-order.css";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 export default function Mybooking() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const { user, isLoading } = useAuth();
@@ -81,10 +81,8 @@ export default function Mybooking() {
     console.log("API_URL:", API_URL);
     console.log(" connecting socket...");
 
-    socketRef.current = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    socketRef.current = createSocket(API_URL);
+    if (!socketRef.current) return;
 
     const socket = socketRef.current;
 
@@ -98,7 +96,7 @@ export default function Mybooking() {
     });
 
     socket.on("connect_error", (err) => {
-      console.error(" Socket connect_error:", err.message);
+      logSocketError("ManageBooking", err);
     });
 
     return () => {

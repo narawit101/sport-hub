@@ -7,7 +7,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 
 const AuthContext = createContext();
 
@@ -50,10 +50,8 @@ export function AuthProvider({ children }) {
   }, [user]);
 
   useEffect(() => {
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const socket = createSocket(API_URL);
+    if (!socket) return;
 
     socketRef.current = socket;
 
@@ -76,7 +74,7 @@ export function AuthProvider({ children }) {
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket error:", err.message);
+      logSocketError("AuthContext", err);
     });
 
     return () => socket.disconnect();

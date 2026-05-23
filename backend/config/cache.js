@@ -2,6 +2,22 @@ const Redis = require("ioredis");
 
 let redis = null;
 let isConnected = false;
+let cacheDisabled = false;
+
+function disableRedis(reason) {
+  if (reason) {
+    console.warn(`[Cache] ${reason}`);
+  }
+
+  isConnected = false;
+  cacheDisabled = true;
+
+  if (redis) {
+    redis.disconnect();
+  }
+
+  redis = null;
+}
 
 /**
  * Initialize Redis connection (Upstash compatible)
@@ -10,37 +26,59 @@ let isConnected = false;
 function initRedis() {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
-    console.warn("[Cache] REDIS_URL not set — caching disabled");
+    console.warn("[Cache] REDIS_URL not set - caching disabled");
+    cacheDisabled = true;
     return null;
   }
 
   try {
-    redis = new Redis(redisUrl, {
+    const parsedUrl = new URL(redisUrl);
+    const isSecure = parsedUrl.protocol === "rediss:";
+
+    if (!["redis:", "rediss:"].includes(parsedUrl.protocol) || !parsedUrl.hostname) {
+      disableRedis("Invalid REDIS_URL - caching disabled");
+      return null;
+    }
+
+    redis = new Redis(parsedUrl.toString(), {
+      lazyConnect: true,
+      enableOfflineQueue: false,
       maxRetriesPerRequest: 1,
       retryStrategy(times) {
-        if (times > 3) return null; // stop retrying after 3 attempts
+        if (times > 1) return null;
         return Math.min(times * 200, 2000);
       },
-      tls: redisUrl.startsWith("rediss://") ? {} : undefined,
+      tls: isSecure ? {} : undefined,
     });
 
     redis.on("connect", () => {
       isConnected = true;
+      cacheDisabled = false;
       console.log("[Cache] Redis connected");
     });
 
     redis.on("error", (err) => {
       isConnected = false;
       console.warn("[Cache] Redis error:", err.message);
+
+      if (err.code === "ENOTFOUND" || err.code === "ENETUNREACH") {
+        disableRedis(
+          "Disabling Redis cache because the Redis host could not be reached. Check REDIS_URL on the deployment platform."
+        );
+      }
     });
 
     redis.on("close", () => {
       isConnected = false;
     });
 
+    redis.connect().catch((err) => {
+      disableRedis(`Failed to connect to Redis - caching disabled (${err.message})`);
+    });
+
     return redis;
   } catch (err) {
-    console.warn("[Cache] Failed to init Redis:", err.message);
+    disableRedis(`Failed to init Redis - caching disabled (${err.message})`);
     return null;
   }
 }
@@ -51,7 +89,7 @@ function initRedis() {
  * @returns {any|null} parsed JSON or null
  */
 async function getCache(key) {
-  if (!redis || !isConnected) return null;
+  if (!redis || !isConnected || cacheDisabled) return null;
   try {
     const data = await redis.get(key);
     return data ? JSON.parse(data) : null;
@@ -68,7 +106,7 @@ async function getCache(key) {
  * @param {number} ttlSeconds - time to live in seconds
  */
 async function setCache(key, value, ttlSeconds = 300) {
-  if (!redis || !isConnected) return;
+  if (!redis || !isConnected || cacheDisabled) return;
   try {
     await redis.set(key, JSON.stringify(value), "EX", ttlSeconds);
   } catch (err) {
@@ -81,7 +119,7 @@ async function setCache(key, value, ttlSeconds = 300) {
  * @param  {...string} keys
  */
 async function invalidateCache(...keys) {
-  if (!redis || !isConnected) return;
+  if (!redis || !isConnected || cacheDisabled) return;
   try {
     await redis.del(...keys);
   } catch (err) {
@@ -94,7 +132,7 @@ async function invalidateCache(...keys) {
  * @param {string} pattern - e.g. "posts:*"
  */
 async function invalidatePattern(pattern) {
-  if (!redis || !isConnected) return;
+  if (!redis || !isConnected || cacheDisabled) return;
   try {
     const keys = await redis.keys(pattern);
     if (keys.length > 0) {
@@ -105,7 +143,6 @@ async function invalidatePattern(pattern) {
   }
 }
 
-// Initialize on require
 initRedis();
 
 module.exports = {

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import "@/app/css/booking-slot.css";
 import { useAuth } from "@/app/contexts/AuthContext";
-import { io } from "socket.io-client";
+import { createSocket, logSocketError } from "@/app/lib/socket";
 import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 import Calendar from "react-calendar";
 import "@/app/css/calendar-styles.css";
@@ -86,10 +86,8 @@ export default function Booking() {
   }, [API_URL]);
 
   useEffect(() => {
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const socket = createSocket(API_URL);
+    if (!socket) return;
     socketRef.current = socket;
 
     socket.on("connect", () => {
@@ -113,9 +111,9 @@ export default function Booking() {
       setServerTime(new Date(Date.now() + serverOffsetRef.current));
     }, 1000);
 
-    socket.on("connect_error", (err) =>
-      console.error("socket connect_error:", err?.message)
-    );
+    socket.on("connect_error", (err) => {
+      logSocketError("BookingTimeSync", err);
+    });
 
     return () => {
       try {
@@ -195,10 +193,8 @@ export default function Booking() {
   }, [fetchBookedSlots]);
 
   useEffect(() => {
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    const socket = createSocket(API_URL);
+    if (!socket) return;
 
     socketRef.current = socket;
 
@@ -215,7 +211,7 @@ export default function Booking() {
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket error:", err.message);
+      logSocketError("BookingSlot", err);
     });
 
     return () => socket.disconnect();
