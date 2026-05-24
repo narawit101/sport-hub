@@ -382,6 +382,26 @@
   top: -8px;
   background: white;
   z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mark-all-read-btn {
+  background: none;
+  border: none;
+  color: #0369a1;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mark-all-read-btn:hover {
+  background: #e0f2fe;
+  color: #0c4a6e;
 }
 
 .notification-list {

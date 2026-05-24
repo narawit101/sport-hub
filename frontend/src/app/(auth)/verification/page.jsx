@@ -1,5 +1,5 @@
 import React from 'react'
-import Verification from '@/app/components/Verification'
+import Verification from '@/components/auth/Verification'
 
 export default function page() {
   return (

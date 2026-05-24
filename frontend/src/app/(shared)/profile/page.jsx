@@ -1,6 +1,6 @@
 "use client";
 import { Suspense } from "react";
-import NotFoundCard from "@/app/components/NotFoundCard";
+import NotFoundCard from "@/components/ui/NotFoundCard";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export default function ProfileIndexFallbackPage() {

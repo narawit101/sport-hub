@@ -5,6 +5,7 @@ const authMiddleware = require("../middlewares/auth");
 const { createUploader } = require("../utils/upload");
 const { deleteCloudinaryFile } = require("../utils/delete");
 const { getCache, setCache, invalidateCache } = require("../config/cache");
+const { USER_ROLE } = require("../utils/constants");
 
 const upload = createUploader(
   { img_url: "uploads/images/posts" },
@@ -33,7 +34,7 @@ router.post(
 
       const field_user_id = fieldOwner.rows[0].user_id;
 
-      if (req.user.role !== "admin" && field_user_id !== user_id) {
+      if (req.user.role !== USER_ROLE.ADMIN && field_user_id !== user_id) {
         return res
           .status(403)
           .json({ message: "You do not have permission to post" });
@@ -119,7 +120,7 @@ router.post(
             [user_id || null, a.user_id, "field_posted", fieldName, postId]
           );
           if (io) {
-            io.emit("new_notification", {
+            io.to(a.user_id.toString()).emit("new_notification", {
               topic: "field_posted",
               reciveId: a.user_id,
               keyId: postId,
@@ -251,7 +252,7 @@ router.patch(
       const post = result.rows[0];
 
       if (!post) return res.status(404).json({ message: "Post not found" });
-      if (req.user.role !== "admin" && post.field_owner !== user_id)
+      if (req.user.role !== USER_ROLE.ADMIN && post.field_owner !== user_id)
         return res.status(403).json({ message: "Permission denied" });
 
       await client.query("BEGIN");
@@ -316,7 +317,7 @@ router.delete("/delete/:post_id", authMiddleware, async (req, res) => {
     const post = result.rows[0];
 
     if (!post) return res.status(404).json({ message: "Post not found" });
-    if (req.user.role !== "admin" && post.field_owner !== user_id)
+    if (req.user.role !== USER_ROLE.ADMIN && post.field_owner !== user_id)
       return res.status(403).json({ message: "Permission denied" });
 
     const images = await pool.query(

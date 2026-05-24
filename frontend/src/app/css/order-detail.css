@@ -11,6 +11,7 @@
   --danger-color: #dc3545;
   --hover-danger-color: #a32b37;
 }
+
 .order-detail {
   min-height: 700px;
   padding: 2rem;
@@ -51,8 +52,9 @@
 }
 
 .status-buttons-order-detail {
-  width: 50%;
-  margin: 5px auto;
+  width: 100%;
+  max-width: 700px;
+  margin: 20px auto;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -62,47 +64,45 @@
 
 .approve-btn-order-detail,
 .reject-btn-order-detail,
-.cancel-booking-btn-order-detail {
-  width: 200px;
+.cancel-booking-btn-order-detail,
+.complete-btn-order-detail,
+.complete-deposit-btn-order-detail {
   padding: 0.6rem 1.2rem;
   border-radius: 12px;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
   border: none;
-}
-
-.complete-btn-order-detail {
+  white-space: nowrap;
+  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.status-buttons-order-detail button {
+  flex: 1;
+  max-width: 280px;
+  margin: 0 !important;
+}
+
+.complete-btn-order-detail {
   margin: 10px auto;
   width: 200px;
-  padding: 0.6rem 1.2rem;
-  border-radius: 12px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-  border: none;
 }
+
 .complete-deposit-btn-order-detail {
   background-color: #28a745;
   color: white;
 }
+
 .complete-deposit-btn-order-detail:hover {
   background-color: #218838;
 }
+
 .complete-deposit-btn-order-detail {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin: 10px auto;
-  padding: 0.6rem 1.2rem;
-  border-radius: 12px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-  border: none;
+  width: 200px;
 }
 
 .review-inline-wrapper-detail {
@@ -114,21 +114,30 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.review-title-detail {
-  font-size: 20px;
-  margin-bottom: 10px;
+.rating-input-detail p,
+.comment-input-detail p {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #444;
+  font-size: 1rem;
 }
 
 .stars-detail {
   margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 }
 
 .star-detail {
   cursor: pointer;
   color: #ccc;
-  font-size: 24px;
-  margin-right: 5px;
-  transition: color 0.2s ease-in-out;
+  font-size: 32px;
+  transition: transform 0.1s ease, color 0.2s ease-in-out;
+}
+
+.star-detail:hover {
+  transform: scale(1.15);
 }
 
 .star-detail.active {
@@ -137,28 +146,39 @@
 
 .review-textarea-detail {
   width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
+  padding: 12px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   resize: vertical;
   font-size: 15px;
   box-sizing: border-box;
+  min-height: 100px;
+}
+
+.review-textarea-detail:focus {
+  outline: none;
+  border-color: var(--text-color);
+  box-shadow: 0 0 0 2px rgba(3, 4, 94, 0.1);
 }
 
 .review-buttons-detail {
-  margin-top: 15px;
+  margin-top: 25px;
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
 }
 
 .review-submit-btn,
 .review-cancel-btn {
-  padding: 8px 16px;
+  padding: 0.65rem 1.8rem;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn-review-detail {
@@ -186,6 +206,8 @@
 
 .review-submit-btn:hover {
   background-color: #11157b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(3, 4, 94, 0.2);
 }
 
 .review-cancel-btn {
@@ -239,6 +261,7 @@
   background-color: #28a745;
   color: white;
 }
+
 .approve-btn-order-detail:hover {
   background-color: #218838;
 }
@@ -247,6 +270,7 @@
   background-color: #dc3545;
   color: white;
 }
+
 .reject-btn-order-detail:hover {
   background-color: #c82333;
 }
@@ -255,19 +279,18 @@
   background-color: #28a745;
   color: white;
 }
+
 .complete-btn-order-detail:hover {
   background-color: #218838;
 }
 
 .cancel-booking-btn-order-detail {
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 20px auto 1px auto;
+  width: 200px;
+  margin: 20px auto;
   background-color: #b31e1e;
   color: white;
 }
+
 .cancel-booking-btn-order-detail:hover {
   background-color: #d63a13;
 }
@@ -292,6 +315,7 @@
 .status-text-order-detail.complete {
   color: #008000;
 }
+
 .status-text-order-detail.verified {
   color: #008000;
 }
@@ -312,21 +336,18 @@
 }
 
 .deposit-slip-container-order-detail {
-  margin-bottom: 1rem;
-  text-align: center;
+  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: stretch;
   margin-top: 1.5rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  max-height: 600px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
 .edit-slip-button {
   padding: 0.3rem 0.6rem;
   background-color: #6c757d;
@@ -341,18 +362,21 @@
   transition: all 0.2s ease;
   white-space: nowrap;
 }
+
 .edit-slip-section {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
+
 .edit-slip-buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
 }
-.bank-account-info-slip{
+
+.bank-account-info-slip {
   border-radius: 12px;
   padding: 20px;
   margin: 20px;
@@ -362,6 +386,7 @@
 .edit-slip-button:hover {
   background-color: #5a6268;
 }
+
 .hours-container-order-detail {
   margin-bottom: 1rem;
   text-align: left;
@@ -518,6 +543,11 @@
   background-color: #fff4ce;
 }
 
+.status-text-order-detail.unpaid {
+  color: #c2410c;
+  background-color: #ffedd5;
+}
+
 .status-text-order-detail.approved {
   color: #155724;
   background-color: #d4f4dd;
@@ -527,12 +557,18 @@
   color: #155724;
   background-color: #d4f4dd;
 }
+
 .status-text-order-detail.verified {
   color: #155724;
   background-color: #caf9c7;
 }
 
 .status-text-order-detail.rejected {
+  color: #721c24;
+  background-color: #fddede;
+}
+
+.status-text-order-detail.cancelled {
   color: #721c24;
   background-color: #fddede;
 }
@@ -548,6 +584,7 @@
 }
 
 .file-label-order-detail {
+  margin-bottom: 4px;
   width: auto;
   display: inline-block;
   padding: 8px 16px;
@@ -564,6 +601,7 @@
   font-weight: 700;
   color: #d32f2f;
 }
+
 .price-deposit-detail p {
   font-size: 18px;
   font-weight: 700;
@@ -672,6 +710,7 @@
 .status-approved {
   background-color: #d4f4dd;
 }
+
 .status-approved strong {
   color: #155724;
 }
@@ -679,6 +718,7 @@
 .status-complete {
   background-color: #d4f4dd;
 }
+
 .status-complete strong {
   color: #155724;
 }
@@ -686,6 +726,7 @@
 .status-rejected {
   background-color: #fddede;
 }
+
 .status-rejected strong {
   color: #721c24;
 }
@@ -706,16 +747,36 @@
 
 .modal-content-order-detail {
   background: #fff;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  max-width: 460px;
   width: 90%;
   text-align: center;
+  position: relative;
 }
 
 .modal-header-order-detail {
   margin-bottom: 1.5rem;
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 5px;
+  transition: color 0.2s, transform 0.1s ease;
+  line-height: 1;
+}
+
+.close-modal-btn:hover {
+  color: #374151;
+  transform: scale(1.1);
 }
 
 .modal-header-order-detail h2 {
@@ -751,6 +812,7 @@
   background-color: #28a745;
   color: white;
 }
+
 .modal-confirm-btn-order-detail:hover {
   background-color: #218838;
 }
@@ -759,6 +821,7 @@
   background-color: #dc3545;
   color: white;
 }
+
 .modal-cancel-btn-order-detail:hover {
   background-color: #c82333;
 }
@@ -778,6 +841,7 @@
   max-width: 100%;
   box-sizing: border-box;
 }
+
 .resoning-booking-detail textarea {
   height: 100px;
   resize: none;
@@ -787,15 +851,19 @@
   .line-item-detail.plus span:last-child {
     font-size: 1rem;
   }
+
   .line-item-detail.highlight span:last-child {
     font-size: 1rem;
   }
+
   .order-detail {
     padding: 0.5rem;
   }
+
   .booking-card-order-detail {
     padding: 0.5rem;
   }
+
   .booking-card-order-detail {
     font-weight: 700;
     margin: 0.6rem 0;
@@ -811,38 +879,672 @@
   }
 
   .status-buttons-order-detail {
+    flex-direction: column;
     align-items: stretch;
-    width: auto;
+    width: 100%;
+    max-width: 300px;
+    margin: 20px auto;
+  }
+
+  .status-buttons-order-detail button {
+    max-width: none !important;
+    width: 100% !important;
   }
 
   .approve-btn-order-detail,
   .reject-btn-order-detail,
-  .complete-btn-order-detail {
+  .complete-btn-order-detail,
+  .complete-deposit-btn-order-detail,
+  .cancel-booking-btn-order-detail {
     width: 100%;
   }
 }
+
 @media (max-width: 370px) {
   .line-item-detail.highlight span:last-child {
     font-weight: 600;
     font-size: 0.7rem;
     color: var(--text-color);
   }
+
   .line-item-detail.plus span:last-child {
     font-size: 0.7rem;
   }
+
   .line-item-detail span {
     font-size: 0.7rem;
   }
+
   .hours-detail-box span {
     font-size: 0.7rem;
   }
+
   .line-item-detail span {
     font-size: 0.7rem;
   }
+
   .booking-card-order-detail p {
     font-size: 1rem;
   }
+
   .booking-card-order-detail strong {
     font-size: 1rem;
+  }
+}
+
+/* Premium Payment Section Redesign */
+.premium-payment-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  margin-top: 24px;
+  color: #1e293b;
+}
+
+.payment-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 12px;
+}
+
+/* 1. Payment Summary Card */
+.payment-summary-card {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  color: #64748b;
+}
+
+.summary-value {
+  font-weight: 600;
+  color: #334155;
+}
+
+.summary-value.method {
+  color: #03045e;
+  background: #e0f2fe;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+}
+
+.summary-value.deposit {
+  color: #ef4444;
+}
+
+.summary-value.remaining {
+  color: #10b981;
+}
+
+.total-price-row {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 2px dashed #cbd5e1;
+}
+
+.total-price-row .summary-label {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.total-price-row .summary-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #03045e;
+}
+
+/* Cash payment card */
+.cash-payment-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  color: #78350f;
+}
+
+.cash-payment-info .info-icon {
+  font-size: 1.5rem;
+}
+
+/* 2. Premium Bank Card */
+.premium-bank-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  color: #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  margin-bottom: 24px;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.bank-logo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.bank-name-badge {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--text-color);
+  text-transform: uppercase;
+}
+
+.card-type {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bank-account-number-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.bank-account-number {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #0f172a;
+}
+
+.copy-btn-premium {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-btn-premium:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+}
+
+.copy-btn-premium.copied {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.bank-holder-row {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 14px;
+}
+
+.holder-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.holder-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* 3. Premium QR Card */
+.premium-qr-card {
+  background: #ffffff;
+  border: 2px solid #004685;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 320px;
+  margin: 20px auto;
+  box-shadow: 0 8px 30px rgba(0, 70, 133, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-header-promptpay {
+  background: #004685;
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  margin-top: -24px;
+  margin-left: -24px;
+  margin-right: -24px;
+  width: calc(100% + 48px);
+}
+
+.promptpay-logo-img {
+  height: 48px;
+  object-fit: contain;
+}
+
+.qr-body-code {
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr-image-display {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.qr-footer-info {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qr-footer-info span {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.qr-footer-info strong {
+  font-size: 1.25rem;
+  color: #004685;
+  font-weight: 800;
+}
+
+/* 4. Modern File Upload Zone */
+.file-upload-zone-premium {
+  display: block;
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 30px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.file-upload-zone-premium:hover {
+  border-color: #03045e;
+  background: #f0f9ff;
+}
+
+.hidden-file-input-premium {
+  display: none;
+}
+
+.upload-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-icon-svg {
+  width: 36px;
+  height: 36px;
+  color: #64748b;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
+}
+
+.file-upload-zone-premium:hover .upload-icon-svg {
+  color: #03045e;
+  transform: translateY(-2px);
+}
+
+.upload-label-main {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.upload-label-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* 5. Slips Gallery */
+.uploaded-slips-gallery-premium {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.slip-item-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.slip-item-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.slip-card-header {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1e293b;
+  margin-bottom: 12px;
+  width: 100%;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 8px;
+}
+
+.slip-image-wrapper {
+  width: 100%;
+  height: 240px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 1px solid #f1f5f9;
+  background: #f8fafc;
+  cursor: zoom-in;
+}
+
+.slip-img-display {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.slip-image-wrapper:hover .slip-img-display {
+  transform: scale(1.05);
+}
+
+.edit-slip-btn-premium {
+  background: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+.edit-slip-btn-premium:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Lightbox Modal for Slips zoom */
+.premium-lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.premium-lightbox-content {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: scaleUp 0.2s ease-out;
+}
+
+.premium-lightbox-content img {
+  max-width: 100%;
+  max-height: 85vh;
+  display: block;
+  object-fit: contain;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); }
+  to { transform: scale(1); }
+}
+
+/* Buttons and States */
+.premium-action-btn {
+  background: var(--text-color, #03045e);
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.2);
+}
+
+.premium-action-btn:hover {
+  background: #11157b;
+  box-shadow: 0 6px 16px rgba(3, 4, 94, 0.3);
+  transform: translateY(-1px);
+}
+
+.premium-action-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.premium-action-btn.secondary {
+  background: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.premium-action-btn.secondary:hover {
+  background: #dc2626;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+}
+
+.premium-action-btn.outline {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  box-shadow: none;
+}
+
+.premium-action-btn.outline:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.button-row-premium {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.button-row-premium button {
+  flex: 1;
+}
+
+.empty-state-slip {
+  text-align: center;
+  padding: 20px;
+  color: #64748b;
+  font-style: italic;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+}
+
+/* 6. Premium Header Redesign */
+.order-detail-header-premium {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.booking-id-badge {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+}
+
+.status-badge-premium {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Status Colors for Premium Badge */
+.status-badge-premium.pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.status-badge-premium.unpaid { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+.status-badge-premium.approved { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.status-badge-premium.complete { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.status-badge-premium.verified { background: #ecfdf5; color: #065f46; border: 1px solid #d1fae5; }
+.status-badge-premium.rejected { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.status-badge-premium.cancelled { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+.field-info-main {
+  margin: 15px 0;
+}
+
+.field-name-premium {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sub-field-name-premium {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 8px;
+}
+
+.booker-info-row {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: #334155;
+}
+
+.booker-label {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.booker-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .order-detail-header-premium {
+    padding: 20px;
+  }
+  
+  .header-top-row {
+    justify-content: center;
+    flex-direction: column;
+  }
+  
+  .field-name-premium {
+    font-size: 1.5rem;
+  }
+  
+  .sub-field-name-premium {
+    font-size: 1.1rem;
   }
 }

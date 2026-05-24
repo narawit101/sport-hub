@@ -1,30 +1,33 @@
 "use client";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/app/contexts/AuthContext";
+import { useNotification } from "@/app/contexts/NotificationContext";
 import { useRouter, useParams } from "next/navigation";
-import { createSocket, logSocketError } from "@/app/lib/socket";
+import { useSocket } from "@/app/contexts/SocketContext";
+import { formatPrice, formatDateToThai, getBookingStatusDisplay } from "@/app/utils/format";
 import "@/app/css/my-order.css";
 import "@/app/css/field-statistics.css";
-import { verify } from "jsonwebtoken";
+import Pagination from "@/components/ui/Pagination";
+import DateRangeFilter from "@/components/ui/DateRangeFilter";
+import apiClient from "@/lib/apiClient";
+import { USER_STATUS, USER_ROLE, BOOKING_STATUS } from "@/constants/status";
 
 export default function Statistics() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const { user, isLoading } = useAuth();
-  const [booking, setMybooking] = useState([]);
+  const { notify } = useNotification();
+  const socket = useSocket();
+  const [booking, setBooking] = useState([]);
   const [filters, setFilters] = useState({
     bookingDate: "",
     startDate: "",
     endDate: "",
     status: "",
   });
-  const socketRef = useRef(null);
   const router = useRouter();
   const { fieldId } = useParams();
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const [fieldName, setFieldName] = useState("");
   const [dataLoading, setDataLoading] = useState(true);
-  const [useDateRange, setUseDateRange] = useState(true);
+  const [useDateRange, setUseDateRange] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -33,8 +36,8 @@ export default function Statistics() {
       router.replace("/login");
       return;
     }
-    if (user?.role === "customer") router.replace("/");
-    if (user?.status !== "ตรวจสอบแล้ว") {
+    if (user?.role === USER_ROLE.CUSTOMER) router.replace("/");
+    if (user?.status !== USER_STATUS.VERIFIED) {
       router.replace("/verification");
     }
   }, [user, isLoading, router]);
@@ -48,71 +51,56 @@ export default function Statistics() {
       if (filters.startDate) queryParams.append("startDate", filters.startDate);
       if (filters.endDate) queryParams.append("endDate", filters.endDate);
       if (filters.status) queryParams.append("status", filters.status);
-      const res = await fetch(
-        `${API_URL}/statistics/${fieldId}?${queryParams.toString()}`,
-        {
-          credentials: "include",
-        }
+      
+      const data = await apiClient.get(
+        `/statistics/${fieldId}?${queryParams.toString()}`
       );
-      const data = await res.json();
-      if (res.ok) {
-        setMybooking(data.data);
+      
+      if (data) {
+        setBooking(data.data);
         setFieldName(data.fieldInfo?.field_name || "");
         console.log("Booking data:", data.data);
         if (data.stats) {
           console.log("Stats:", data.stats);
         }
-      } else {
-        if (data.fieldInfo) {
-          setFieldName(data.fieldInfo.field_name || "");
-          setMessage(
-            `สนาม ${data.fieldInfo.field_name} ${data.fieldInfo.field_status}`
-          );
-          setMessageType("error");
-          setTimeout(() => {
-            router.replace("/my-field");
-          }, 2000);
-        }
-        console.log("Booking fetch error:", data.error);
-        setMessage(data.error);
-        setMessageType("error");
       }
     } catch (error) {
       console.error("Fetch error:", error);
-      setMessage("ไม่สามารถเชือมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      if (error.fieldInfo) {
+        setFieldName(error.fieldInfo.field_name || "");
+        notify(
+          `สนาม ${error.fieldInfo.field_name} ${error.fieldInfo.field_status}`,
+          "error"
+        );
+        setTimeout(() => {
+          router.replace("/my-field");
+        }, 2000);
+      } else {
+        notify(error.message || "ไม่สามารถเชือมต่อกับเซิร์ฟเวอร์ได้", "error");
+      }
     } finally {
       setDataLoading(false);
     }
-  }, [fieldId, API_URL, filters, router]);
+  }, [fieldId, filters, router, notify]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   useEffect(() => {
-    socketRef.current = createSocket(API_URL);
-    if (!socketRef.current) return;
+    if (!socket) return;
 
-    const socket = socketRef.current;
-
-    socket.on("connect", () => {
-      console.log(" Socket connected:", socket.id);
-    });
-
-    socket.on("slot_booked", () => {
-      console.log(" slot_booked received");
+    const handleSlotBooked = () => {
+      console.log(" slot_booked received in Stats");
       fetchData();
-    });
+    };
 
-    socket.on("connect_error", (err) => {
-      logSocketError("Statistics", err);
-    });
+    socket.on("slot_booked", handleSlotBooked);
 
     return () => {
-      socket.disconnect();
+      socket.off("slot_booked", handleSlotBooked);
     };
-  }, [API_URL, fetchData]);
+  }, [socket, fetchData]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -125,45 +113,28 @@ export default function Statistics() {
     setCurrentPage(1);
   };
 
-  const formatDate = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleDateString("th-TH", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  const formatDate = (isoString) => formatDateToThai(isoString);
 
   const calculateStats = () => {
     const stats = {
       total: booking.length,
-      pending: booking.filter((item) => item.status === "pending").length,
-      approved: booking.filter((item) => item.status === "approved").length,
-      rejected: booking.filter((item) => item.status === "rejected").length,
-      complete: booking.filter((item) => item.status === "complete").length,
-      verified: booking.filter((item) => item.status === "verified").length,
+      pending: booking.filter((item) => item.status === BOOKING_STATUS.PENDING).length,
+      approved: booking.filter((item) => item.status === BOOKING_STATUS.APPROVED).length,
+      rejected: booking.filter((item) => item.status === BOOKING_STATUS.REJECTED).length,
+      complete: booking.filter((item) => item.status === BOOKING_STATUS.COMPLETE).length,
+      verified: booking.filter((item) => item.status === BOOKING_STATUS.VERIFIED).length,
       totalRevenue: booking
 
-        .filter((item) => item.status === "complete")
+        .filter((item) => item.status === BOOKING_STATUS.COMPLETE)
         .reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0),
       totalDeposit: booking
-        .filter((item) => item.status === "approved")
+        .filter((item) => item.status === BOOKING_STATUS.APPROVED)
         .reduce((sum, item) => sum + parseFloat(item.price_deposit || 0), 0),
     };
     return stats;
   };
 
   const stats = calculateStats();
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 3500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   const bookingPerPage = 10;
 
@@ -179,36 +150,6 @@ export default function Statistics() {
     indexOfLastBooking
   );
 
-  const getPaginationRange = (current, total) => {
-    const delta = 2;
-    const range = [];
-    const rangeWithDots = [];
-    let j;
-
-    for (let i = 1; i <= total; i++) {
-      if (
-        i === 1 ||
-        i === total ||
-        (i >= current - delta && i <= current + delta)
-      ) {
-        range.push(i);
-      }
-    }
-
-    for (let i of range) {
-      if (j) {
-        if (i - j === 2) {
-          rangeWithDots.push(j + 1);
-        } else if (i - j > 2) {
-          rangeWithDots.push("...");
-        }
-      }
-      rangeWithDots.push(i);
-      j = i;
-    }
-
-    return rangeWithDots;
-  };
 
   const onExport = async () => {
     if (!fieldId) return;
@@ -220,197 +161,60 @@ export default function Statistics() {
       status: filters.status || "",
     };
 
-    const res = await fetch(`${API_URL}/statistics/export/${fieldId}`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/statistics/export/${fieldId}`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (res.ok) {
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      let fileName = "export.xlsx";
-      const disposition = res.headers.get("Content-Disposition");
-      if (disposition && disposition.includes("filename=")) {
-        fileName = decodeURIComponent(
-          disposition.split("filename=")[1].split(";")[0].replace(/"/g, "")
-        );
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        let fileName = "export.xlsx";
+        const disposition = res.headers.get("Content-Disposition");
+        if (disposition && disposition.includes("filename=")) {
+          fileName = decodeURIComponent(
+            disposition.split("filename=")[1].split(";")[0].replace(/"/g, "")
+          );
+        }
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      } else {
+        const errorText = await res.text();
+        console.error("Export error:", errorText);
+        notify(errorText, "error");
       }
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      // setMessage("ดาวน์โหลดไฟล์สำเร็จ");
-      // setMessageType("success");
-    } else {
-      const errorText = await res.text();
-      console.error("Export error:", errorText);
-      setMessage(errorText);
-      setMessageType("error");
+    } catch (error) {
+      console.error("Export error:", error);
+      notify("เกิดข้อผิดพลาดในการส่งออกไฟล์", "error");
     }
   };
 
   return (
     <>
-      {message && (
-        <div className={`message-box ${messageType}`}>
-          <p>{message}</p>
-        </div>
-      )}
       <div className="myorder-container">
+
         <h1>สถิติการจองสนาม {fieldName}</h1>
-        {useDateRange && (
-          <div className="filters-order">
-            <label>
-              วันที่จอง:
-              {filters.bookingDate && <>{formatDate(filters.bookingDate)}</>}
-              <input
-                type="date"
-                name="bookingDate"
-                value={filters.bookingDate}
-                onChange={handleFilterChange}
-              />
-            </label>
-            <label>
-              สถานะ:
-              <select
-                name="status"
-                value={filters.status}
-                onChange={handleFilterChange}
-              >
-                <option value="">ทั้งหมด</option>
-                <option value="pending">รอตรวจสอบ</option>
-                <option value="approved">อนุมัติแล้ว</option>
-                <option value="rejected">ไม่อนุมัติ</option>
-                <option value="complete">การจองสำเร็จ</option>
-                <option value="verified">ตรวจสอบสลิปมัดจำแล้ว</option>
-              </select>
-            </label>
-            <div className="btn-group-filter">
-              <button onClick={clearFilters} className="clear-filters-btn">
-                ล้างตัวกรอง
-              </button>
-              <button
-                className="swip-mode-order"
-                type="button"
-                onClick={() => {
-                  setUseDateRange((prev) => !prev);
-                  setFilters({
-                    bookingDate: "",
-                    startDate: "",
-                    endDate: "",
-                    status: "",
-                  });
-                  setCurrentPage(1);
-                  setTimeout(() => {
-                    fetchData();
-                  }, 0);
-                }}
-              >
-                {!useDateRange ? "ใช้วันที่อย่างเดียว" : "ใช้ช่วงวัน"}
-              </button>
-            </div>
-            {stats.totalRevenue >= 0 && (
-              <div className="revenue-summary">
-                <div className="revenue-card">
-                  <h3>รายได้รวม (การจองสำเร็จ)</h3>
-                  <p className="revenue-amount">
-                    {stats.totalRevenue.toLocaleString()} บาท
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {!useDateRange && (
-          <div className="filters-order">
-            <div className="date-range-filter">
-              <label>
-                วันที่เริ่ม:
-                {(filters.startDate || filters.endDate) && (
-                  <>{filters.startDate && formatDate(filters.startDate)}</>
-                )}
-                <input
-                  type="date"
-                  name="startDate"
-                  value={filters.startDate}
-                  onChange={handleFilterChange}
-                />
-              </label>
-
-              <label>
-                ถึงวันที่:
-                {(filters.startDate || filters.endDate) && (
-                  <>{filters.endDate && formatDate(filters.endDate)}</>
-                )}
-                <input
-                  type="date"
-                  name="endDate"
-                  value={filters.endDate}
-                  onChange={handleFilterChange}
-                  min={filters.startDate}
-                />
-              </label>
-            </div>
-
-            <label>
-              สถานะ:
-              <select
-                name="status"
-                value={filters.status}
-                onChange={handleFilterChange}
-              >
-                <option value="">ทั้งหมด</option>
-                <option value="pending">รอตรวจสอบ</option>
-                <option value="approved">อนุมัติแล้ว</option>
-                <option value="rejected">ไม่อนุมัติ</option>
-                <option value="complete">การจองสำเร็จ</option>
-                <option value="verified">ตรวจสอบสลิปมัดจำแล้ว</option>
-              </select>
-            </label>
-
-            <button onClick={clearFilters} className="clear-filters-btn">
-              ล้างตัวกรอง
-            </button>
-            <button
-              className="swip-mode-order"
-              type="button"
-              onClick={() => {
-                setUseDateRange((prev) => !prev);
-                setFilters({
-                  bookingDate: "",
-                  startDate: "",
-                  endDate: "",
-                  status: "",
-                });
-                setCurrentPage(1);
-                setTimeout(() => {
-                  fetchData();
-                }, 0);
-              }}
-            >
-              {!useDateRange ? "ใช้วันที่อย่างเดียว" : "ใช้ช่วงวัน"}
-            </button>
-            {stats.totalRevenue >= 0 && (
-              <div className="revenue-summary">
-                <div className="revenue-card">
-                  <h3>รายได้รวม (การจองสำเร็จ)</h3>
-                  <p className="revenue-amount">
-                    {stats.totalRevenue.toLocaleString()} บาท
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        <DateRangeFilter
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          clearFilters={clearFilters}
+          useDateRange={useDateRange}
+          setUseDateRange={setUseDateRange}
+          setFilters={setFilters}
+          totalRevenue={stats.totalRevenue}
+          fetchData={fetchData}
+        />
 
         {booking.length > 0 && (
           <div className="stats-summary">
@@ -521,97 +325,48 @@ export default function Statistics() {
                       {item.end_time.substring(0, 5)}
                     </td>
                     <td>{item.activity}</td>
-                    <td>{item.price_deposit}</td>
-                    <td>{item.total_price}</td>
+                    <td>{formatPrice(item.price_deposit)}</td>
+                    <td>{formatPrice(item.total_price)}</td>
                     <td>
                       {Array.isArray(item.facilities) &&
-                      item.facilities.length > 0
+                        item.facilities.length > 0
                         ? item.facilities.map((fac, i) => (
-                            <span key={i}>
-                              {fac.fac_name}
-                              {i < item.facilities.length - 1 ? ", " : ""}
-                            </span>
-                          ))
+                          <span key={i}>
+                            {fac.fac_name}
+                            {i < item.facilities.length - 1 ? ", " : ""}
+                          </span>
+                        ))
                         : "ไมได้เลือก"}
                     </td>
                     <td>
-                      {item.status !== "complete"
+                      {item.status !== BOOKING_STATUS.COMPLETE
                         ? "ยังไม่มีคะแนน"
                         : item.rating != null
-                        ? item.rating
-                        : "ไม่มีรีวิว"}
+                          ? item.rating
+                          : "ไม่มีรีวิว"}
                     </td>
                     <td>
-                      {item.status !== "complete"
+                      {item.status !== BOOKING_STATUS.COMPLETE
                         ? "ยังไม่มีคอมเมนต์"
                         : item.comment != null
-                        ? item.comment
-                        : "ไม่มีรีวิว"}
+                          ? item.comment
+                          : "ไม่มีรีวิว"}
                     </td>
-                    <td className={`status-text-detail-stat ${item.status}`}>
-                      {item.status === "pending"
-                        ? "รอตรวจสอบ"
-                        : item.status === "approved"
-                        ? "อนุมัติแล้ว"
-                        : item.status === "rejected"
-                        ? "ไม่อนุมัติ"
-                        : item.status === "complete"
-                        ? "การจองสำเร็จ"
-                        : item.status === "verified"
-                        ? "ตรวจสอบสลิปมัดจำแล้ว"
-                        : "ไม่ทราบสถานะ"}
+                    <td className={`status-text-detail-stat ${getBookingStatusDisplay(item).className}`}>
+                      {getBookingStatusDisplay(item).text}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {filteredBookings.length > bookingPerPage && (
-              <div className="pagination-container-stat">
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                >
-                  «
-                </button>
-
-                {getPaginationRange(
-                  currentPage,
-                  Math.ceil(filteredBookings.length / bookingPerPage)
-                ).map((page, index) =>
-                  page === "..." ? (
-                    <span key={index} className="pagination-dots-stat">
-                      ...
-                    </span>
-                  ) : (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentPage(page)}
-                      className={page === currentPage ? "active-page-stat" : ""}
-                    >
-                      {page}
-                    </button>
-                  )
-                )}
-
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) =>
-                      prev < Math.ceil(filteredBookings.length / bookingPerPage)
-                        ? prev + 1
-                        : prev
-                    )
-                  }
-                  disabled={
-                    currentPage >=
-                    Math.ceil(filteredBookings.length / bookingPerPage)
-                  }
-                >
-                  »
-                </button>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredBookings.length / bookingPerPage)}
+              onPageChange={setCurrentPage}
+              containerClassName="pagination-container-stat"
+              activeClassName="active-page-stat"
+              dotsClassName="pagination-dots-stat"
+            />
           </div>
         ) : (
           <h1 className="booking-list">ไม่พบคำสั่งจอง</h1>

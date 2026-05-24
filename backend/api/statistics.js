@@ -4,6 +4,7 @@ const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
 const XLSX = require("xlsx");
 const { getCache, setCache } = require("../config/cache");
+const { USER_ROLE, FIELD_STATUS, BOOKING_STATUS } = require("../utils/constants");
 
 router.get("/:field_id", authMiddleware, async (req, res) => {
   const { field_id } = req.params;
@@ -30,13 +31,13 @@ router.get("/:field_id", authMiddleware, async (req, res) => {
 
     const field = fieldQuery.rows[0];
 
-    if (user_role !== "admin" && field.user_id !== user_id) {
+    if (user_role !== USER_ROLE.ADMIN && field.user_id !== user_id) {
       return res
         .status(403)
         .json({ success: false, error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูล" });
     }
 
-    if (field.field_status !== "ผ่านการอนุมัติ") {
+    if (field.field_status !== FIELD_STATUS.VERIFIED) {
       return res.status(403).json({
         success: false,
         error: `สนาม ${field.field_name} ${field.field_status}`,
@@ -159,7 +160,7 @@ router.post("/export/:field_id", authMiddleware, async (req, res) => {
     if (ownerId.rowCount === 0) {
       return res.status(404).json({ success: false, error: "Field not found" });
     }
-    if (user_role !== "admin" && ownerId.rows[0].user_id !== user_id) {
+    if (user_role !== USER_ROLE.ADMIN && ownerId.rows[0].user_id !== user_id) {
       return res
         .status(403)
         .json({ success: false, error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูล" });
@@ -259,13 +260,13 @@ WHERE b.field_id = $1
       คอมเมนต์: row.comment ?? "ยังไม่มีคอมเมนต์",
 
       สถานะ:
-        row.status === "approved"
+        row.status === BOOKING_STATUS.APPROVED
           ? "อนุมัติแล้ว"
-          : row.status === "pending"
+          : row.status === BOOKING_STATUS.PENDING
             ? "รอตรวจสอบ"
-            : row.status === "complete"
+            : row.status === BOOKING_STATUS.COMPLETE
               ? "การจองสำเร็จ"
-              : row.status === "rejected"
+              : row.status === BOOKING_STATUS.REJECTED
                 ? "ไม่อนุมัติ"
                 : row.status,
     }));

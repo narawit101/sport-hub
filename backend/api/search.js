@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
 const { getCache, setCache } = require("../config/cache");
+const { FIELD_STATUS } = require("../utils/constants");
 
 router.get("/", async (req, res) => {
   const { query } = req.query;
@@ -42,7 +43,7 @@ router.get("/", async (req, res) => {
         sf.length_field::text ILIKE $1 OR
         sf.field_surface ILIKE $1 
       )
-      AND f.status = 'ผ่านการอนุมัติ'
+      AND f.status = '${FIELD_STATUS.VERIFIED}'
       GROUP BY 
         f.field_id, 
         f.field_name, 
@@ -86,7 +87,7 @@ router.get("/", async (req, res) => {
         similarity(sf.length_field::text, $1) > 0.3 OR
         similarity(sf.field_surface, $1) > 0.3
       )
-      AND f.status = 'ผ่านการอนุมัติ'
+      AND f.status = '${FIELD_STATUS.VERIFIED}'
       GROUP BY 
         f.field_id, 
         f.field_name, 

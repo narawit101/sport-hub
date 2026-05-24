@@ -3,16 +3,18 @@ import React, { useState, useEffect } from "react";
 import "@/app/css/manage-fac-type.css";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
+import { useNotification } from "@/app/contexts/NotificationContext";
 import { usePreventLeave } from "@/app/hooks/usePreventLeave";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import apiClient from "@/lib/apiClient";
+import { USER_STATUS, USER_ROLE } from "@/constants/status";
 
 export default function RegisterFieldForm() {
   const router = useRouter("");
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const { notify } = useNotification();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [sports, setSports] = useState([]);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const [editSport, setEditSport] = useState(null);
   const [newSportName, setNewSportName] = useState("");
   const [SportTypeToDelete, setSportTypeToDelete] = useState(null);
@@ -32,11 +34,11 @@ export default function RegisterFieldForm() {
       router.replace("/login");
     }
 
-    if (user?.status !== "ตรวจสอบแล้ว") {
+    if (user?.status !== USER_STATUS.VERIFIED) {
       router.replace("/verification");
     }
 
-    if (user?.role !== "admin") {
+    if (user?.role !== USER_ROLE.ADMIN) {
       router.replace("/");
     }
   }, [user, isLoading, router]);
@@ -45,28 +47,18 @@ export default function RegisterFieldForm() {
     const fetchSports = async () => {
       setDataLoading(true);
       try {
-        const res = await fetch(`${API_URL}/sports_types`, {
-          credentials: "include",
-        });
-
-        if (!res.ok) {
-          throw new Error("ไม่สามารถโหลดประเภทกีฬาได้");
-        }
-
-        const data = await res.json();
+        const data = await apiClient.get("/sports_types");
         setSports(data);
       } catch (err) {
         console.error("Error fetching sports:", err);
-        setMessage("ไม่สามารถเชือมต่อกับเซิร์ฟเวอร์ได้", err);
-        setMessageType("error");
-        setError(err.message || "เกิดข้อผิดพลาด");
+        notify(err.message || "ไม่สามารถโหลดประเภทกีฬาได้", "error");
       } finally {
         setDataLoading(false);
       }
     };
 
     fetchSports();
-  }, []);
+  }, [notify]);
 
   const indexOfLast = currentPage * sportTypePerPage;
   const indexOfFirst = indexOfLast - sportTypePerPage;
@@ -76,32 +68,22 @@ export default function RegisterFieldForm() {
     if (!newSport.trim()) return;
     SetstartProcessLoad(true);
     try {
-      const res = await fetch(`${API_URL}/sports_types/add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ sport_name: newSport }),
+      const data = await apiClient.post("/sports_types/add", {
+        sport_name: newSport,
       });
 
-      const data = await res.json();
-
       if (data.error) {
-        setMessage(data.error);
-        setMessageType("error");
+        notify(data.error, "error");
         return;
       }
 
       setSports([...sports, data]);
       setNewSport("");
       setShowNewSportInput(false);
-      setMessage("เพิ่มประเภทกีฬาสำเร็จ");
-      setMessageType("success");
+      notify("เพิ่มประเภทกีฬาสำเร็จ", "success");
     } catch (err) {
       console.error("Fetch error:", err);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", err);
-      setMessageType("error");
+      notify(err.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -111,33 +93,21 @@ export default function RegisterFieldForm() {
     if (!SportTypeToDelete) return;
     SetstartProcessLoad(true);
     try {
-      const res = await fetch(
-        `${API_URL}/sports_types/delete/${SportTypeToDelete}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
+      const data = await apiClient.delete(
+        `/sports_types/delete/${SportTypeToDelete}`
       );
-
-      const data = await res.json();
 
       if (data.error) {
         console.error("Error:", data.error);
-        setMessage(data.error);
-        setMessageType("error");
+        notify(data.error, "error");
         return;
       }
       setSports(sports.filter((sport) => sport.sport_id !== SportTypeToDelete));
       setShowConfirmModal(false);
-      setMessage("ลบประเภทกีฬาสำเร็จ");
-      setMessageType("success");
+      notify("ลบประเภทกีฬาสำเร็จ", "success");
     } catch (err) {
       console.error("Fetch error:", err);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", err);
-      setMessageType("error");
+      notify(err.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -147,23 +117,13 @@ export default function RegisterFieldForm() {
     if (!newSportName.trim()) return;
     SetstartProcessLoad(true);
     try {
-      const res = await fetch(
-        `${API_URL}/sports_types/update/${editSport.sport_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ sport_name: newSportName }),
-        }
+      const data = await apiClient.put(
+        `/sports_types/update/${editSport.sport_id}`,
+        { sport_name: newSportName }
       );
 
-      const data = await res.json();
-
       if (data.error) {
-        setMessage(data.error);
-        setMessageType("error");
+        notify(data.error, "error");
         return;
       }
 
@@ -177,41 +137,20 @@ export default function RegisterFieldForm() {
       setEditSport(null);
       setNewSportName("");
       setShowEditModal(false);
-      setMessage("แก้ไขประเภทกีฬาสำเร็จ");
-      setMessageType("success");
+      notify("แก้ไขประเภทกีฬาสำเร็จ", "success");
     } catch (err) {
       console.error("Fetch error:", err);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-      setMessageType("error");
+      notify(err.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
   };
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   if (isLoading)
-    return (
-      <div className="load">
-        <span className="spinner"></span>
-      </div>
-    );
+    return <LoadingSpinner mode="full" />;
 
   return (
     <div>
-      {message && (
-        <div className={`message-box ${messageType}`}>
-          <p>{message}</p>
-        </div>
-      )}
       <div className="fac-container-admin">
         <div className="input-group-admin">
           <label className="add-sport-title">ประเภทกีฬาทั้งหมด</label>
@@ -245,11 +184,7 @@ export default function RegisterFieldForm() {
                     onClick={addType}
                   >
                     {startProcessLoad ? (
-                      <span className="dot-loading">
-                        <span className="dot one">●</span>
-                        <span className="dot two">●</span>
-                        <span className="dot three">●</span>
-                      </span>
+                      <LoadingSpinner mode="dots" />
                     ) : (
                       "บันทึก"
                     )}
@@ -269,11 +204,7 @@ export default function RegisterFieldForm() {
               </div>
             )}
           </div>
-          {dataLoading && (
-            <div className="loading-data">
-              <div className="loading-data-spinner"></div>
-            </div>
-          )}
+          {dataLoading && <LoadingSpinner mode="inline" />}
           {showEditModal && (
             <div className="edit-modal-type">
               <div className="modal-content-type">
@@ -294,11 +225,7 @@ export default function RegisterFieldForm() {
                     onClick={editSportType}
                   >
                     {startProcessLoad ? (
-                      <span className="dot-loading">
-                        <span className="dot one">●</span>
-                        <span className="dot two">●</span>
-                        <span className="dot three">●</span>
-                      </span>
+                      <LoadingSpinner mode="dots" />
                     ) : (
                       "บันทึกการแก้ไข"
                     )}
@@ -388,11 +315,7 @@ export default function RegisterFieldForm() {
                   onClick={deleteSportType}
                 >
                   {startProcessLoad ? (
-                    <span className="dot-loading">
-                      <span className="dot one">●</span>
-                      <span className="dot two">●</span>
-                      <span className="dot three">●</span>
-                    </span>
+                    <LoadingSpinner mode="dots" />
                   ) : (
                     "ยืนยัน"
                   )}

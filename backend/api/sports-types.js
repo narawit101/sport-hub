@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
 const { getCache, setCache, invalidateCache } = require("../config/cache");
+const { FIELD_STATUS } = require("../utils/constants");
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
@@ -106,7 +107,7 @@ router.get("/preview", async (req, res) => {
 
   try {
     const queryParams = [];
-    let whereClause = `WHERE field.status = 'ผ่านการอนุมัติ'`;
+    let whereClause = `WHERE field.status = '${FIELD_STATUS.VERIFIED}'`;
 
     if (sport_id) {
       queryParams.push(sport_id);

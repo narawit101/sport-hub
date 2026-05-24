@@ -4,6 +4,10 @@ import { useParams, useRouter } from "next/navigation";
 import "@/app/css/check-field.css";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePreventLeave } from "@/app/hooks/usePreventLeave";
+import { formatPrice, daysInThai } from "@/app/utils/format";
+import apiClient from "@/lib/apiClient";
+import { useNotification } from "@/app/contexts/NotificationContext";
+import { FIELD_STATUS, USER_STATUS, USER_ROLE } from "@/constants/status";
 
 const StatusChangeModal = ({
   newStatus,
@@ -19,9 +23,9 @@ const StatusChangeModal = ({
         คุณแน่ใจว่าจะเปลี่ยนสถานะเป็น:
         <h2
           className={`newstatus-text ${
-            newStatus === "ผ่านการอนุมัติ"
+            newStatus === FIELD_STATUS.VERIFIED
               ? "status-approve"
-              : newStatus === "ไม่ผ่านการอนุมัติ"
+              : newStatus === FIELD_STATUS.REJECTED
               ? "status-reject"
               : "status-pending"
           }`}
@@ -29,7 +33,7 @@ const StatusChangeModal = ({
           {newStatus} ?
         </h2>
       </div>
-      {newStatus === "ไม่ผ่านการอนุมัติ" && (
+      {newStatus === FIELD_STATUS.REJECTED && (
         <div className="resoning-check-field">
           <textarea
             placeholder="กรุณาใส่เหตุผลที่ไม่ผ่านการอนุมัติ"
@@ -78,13 +82,11 @@ const StatusChangeModal = ({
 );
 
 export default function CheckFieldDetail() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const { fieldId } = useParams();
+  const { notify } = useNotification();
   const [fieldData, setFieldData] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const { user, isLoading } = useAuth();
   const [facilities, setFacilities] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
@@ -100,77 +102,53 @@ export default function CheckFieldDetail() {
       router.push("/login");
     }
 
-    if (user?.status !== "ตรวจสอบแล้ว") {
+    if (user?.status !== USER_STATUS.VERIFIED) {
       router.push("/verification");
     }
 
-    if (user?.role !== "admin" && user?.role !== "field_owner") {
+    if (user?.role !== USER_ROLE.ADMIN && user?.role !== USER_ROLE.FIELD_OWNER) {
       router.push("/");
     }
-  }, [user, isLoading, , router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
     const readNotifications = async () => {
-      if (!API_URL || !fieldId) return;
+      if (!fieldId) return;
       try {
-        const res = await fetch(`${API_URL}/notification/read-notification`, {
-          method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key_id: Number(fieldId) }),
-        });
+        await apiClient.put("/notification/read-notification", { key_id: Number(fieldId) });
 
-        if (res.ok) {
-          console.log("Notifications marked as read for booking:", fieldId);
-          window.dispatchEvent(
-            new CustomEvent("notifications-marked-read", {
-              detail: { key_id: Number(fieldId) },
-            })
-          );
-        } else {
-          console.warn("Mark read failed:", await res.text());
-        }
+        console.log("Notifications marked as read for booking:", fieldId);
+        window.dispatchEvent(
+          new CustomEvent("notifications-marked-read", {
+            detail: { key_id: Number(fieldId) },
+          })
+        );
       } catch (error) {
         console.error("Error marking notifications as read:", error);
       }
     };
 
     readNotifications();
-  }, [API_URL, fieldId]);
+  }, [fieldId]);
 
   useEffect(() => {
     const fetchFieldData = async () => {
       if (!fieldId) return;
       try {
-        const res = await fetch(`${API_URL}/field/${fieldId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-
-        const data = await res.json();
-
-        if (data.error) {
-          setMessage("ไม่พบข้อมูลสนามกีฬา", data.error);
-          setMessageType("error");
-          router.push("/");
-        } else {
-          console.log("ข้อมูลสนามกีฬา:", data);
-          setFieldData(data);
-        }
+        const data = await apiClient.get(`/field/${fieldId}`);
+        console.log("ข้อมูลสนามกีฬา:", data);
+        setFieldData(data);
       } catch (error) {
         console.error("Error fetching field data:", error);
-        setMessage("เกิดข้อผิดพลาดในการดึงข้อมูลสนามกีฬา", error);
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาดในการดึงข้อมูลสนามกีฬา", "error");
+        router.push("/");
       } finally {
         setDataLoading(false);
       }
     };
 
     fetchFieldData();
-  }, [fieldId, router]);
+  }, [fieldId, router, notify]);
 
   const getGoogleMapsLink = (gpsLocation) => {
     if (!gpsLocation) return "#";
@@ -188,30 +166,18 @@ export default function CheckFieldDetail() {
   useEffect(() => {
     const fetchFacilities = async () => {
       try {
-        const response = await fetch(`${API_URL}/facilities/${fieldId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch facilities");
-        }
-
-        const data = await response.json();
+        const data = await apiClient.get(`/facilities/${fieldId}`);
         setFacilities(data.data);
       } catch (err) {
         console.log(err);
-        setMessage("ไม่สามารถเชือมต่อกับเซิร์ฟเวอร์ได้", err);
-        setMessageType("error");
+        notify(err.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
       } finally {
         setDataLoading(false);
       }
     };
 
     fetchFacilities();
-  }, [fieldId]);
+  }, [fieldId, notify]);
 
   const openConfirmModal = (status) => {
     setReasoning("");
@@ -225,71 +191,26 @@ export default function CheckFieldDetail() {
   };
 
   const updateFieldStatus = async (fieldId, newStatus) => {
-    if (newStatus === "ไม่ผ่านการอนุมัติ" && reasoning.length === 0) {
-      setMessage("กรุณาเลือกเหตุผลการปฏิเสธ");
-      setMessageType("error");
+    if (newStatus === FIELD_STATUS.REJECTED && reasoning.length === 0) {
+      notify("กรุณาเลือกเหตุผลการปฏิเสธ", "error");
       return;
     }
     SetstartProcessLoad(true);
     try {
-      const response = await fetch(
-        `${API_URL}/field/update-status/${fieldId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ status: newStatus, reasoning: reasoning }),
-        }
-      );
+      await apiClient.put(`/field/update-status/${fieldId}`, { status: newStatus, reasoning: reasoning });
 
-      const data = await response.json();
-      if (response.ok) {
-        setFieldData({ ...fieldData, status: newStatus });
-        setMessage(`อัพเดทสถานะเป็น: ${newStatus}`);
-        {
-          newStatus === "ผ่านการอนุมัติ"
-            ? setMessageType("success")
-            : setMessageType("error");
-        }
-        console.log("สถานะสนามกีฬาอัพเดทสำเร็จ:", reasoning);
-        closeConfirmModal();
-      } else {
-        setMessage(`เกิดข้อผิดพลาด: ${data.error}`);
-        setMessageType("error");
-      }
+      setFieldData({ ...fieldData, status: newStatus });
+      notify(`อัพเดทสถานะเป็น: ${newStatus}`, newStatus === FIELD_STATUS.VERIFIED ? "success" : "error");
+      console.log("สถานะสนามกีฬาอัพเดทสำเร็จ:", reasoning);
+      closeConfirmModal();
     } catch (error) {
       console.error(" Error updating status:", error);
-      setMessage("ไม่สามารถเชือมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify(error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
       setReasoning("");
     }
   };
-
-  const daysInThai = {
-    Mon: "จันทร์",
-    Tue: "อังคาร",
-    Wed: "พุธ",
-    Thu: "พฤหัสบดี",
-    Fri: "ศุกร์",
-    Sat: "เสาร์",
-    Sun: "อาทิตย์",
-  };
-  const formatPrice = (value) => new Intl.NumberFormat("th-TH").format(value);
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   if (dataLoading)
     return (
@@ -300,11 +221,6 @@ export default function CheckFieldDetail() {
 
   return (
     <>
-      {message && (
-        <div className={`message-box ${messageType}`}>
-          <p>{message}</p>
-        </div>
-      )}
       <div className="check-field-detail-container">
         <h1>รายละเอียดสนามกีฬา</h1>
         {fieldData?.img_field ? (
@@ -327,11 +243,11 @@ export default function CheckFieldDetail() {
               <div className="field-value-checkfield">
                 <span
                   className={
-                    fieldData?.status === "ผ่านการอนุมัติ"
+                    fieldData?.status === FIELD_STATUS.VERIFIED
                       ? "status-text-approved"
-                      : fieldData?.status === "ไม่ผ่านการอนุมัติ"
+                      : fieldData?.status === FIELD_STATUS.REJECTED
                       ? "status-text-rejected"
-                      : fieldData?.status === "รอตรวจสอบ"
+                      : fieldData?.status === FIELD_STATUS.PENDING
                       ? "status-text-pending"
                       : ""
                   }
@@ -744,28 +660,28 @@ export default function CheckFieldDetail() {
           )}
         </div>
         <div className="status-buttons">
-          {user?.role === "admin" && (
+          {user?.role === USER_ROLE.ADMIN && (
             <>
-              {fieldData?.status !== "ผ่านการอนุมัติ" && (
+              {fieldData?.status !== FIELD_STATUS.VERIFIED && (
                 <button
                   style={{
                     cursor: startProcessLoad ? "not-allowed" : "pointer",
                   }}
                   disabled={startProcessLoad}
                   className="approve-btn"
-                  onClick={() => openConfirmModal("ผ่านการอนุมัติ")}
+                  onClick={() => openConfirmModal(FIELD_STATUS.VERIFIED)}
                 >
                   ผ่านการอนุมัติ
                 </button>
               )}
-              {fieldData?.status !== "ไม่ผ่านการอนุมัติ" && (
+              {fieldData?.status !== FIELD_STATUS.REJECTED && (
                 <button
                   style={{
                     cursor: startProcessLoad ? "not-allowed" : "pointer",
                   }}
                   disabled={startProcessLoad}
                   className="reject-btn"
-                  onClick={() => openConfirmModal("ไม่ผ่านการอนุมัติ")}
+                  onClick={() => openConfirmModal(FIELD_STATUS.REJECTED)}
                 >
                   ไม่ผ่านการอนุมัติ
                 </button>

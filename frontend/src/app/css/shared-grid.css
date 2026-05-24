@@ -1,0 +1,43 @@
+/* Shared Grid System for Sports Fields */
+
+.field-grid-container {
+  display: grid;
+  /* Default 4 columns for desktop */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 3 columns for smaller desktop/large tablets */
+@media screen and (max-width: 1200px) {
+  .field-grid-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+/* 2 columns for tablets */
+@media screen and (max-width: 900px) {
+  .field-grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 15px;
+  }
+}
+
+/* 1 column for mobile */
+@media screen and (max-width: 600px) {
+  .field-grid-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 10px;
+  }
+}
+
+/* Optional: constrain max width of cards in grid if needed */
+.field-grid-container > * {
+  width: 100%;
+  min-width: 0; /* Prevent grid blowout */
+}

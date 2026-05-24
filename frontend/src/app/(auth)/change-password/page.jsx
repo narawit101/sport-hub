@@ -1,5 +1,5 @@
 import React from 'react'
-import ChangePassword from '@/app/components/ChangePassword'
+import ChangePassword from '@/components/auth/ChangePassword'
 
 export default function page() {
   return (

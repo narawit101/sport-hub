@@ -8,6 +8,7 @@ const {
   bookingAutoCancelled,
 } = require("../utils/emailTemplates");
 const { invalidatePattern } = require("../config/cache");
+const { BOOKING_STATUS } = require("../utils/constants");
 
 module.exports = function (io) {
   cron.schedule(
@@ -24,7 +25,7 @@ module.exports = function (io) {
       FROM bookings b
       JOIN users u ON u.user_id = b.user_id
       JOIN field f ON f.field_id = b.field_id
-      WHERE b.status IN ('pending', 'approved') AND b.start_date = $1
+      WHERE b.status IN ('${BOOKING_STATUS.PENDING}', '${BOOKING_STATUS.APPROVED}') AND b.start_date = $1
     `,
           [todayStr]
         );
@@ -81,7 +82,7 @@ module.exports = function (io) {
     USING users u, field f
     WHERE b.user_id = u.user_id
       AND b.field_id = f.field_id
-      AND b.status IN ('approved', 'complete','verified')
+      AND b.status IN ('${BOOKING_STATUS.APPROVED}', '${BOOKING_STATUS.COMPLETE}','${BOOKING_STATUS.VERIFIED}')
       AND f.price_deposit > 0
       AND b.booking_id NOT IN (SELECT booking_id FROM payment)
       AND (
@@ -91,7 +92,7 @@ module.exports = function (io) {
           AND $1 >= (b.start_date || ' ' || b.start_time)::timestamp
         )
       )
-    RETURNING b.booking_id, u.email, f.field_name, b.start_time, b.start_date, b.field_id;
+    RETURNING b.booking_id, b.sub_field_id, u.email, f.field_name, b.start_time, b.start_date, b.field_id;
   `,
           [now.toISO()]
         );
@@ -107,6 +108,8 @@ module.exports = function (io) {
             console.log(` ส่งแจ้งเตือนการลบไปยัง ${row.email}`);
             if (io) {
               io.emit("slot_booked", {
+                subFieldId: row.sub_field_id,
+                bookingDate: row.start_date,
                 bookingId: row.booking_id,
               });
             }

@@ -1,27 +1,29 @@
 "use client";
-import { createSocket, logSocketError } from "@/app/lib/socket";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
 import "@/app/css/notifications.css";
 import "@/app/css/navbar.css";
+import { useSocket } from "@/app/contexts/SocketContext";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/th";
+import apiClient from "@/lib/apiClient";
+import { useNotification } from "@/app/contexts/NotificationContext";
+import { USER_STATUS } from "@/constants/status";
+
 dayjs.extend(relativeTime);
 dayjs.locale("th");
 export default function Page() {
   const { userId } = useParams();
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const { notify } = useNotification();
+  const socket = useSocket();
   const [notifications, setNotifications] = useState([]);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const [markAllLoading, setMarkAllLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
 
-  const socketRef = useRef(null);
   const lastLoadTime = useRef(0);
   const loadingRef = useRef(false);
 
@@ -31,7 +33,7 @@ export default function Page() {
       router.replace("/login");
       return;
     }
-    if (user?.status !== "ตรวจสอบแล้ว") {
+    if (user?.status !== USER_STATUS.VERIFIED) {
       router.replace("/verification");
     }
   }, [user, isLoading, router]);
@@ -46,42 +48,37 @@ export default function Page() {
   };
 
   const fetchNotifications = useCallback(async () => {
-    if (!API_URL || !userId || loadingRef.current) return;
+    if (!userId || loadingRef.current) return;
     loadingRef.current = true;
     setDataLoading(true);
     try {
-      const res = await fetch(`${API_URL}/notification/all/${userId}`, {
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          const formatted = data.map((notification) => ({
-            notifyId: notification.notify_id,
-            keyId: notification.key_id,
-            topic: notification.topic,
-            senderName: `${notification.sender_first_name || ""} ${
-              notification.sender_last_name || ""
-            }`.trim(),
-            reciveName: `${notification.recive_first_name || ""} ${
-              notification.recive_last_name || ""
-            }`.trim(),
-            fieldName: notification.field_name || "",
-            fieldId: notification.field_id || notification.fieldId || null,
-            subFieldName: notification.sub_field_name || "",
-            bookingDate: notification.booking_date || null,
-            startTime: `${notification.start_time}`.substring(0, 5) || null,
-            endTime: `${notification.end_time}`.substring(0, 5) || null,
-            rawMessage: notification.messages || "",
-            postContent: notification.content || "",
-            created_at: notification.created_at,
-            status: notification.status,
-            isRead: String(notification.status).toLowerCase() !== "unread",
-          }));
-          setNotifications(formatted);
-        } else {
-          setNotifications([]);
-        }
+      const data = await apiClient.get(`/notification/all/${userId}`);
+      if (Array.isArray(data)) {
+        const formatted = data.map((notification) => ({
+          notifyId: notification.notify_id,
+          keyId: notification.key_id,
+          topic: notification.topic,
+          senderName: `${notification.sender_first_name || ""} ${
+            notification.sender_last_name || ""
+          }`.trim(),
+          reciveName: `${notification.recive_first_name || ""} ${
+            notification.recive_last_name || ""
+          }`.trim(),
+          fieldName: notification.field_name || "",
+          fieldId: notification.field_id || notification.fieldId || null,
+          subFieldName: notification.sub_field_name || "",
+          bookingDate: notification.booking_date || null,
+          startTime: `${notification.start_time}`.substring(0, 5) || null,
+          endTime: `${notification.end_time}`.substring(0, 5) || null,
+          rawMessage: notification.messages || "",
+          postContent: notification.content || "",
+          created_at: notification.created_at,
+          status: notification.status,
+          isRead: String(notification.status).toLowerCase() !== "unread",
+        }));
+        setNotifications(formatted);
+      } else {
+        setNotifications([]);
       }
     } catch (e) {
       console.error("fetchNotifications error", e);
@@ -89,7 +86,7 @@ export default function Page() {
       loadingRef.current = false;
       setDataLoading(false);
     }
-  }, [API_URL, userId]);
+  }, [userId]);
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
@@ -97,12 +94,7 @@ export default function Page() {
   const markOneAsRead = async (notification) => {
     if (!notification || !notification.keyId) return;
     try {
-      await fetch(`${API_URL}/notification/read-notification`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key_id: notification.keyId }),
-      });
+      await apiClient.put("/notification/read-notification", { key_id: notification.keyId });
     } catch (e) {
       console.error("markOneAsRead error", e);
     }
@@ -143,8 +135,7 @@ export default function Page() {
     ) {
       if (keyId) router.push(`/booking-detail/${keyId}`);
       else {
-        setMessage("ไม่พบข้อมูลการจองนี้");
-        setMessageType("error");
+        notify("ไม่พบข้อมูลการจองนี้", "error");
       }
       return;
     }
@@ -158,8 +149,7 @@ export default function Page() {
     ) {
       if (keyId) router.push(`/check-field/${keyId}`);
       else {
-        setMessage("ไม่พบข้อมูลสนามนี้");
-        setMessageType("error");
+        notify("ไม่พบข้อมูลสนามนี้", "error");
       }
       return;
     }
@@ -169,8 +159,7 @@ export default function Page() {
           `/profile/${n.fieldId || n.field_id || ""}?highlight=${keyId}`
         );
       } else {
-        setMessage("ไม่พบข้อมูลโพสต์นี้");
-        setMessageType("error");
+        notify("ไม่พบข้อมูลโพสต์นี้", "error");
       }
       return;
     }
@@ -178,8 +167,7 @@ export default function Page() {
       if (keyId) {
         router.push(`/profile/${keyId}`);
       } else {
-        setMessage("ไม่พบข้อมูลสนามนี้");
-        setMessageType("error");
+        notify("ไม่พบข้อมูลสนามนี้", "error");
       }
       return;
     }
@@ -187,69 +175,45 @@ export default function Page() {
 
   const deleteNotification = async (notificationId) => {
     try {
-      const res = await fetch(
-        `${API_URL}/notification/delete-notification/${notificationId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
+      await apiClient.delete(`/notification/delete-notification/${notificationId}`);
+      setNotifications((prev) =>
+        prev.filter((n) => n.notifyId !== notificationId)
       );
-      if (res.ok) {
-        setNotifications((prev) =>
-          prev.filter((n) => n.notifyId !== notificationId)
-        );
-        setMessage("ลบการแจ้งเตือนแล้ว");
-        setMessageType("success");
-      }
+      notify("ลบการแจ้งเตือนแล้ว", "success");
     } catch (err) {
       console.error("deleteNotification error", err);
-      setMessage("ไม่สามารถลบการแจ้งเตือนได้");
-      setMessageType("error");
-    } finally {
+      notify(err.message || "ไม่สามารถลบการแจ้งเตือนได้", "error");
     }
   };
   const handleMarkAllRead = async () => {
-    if (!API_URL || markAllLoading) return;
+    if (markAllLoading) return;
     const hasUnread = notifications.some(
       (n) => !n.isRead && String(n.status).toLowerCase() === "unread"
     );
     if (!hasUnread) return;
     try {
       setMarkAllLoading(true);
-      const res = await fetch(`${API_URL}/notification/read-all-notification`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (res.ok) {
-        setNotifications((prev) =>
-          prev.map((n) => ({ ...n, status: "read", isRead: true }))
-        );
-        window.dispatchEvent(
-          new CustomEvent("notifications-marked-read", {
-            detail: { unreadCount: 0 },
-          })
-        );
-        setMessage("ทำเครื่องหมายว่าอ่านทั้งหมดแล้ว");
-        setMessageType("success");
-      } else {
-        setMessage("ไม่สามารถทำเครื่องหมายทั้งหมดได้");
-        setMessageType("error");
-      }
+      await apiClient.put("/notification/read-all-notification");
+      setNotifications((prev) =>
+        prev.map((n) => ({ ...n, status: "read", isRead: true }))
+      );
+      window.dispatchEvent(
+        new CustomEvent("notifications-marked-read", {
+          detail: { unreadCount: 0 },
+        })
+      );
+      notify("ทำเครื่องหมายว่าอ่านทั้งหมดแล้ว", "success");
     } catch (e) {
-      setMessage("เกิดข้อผิดพลาด กรุณาลองใหม่");
-      setMessageType("error");
+      notify(e.message || "เกิดข้อผิดพลาด กรุณาลองใหม่", "error");
     } finally {
       setMarkAllLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!API_URL || !user?.user_id) return;
-    const socket = createSocket(API_URL);
-    if (!socket) return;
-    socketRef.current = socket;
-    socket.on("new_notification", (data) => {
+    if (!socket || !user?.user_id) return;
+
+    const handleNewNotification = (data) => {
       if (parseInt(data?.reciveId) !== parseInt(user.user_id)) return;
       if (data.topic === "reset_count" || data.topic === "update_count") {
         window.dispatchEvent(
@@ -263,31 +227,17 @@ export default function Page() {
       if (now - lastLoadTime.current < 1500) return;
       lastLoadTime.current = now;
       fetchNotifications();
-    });
-    socket.on("connect_error", (err) => {
-      logSocketError("Notifications", err);
-    });
-    return () => socket.disconnect();
-  }, [API_URL, user?.user_id, fetchNotifications]);
+    };
 
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 3000);
+    socket.on("new_notification", handleNewNotification);
 
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
+    return () => {
+      socket.off("new_notification", handleNewNotification);
+    };
+  }, [socket, user?.user_id, fetchNotifications]);
 
   return (
     <div className="notification-page-container">
-      {message && (
-        <div className={`message-box ${messageType}`}>
-          <p>{message}</p>
-        </div>
-      )}
       <div className="noti-header-maker-read">
         <div className="notify-read-unread">
           <img

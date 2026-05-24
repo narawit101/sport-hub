@@ -104,6 +104,14 @@
   font-weight: 600;
 }
 
+.status-text-detail-stat.unpaid {
+  color: #c2410c;
+  background-color: #ffedd5;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+}
+
 .status-text-detail-stat.approved {
   color: #155724;
   background-color: #d4f4dd;

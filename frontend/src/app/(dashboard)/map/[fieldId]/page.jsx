@@ -1,20 +1,21 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import LongdoMapPicker from "@/app/components/LongdoMapPicker";
+import LongdoMapPicker from "@/components/shared/LongdoMapPicker";
 import "@/app/css/map-edit-field.css";
 import { useAuth } from "@/app/contexts/AuthContext";
+import { useNotification } from "@/app/contexts/NotificationContext";
+import apiClient from "@/lib/apiClient";
+import { USER_STATUS } from "@/constants/status";
 
 export default function Map() {
   const { user, isLoading } = useAuth();
+  const { notify } = useNotification();
   const [selectedLocation, setSelectedLocation] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const { fieldId } = useParams();
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const router = useRouter();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     if (isLoading) return;
@@ -24,48 +25,34 @@ export default function Map() {
       return;
     }
 
-    if (user?.status !== "ตรวจสอบแล้ว") {
+    if (user?.status !== USER_STATUS.VERIFIED) {
       router.replace("/verification");
     }
   }, [user, isLoading, router]);
 
   const handleSaveLocation = async () => {
     if (!selectedLocation) {
-      setMessage("กรุณาเลือกตำแหน่งบนแผนที่ก่อน");
-      setMessageType("error");
+      notify("กรุณาเลือกตำแหน่งบนแผนที่ก่อน", "error");
       return;
     }
     setIsUpdating(true);
     try {
-      const response = await fetch(
-        `${API_URL}/field/edit-location/${fieldId}`,
+      const result = await apiClient.put(
+        `/field/edit-location/${fieldId}`,
         {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            gps_location: selectedLocation,
-          }),
+          gps_location: selectedLocation,
         }
       );
 
-      const result = await response.json();
-      if (response.ok) {
-        setMessage("บันทึกตำแหน่งสำเร็จ");
-        setMessageType("success");
+      if (result) {
+        notify("บันทึกตำแหน่งสำเร็จ", "success");
         setTimeout(() => {
           router.back();
         }, 1000);
-      } else {
-        setMessage(`เกิดข้อผิดพลาด: ${result.error}`);
-        setMessageType("error");
       }
     } catch (error) {
       console.error("Save location error:", error);
-      setMessage("เกิดข้อผิดพลาดในการเชื่อมต่อ");
-      setMessageType("error");
+      notify(error.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ", "error");
     } finally {
       setIsUpdating(false);
     }
@@ -73,24 +60,9 @@ export default function Map() {
 
   console.log("Field ID from params:", fieldId);
   console.log("Selected location:", selectedLocation);
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 2500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   return (
     <div className="map-page-container-map-edit">
-      {message && (
-        <div className={`message-box ${messageType}`}>
-          <p>{message}</p>
-        </div>
-      )}
       <h2 className="map-page-title-map-edit">เลือกตำแหน่งสนามที่จะแก้ไข</h2>
 
       <div className="map-container-map-edit">

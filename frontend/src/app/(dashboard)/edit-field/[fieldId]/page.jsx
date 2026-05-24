@@ -4,11 +4,21 @@ import { useRouter, useParams } from "next/navigation";
 import "@/app/css/edit-field.css";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePreventLeave } from "@/app/hooks/usePreventLeave";
-import { Editor } from "@tinymce/tinymce-react";
+import { useNotification } from "@/app/contexts/NotificationContext";
+import { USER_STATUS, USER_ROLE, FIELD_STATUS } from "@/constants/status";
+
+// Import refactored components
+import EditVenueProfileImage from "@/components/field/edit/EditVenueProfileImage";
+import EditVenueBasicInfo from "@/components/field/edit/EditVenueBasicInfo";
+import EditVenueDescription from "@/components/field/edit/EditVenueDescription";
+import ManageFieldDocuments from "@/components/field/edit/ManageFieldDocuments";
+import ManageFacilities from "@/components/field/edit/ManageFacilities";
+import ManageSubFields from "@/components/field/edit/ManageSubFields";
 
 export default function CheckFieldDetail() {
   const { fieldId } = useParams();
   const router = useRouter();
+  const { notify } = useNotification();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const [userId, setUserId] = useState(null);
@@ -29,10 +39,8 @@ export default function CheckFieldDetail() {
   const [subFields, setSubFields] = useState([]);
   const [addOnInputs, setAddOnInputs] = useState({});
   const [facilities, setFacilities] = useState([]);
-  const [selectedFacilities, setSelectedFacilities] = useState({});
   const [showNewFacilityInput, setShowNewFacilityInput] = useState(false);
   const [newFac, setNewFac] = useState([]);
-  const [newFacilityPreview, setNewFacilityPreview] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState(null);
 
@@ -54,8 +62,6 @@ export default function CheckFieldDetail() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showAddSubFieldForm, setShowAddSubFieldForm] = useState(false);
   const [showAddOnForm, setShowAddOnForm] = useState({});
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSubField, setSelectedSubField] = useState(null);
   const [showDeleteAddOnModal, setShowDeleteAddOnModal] = useState(false);
@@ -65,22 +71,6 @@ export default function CheckFieldDetail() {
   const [startProcessLoad, SetstartProcessLoad] = useState(false);
   const [editorContent, setEditorContent] = useState("");
   usePreventLeave(startProcessLoad);
-
-  useEffect(() => {
-    if (isLoading) return;
-
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    if (user?.status !== "ตรวจสอบแล้ว") {
-      router.push("/verification");
-    }
-    if (user?.role !== "admin" && user?.role !== "field_owner") {
-      router.push("/");
-    }
-  }, [user, isLoading, router, userId]);
 
   const [editingFacility, setEditingFacility] = useState(null);
   const [editingSingleDoc, setEditingSingleDoc] = useState(null);
@@ -120,14 +110,12 @@ export default function CheckFieldDetail() {
       !editFacilityData.facility_name ||
       !editFacilityData.facility_name.trim()
     ) {
-      setMessage("กรุณาระบุชื่อสิ่งอำนวยความสะดวก");
-      setMessageType("error");
+      notify("กรุณาระบุชื่อสิ่งอำนวยความสะดวก", "error");
       return;
     }
 
     if (editFacilityData.facility_price.toString().trim() === "") {
-      setMessage("กรุณาระบุราคา");
-      setMessageType("error");
+      notify("กรุณาระบุราคา", "error");
       return;
     }
 
@@ -135,8 +123,7 @@ export default function CheckFieldDetail() {
       !editFacilityData.facility_count ||
       editFacilityData.facility_count.toString().trim() === ""
     ) {
-      setMessage("กรุณาระบุจำนวน");
-      setMessageType("error");
+      notify("กรุณาระบุจำนวน", "error");
       return;
     }
 
@@ -150,8 +137,6 @@ export default function CheckFieldDetail() {
         quantity_total: editFacilityData.facility_count,
         description: editFacilityData.facility_description || "",
       };
-
-      console.log("Sending data:", dataToSend);
 
       formData.append("data", JSON.stringify(dataToSend));
 
@@ -171,8 +156,7 @@ export default function CheckFieldDetail() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage("แก้ไขสิ่งอำนวยความสะดวกสำเร็จ");
-        setMessageType("success");
+        notify("แก้ไขสิ่งอำนวยความสะดวกสำเร็จ", "success");
         setFacilities((prevFacilities) =>
           prevFacilities.map((facility) =>
             facility.field_fac_id === editingFacility
@@ -190,13 +174,11 @@ export default function CheckFieldDetail() {
 
         handleCancelEdit();
       } else {
-        setMessage(data.message || "เกิดข้อผิดพลาด");
-        setMessageType("error");
+        notify(data.message || "เกิดข้อผิดพลาด", "error");
       }
     } catch (error) {
       console.error("Edit facility error:", error);
-      setMessage("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
-      setMessageType("error");
+      notify("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -224,7 +206,7 @@ export default function CheckFieldDetail() {
       if (isLoading) return;
       setUserId(user?.user_id);
     }
-  }, [user]);
+  }, [user, isLoading]);
 
   useEffect(() => {
     if (!fieldId) return;
@@ -241,8 +223,7 @@ export default function CheckFieldDetail() {
         const data = await res.json();
 
         if (data.error) {
-          setMessage("ไม่พบข้อมูลสนามกีฬา");
-          setMessageType("error");
+          notify("ไม่พบข้อมูลสนามกีฬา", "error");
           router.push("/");
           return;
         }
@@ -254,15 +235,14 @@ export default function CheckFieldDetail() {
         }
       } catch (error) {
         console.error("Error fetching field data:", error);
-        setMessage("เกิดข้อผิดพลาดในการโหลดข้อมูลสนามกีฬา");
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาดในการโหลดข้อมูลสนามกีฬา", "error");
       } finally {
         setDataLoading(false);
       }
     };
 
     fetchFieldData();
-  }, [fieldId, router]);
+  }, [fieldId, router, API_URL]);
 
   useEffect(() => {
     const fetchSportsCategories = async () => {
@@ -278,23 +258,18 @@ export default function CheckFieldDetail() {
         const data = await response.json();
         if (response.ok) {
           setSportsCategories(data);
-          setDataLoading(false);
         } else {
           console.error("Error fetching sports categories:", data.error);
-          setMessage(data.error);
-          setMessageType("error");
+          notify(data.error, "error");
         }
       } catch (error) {
         console.error("Error fetching sports categories:", error);
-        setMessage("ไม่สามารถเชือมต่อกับเซิร์ฟเวอร์ได้", error);
-        setMessageType("error");
-      } finally {
-        setDataLoading(false);
+        notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
       }
     };
 
     fetchSportsCategories();
-  }, []);
+  }, [API_URL]);
 
   useEffect(() => {
     if (!fieldId) return;
@@ -309,59 +284,11 @@ export default function CheckFieldDetail() {
         setFacilities(rows);
       } catch (err) {
         console.error("fetchFieldFacilities error:", err);
-        setMessage("ไม่สามารถโหลดสิ่งอำนวยความสะดวกได้");
-        setMessageType("error");
-      } finally {
-        setDataLoading(false);
+        notify("ไม่สามารถโหลดสิ่งอำนวยความสะดวกได้", "error");
       }
     };
     fetchFieldFacilities();
   }, [fieldId, API_URL]);
-
-  const handleSaveFacilities = async () => {
-    if (!selectedFacilities || Object.keys(selectedFacilities).length === 0) {
-      setMessage("กรุณาเลือกสิ่งอำนวยความสะดวก");
-      setMessageType("error");
-      return;
-    }
-    for (const [facId, fac_price] of Object.entries(selectedFacilities)) {
-      if (!fac_price || fac_price < 0) {
-        setMessage("กรุณากรอกราคา");
-        setMessageType("error");
-        return;
-      }
-    }
-    SetstartProcessLoad(true);
-    try {
-      const res = await fetch(`${API_URL}/field/facilities/${fieldId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ selectedFacilities }),
-      });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        setSelectedFacilities({});
-        setMessage("เพิ่มสิ่งอำนวยความสะดวกสำเร็จ");
-        setMessageType("success");
-        const refreshRes = await fetch(`${API_URL}/facilities/${fieldId}`);
-        const updated = await refreshRes.json();
-        setFacilities(updated.data);
-      } else {
-        setMessage(result.message || "เกิดข้อผิดพลาด");
-        setMessageType("error");
-      }
-    } catch (err) {
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-      setMessageType("error");
-    } finally {
-      SetstartProcessLoad(false);
-    }
-  };
 
   const handleConfirmDelete = (field_id, field_fac_id) => {
     setSelectedFacility({ field_id, field_fac_id });
@@ -369,6 +296,7 @@ export default function CheckFieldDetail() {
   };
 
   const handleDeleteFacility = async () => {
+    if (!selectedFacility) return;
     const { field_id, field_fac_id } = selectedFacility;
     SetstartProcessLoad(true);
     try {
@@ -377,7 +305,6 @@ export default function CheckFieldDetail() {
         {
           method: "DELETE",
           credentials: "include",
-          headers: {},
         }
       );
 
@@ -391,16 +318,13 @@ export default function CheckFieldDetail() {
           result.relatedRecordsDeleted > 0
             ? `ลบสิ่งอำนวยความสะดวกสำเร็จ (ลบข้อมูลการจองที่เกี่ยวข้อง ${result.relatedRecordsDeleted} รายการ)`
             : result.message || "ลบสิ่งอำนวยความสะดวกสำเร็จ";
-        setMessage(message);
-        setMessageType("success");
+        notify(message, "success");
         setShowModal(false);
       } else {
-        setMessage(result.message || "เกิดข้อผิดพลาด");
-        setMessageType("error");
+        notify(result.message || "เกิดข้อผิดพลาด", "error");
       }
     } catch (err) {
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -430,16 +354,12 @@ export default function CheckFieldDetail() {
       }
 
       if (file.size > MAX_IMAGE_SIZE) {
-        setMessage("ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 5MB)");
-        setMessageType("error");
-        value = null;
+        notify("ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 5MB)", "error");
         return;
       }
 
       if (!file.type || !file.type.startsWith("image/")) {
-        setMessage("โปรดเลือกเฉพาะไฟล์รูปภาพเท่านั้น");
-        setMessageType("error");
-        value = null;
+        notify("โปรดเลือกเฉพาะไฟล์รูปภาพเท่านั้น", "error");
         return;
       }
 
@@ -504,26 +424,22 @@ export default function CheckFieldDetail() {
     const fac = newFac[index];
 
     if (!fac) {
-      setMessage("กรุณาลองใส่ข้อมูลสิ่งอำนวยความสะดวกให้ครบถ้วน");
-      setMessageType("error");
+      notify("กรุณาลองใส่ข้อมูลสิ่งอำนวยความสะดวกให้ครบถ้วน", "error");
       return;
     }
 
     if (!fac.fac_name || fac.fac_name.trim() === "") {
-      setMessage("กรุณาใส่ชื่อสิ่งอำนวยความสะดวก");
-      setMessageType("error");
+      notify("กรุณาใส่ชื่อสิ่งอำนวยความสะดวก", "error");
       return;
     }
 
     if (!fac.fac_price || fac.fac_price.toString().trim() === "") {
-      setMessage("กรุณาใส่ราคาสิ่งอำนวยความสะดวก");
-      setMessageType("error");
+      notify("กรุณาใส่ราคาสิ่งอำนวยความสะดวก", "error");
       return;
     }
 
     if (!fac.quantity_total || fac.quantity_total.toString().trim() === "") {
-      setMessage("กรุณาใส่จำนวนทั้งหมด");
-      setMessageType("error");
+      notify("กรุณาใส่จำนวนทั้งหมด", "error");
       return;
     }
 
@@ -531,21 +447,21 @@ export default function CheckFieldDetail() {
     const quantity = parseInt(fac.quantity_total);
 
     if (isNaN(price) || price < 0) {
-      setMessage("ราคาต้องเป็นตัวเลขที่มากกว่าหรือเท่ากับ 0");
-      setMessageType("error");
+      notify("ราคาต้องเป็นตัวเลขที่มากกว่าหรือเท่ากับ 0", "error");
       return;
     }
 
     if (isNaN(quantity) || quantity <= 0) {
-      setMessage("จำนวนต้องเป็นตัวเลขที่มากกว่า 0");
-      setMessageType("error");
+      notify("จำนวนต้องเป็นตัวเลขที่มากกว่า 0", "error");
       return;
     }
 
     SetstartProcessLoad(true);
 
     const formData = new FormData();
-    formData.append("facility_image", fac.image_path);
+    if (fac.image_path) {
+      formData.append("facility_image", fac.image_path);
+    }
     formData.append(
       "data",
       JSON.stringify({
@@ -566,71 +482,27 @@ export default function CheckFieldDetail() {
       const data = await res.json();
 
       if (data.success) {
-        setMessage("บันทึกเรียบร้อย");
-        setMessageType("success");
+        notify("บันทึกเรียบร้อย", "success");
 
         setFacilities((prev) => [...prev, data.inserted]);
 
         setNewFac((prev) => {
-          const item = prev[index];
-          if (item?.image_preview) {
-            try {
-              URL.revokeObjectURL(item.image_preview);
-            } catch (e) {
-              console.error("Failed to revoke object URL:", e);
-            }
-          }
           const remaining = prev.filter((_, i) => i !== index);
-
           if (remaining.length === 0) {
             setShowNewFacilityInput(false);
           }
           return remaining;
         });
       } else {
-        setMessage(
-          "เกิดข้อผิดพลาด: " + (data.error || data.message || "ไม่ทราบสาเหตุ")
-        );
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาด: " + (data.error || data.message || "ไม่ทราบสาเหตุ"), "error");
       }
     } catch (err) {
       console.error("Save facility error:", err);
-      setMessage("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
-      setMessageType("error");
+      notify("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์", "error");
     } finally {
       SetstartProcessLoad(false);
     }
   };
-
-  useEffect(() => {
-    const fetchFacilities = async () => {
-      try {
-        const response = await fetch(`${API_URL}/facilities/${fieldId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch facilities");
-        }
-
-        const data = await response.json();
-        setFacilities(data.data);
-        console.log("Fetched facilities:", data.data);
-      } catch (err) {
-        console.error(err);
-        setMessage("ไม่สามารถเชือมต่อกับเซิร์ฟเวอร์ได้", err);
-        setMessageType("error");
-      } finally {
-        setDataLoading(false);
-      }
-    };
-
-    fetchFacilities();
-  }, [fieldId]);
 
   const startEditing = (fieldName, currentValue) => {
     setEditingField(fieldName);
@@ -652,8 +524,7 @@ export default function CheckFieldDetail() {
 
   const saveSubField = async (sub_field_id) => {
     if (!updatedSportId) {
-      setMessage("กรุณาเลือกประเภทกีฬาก่อนบันทึก");
-      setMessageType("error");
+      notify("กรุณาเลือกประเภทกีฬาก่อนบันทึก", "error");
       return;
     }
 
@@ -668,33 +539,26 @@ export default function CheckFieldDetail() {
         if (prospectivePrices.length > 0) {
           const newMin = Math.min(...prospectivePrices);
           if (deposit > newMin) {
-            setMessage(
-              `ไม่สามารถตั้งราคานี้ได้ เพราะค่ามัดจำปัจจุบัน (${deposit} บาท) ต้องไม่มากกว่าราคาสนามย่อยที่ถูกที่สุดหลังแก้ไข (${newMin} บาท)`
-            );
-            setMessageType("error");
+            notify(`ไม่สามารถตั้งราคานี้ได้ เพราะค่ามัดจำปัจจุบัน (${deposit} บาท) ต้องไม่มากกว่าราคาสนามย่อยที่ถูกที่สุดหลังแก้ไข (${newMin} บาท)`, "error");
             return;
           }
         }
       }
     }
     if (!updatedSubFieldName || updatedSubFieldName.trim() === "") {
-      setMessage("กรุณาระบุชื่อสนามย่อย");
-      setMessageType("error");
+      notify("กรุณาระบุชื่อสนามย่อย", "error");
       return;
     }
     if (!updatedSubFieldPlayer || isNaN(updatedSubFieldPlayer)) {
-      setMessage("กรุณาระบุจำนวนผู้เล่นต่อทีมเป็นตัวเลข");
-      setMessageType("error");
+      notify("กรุณาระบุจำนวนผู้เล่นต่อทีมเป็นตัวเลข", "error");
       return;
     }
     if (!updatedSubFieldWid || isNaN(updatedSubFieldWid)) {
-      setMessage("กรุณาระบุความกว้างของสนามเป็นตัวเลข");
-      setMessageType("error");
+      notify("กรุณาระบุความกว้างของสนามเป็นตัวเลข", "error");
       return;
     }
     if (!updatedSubFieldLength || isNaN(updatedSubFieldLength)) {
-      setMessage("กรุณาระบุความยาวของสนามเป็นตัวเลข");
-      setMessageType("error");
+      notify("กรุณาระบุความยาวของสนามเป็นตัวเลข", "error");
       return;
     }
     SetstartProcessLoad(true);
@@ -721,8 +585,7 @@ export default function CheckFieldDetail() {
 
       const result = await response.json();
       if (response.ok) {
-        setMessage("อัปเดตสนามย่อยสำเร็จ");
-        setMessageType("success");
+        notify("อัปเดตสนามย่อยสำเร็จ", "success");
         setSubFields((prevSubFields) =>
           prevSubFields.map((sub) =>
             sub.sub_field_id === sub_field_id
@@ -741,13 +604,11 @@ export default function CheckFieldDetail() {
         );
         cancelEditing();
       } else {
-        setMessage("เกิดข้อผิดพลาดในการอัปเดตข้อมูลสนาม", response.error);
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาดในการอัปเดตข้อมูลสนาม", "error");
       }
     } catch (error) {
       console.error("Error saving sub-field:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -799,12 +660,13 @@ export default function CheckFieldDetail() {
     setEditorContent("");
   };
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024;
   const handleImgChange = (e) => {
     const file = e.target.files[0];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (!file) return;
+
     if (file.size > MAX_FILE_SIZE) {
-      setMessage("ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 5MB)");
-      setMessageType("error");
+      notify("ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 5MB)", "error");
       e.target.value = null;
       return;
     }
@@ -815,18 +677,18 @@ export default function CheckFieldDetail() {
       setPreviewUrl(URL.createObjectURL(file));
     } else {
       e.target.value = null;
-      setMessage("โปรดเลือกเฉพาะไฟล์รูปภาพเท่านั้น");
-      setMessageType("error");
+      notify("โปรดเลือกเฉพาะไฟล์รูปภาพเท่านั้น", "error");
     }
   };
-  const MAX_FILES = 10;
+
   const handleFileChange = (e) => {
     const files = e.target.files;
+    const MAX_FILES = 10;
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
     let isValid = true;
 
     if (files.length > MAX_FILES) {
-      setMessage(`คุณสามารถอัพโหลดได้สูงสุด ${MAX_FILES} ไฟล์`);
-      setMessageType("error");
+      notify(`คุณสามารถอัพโหลดได้สูงสุด ${MAX_FILES} ไฟล์`, "error");
       e.target.value = null;
       return;
     }
@@ -836,8 +698,7 @@ export default function CheckFieldDetail() {
 
       if (file.size > MAX_FILE_SIZE) {
         isValid = false;
-        setMessage("ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 5MB)");
-        setMessageType("error");
+        notify("ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 5MB)", "error");
         e.target.value = null;
         break;
       }
@@ -845,73 +706,23 @@ export default function CheckFieldDetail() {
       const fileType = file.type;
       if (!fileType.startsWith("image/") && fileType !== "application/pdf") {
         isValid = false;
-        setMessage("โปรดเลือกเฉพาะไฟล์รูปภาพหรือ PDF เท่านั้น");
-        setMessageType("error");
+        notify("โปรดเลือกเฉพาะไฟล์รูปภาพหรือ PDF เท่านั้น", "error");
         break;
       }
     }
 
     if (isValid) {
       setSelectedFile(files);
-      setUpdatedValue(files[0].name);
     } else {
       e.target.value = null;
     }
   };
 
-  const handleNewFacilityImageChange = (e) => {
-    const f = e.target.files?.[0] ?? null;
-    if (!f) {
-      if (newFacilityPreview) URL.revokeObjectURL(newFacilityPreview);
-      setNewFacilityImage(null);
-      setNewFacilityPreview(null);
-      return;
-    }
-
-    if (f.size > MAX_FILE_SIZE) {
-      setMessage("ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 5MB)");
-      setMessageType("error");
-      e.target.value = null;
-      return;
-    }
-    if (!f.type.startsWith("image/")) {
-      setMessage("โปรดเลือกเฉพาะไฟล์รูปภาพเท่านั้น");
-      setMessageType("error");
-      e.target.value = null;
-      return;
-    }
-
-    if (newFacilityPreview) URL.revokeObjectURL(newFacilityPreview);
-    setNewFacilityImage(f);
-    setNewFacilityPreview(URL.createObjectURL(f));
-  };
-
-  useEffect(() => {
-    return () => {
-      if (newFacilityPreview) URL.revokeObjectURL(newFacilityPreview);
-    };
-  }, [newFacilityPreview]);
-
-  useEffect(() => {
-    return () => {
-      if (Array.isArray(newFac)) {
-        newFac.forEach((f) => {
-          if (f?.image_preview) {
-            try {
-              URL.revokeObjectURL(f.image_preview);
-            } catch (e) {}
-          }
-        });
-      }
-    };
-  }, [newFac]);
-
   const saveImageField = async () => {
     SetstartProcessLoad(true);
     try {
       if (!selectedFile) {
-        setMessage("กรุณาเลือกไฟล์ก่อนอัปโหลด");
-        setMessageType("error");
+        notify("กรุณาเลือกไฟล์ก่อนอัปโหลด", "error");
         return;
       }
 
@@ -926,19 +737,16 @@ export default function CheckFieldDetail() {
       let result = await response.json();
 
       if (response.ok) {
-        setMessage("อัปโหลดรูปสำเร็จ");
-        setMessageType("success");
+        notify("อัปโหลดรูปสำเร็จ", "success");
         setField({ ...field, img_field: result.path });
         setEditingField(null);
         setSelectedFile(null);
       } else {
-        setMessage("เกิดข้อผิดพลาด: " + (result.error || "ไม่ทราบสาเหตุ"));
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาด: " + (result.error || "ไม่ทราบสาเหตุ"), "error");
       }
     } catch (error) {
       console.error("Error saving image field:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -948,8 +756,7 @@ export default function CheckFieldDetail() {
     SetstartProcessLoad(true);
     try {
       if (!selectedFile || selectedFile.length === 0) {
-        setMessage("กรุณาเลือกไฟล์เอกสารก่อนอัปโหลด");
-        setMessageType("error");
+        notify("กรุณาเลือกไฟล์เอกสารก่อนอัปโหลด", "error");
         return;
       }
       const formData = new FormData();
@@ -973,8 +780,7 @@ export default function CheckFieldDetail() {
       let result = await response.json();
 
       if (response.ok) {
-        setMessage("อัปโหลดเอกสารสำเร็จ");
-        setMessageType("success");
+        notify("อัปโหลดเอกสารสำเร็จ", "success");
 
         const allDocuments = result.all_documents || result.paths || [];
 
@@ -987,13 +793,11 @@ export default function CheckFieldDetail() {
         setEditingField(null);
         setSelectedFile(null);
       } else {
-        setMessage("เกิดข้อผิดพลาด: " + (result.error || "ไม่ทราบสาเหตุ"));
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาด: " + (result.error || "ไม่ทราบสาเหตุ"), "error");
       }
     } catch (error) {
       console.error("Error saving document field:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -1021,8 +825,7 @@ export default function CheckFieldDetail() {
       const result = await response.json();
 
       if (response.ok) {
-        setMessage("ลบเอกสารสำเร็จ");
-        setMessageType("success");
+        notify("ลบเอกสารสำเร็จ", "success");
 
         const currentDocs = Array.isArray(field.documents)
           ? field.documents
@@ -1035,15 +838,11 @@ export default function CheckFieldDetail() {
           documents: updatedDocs.join(","),
         });
       } else {
-        setMessage(
-          "เกิดข้อผิดพลาด: " + (result.error || "ไม่สามารถลบเอกสารได้")
-        );
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาด: " + (result.error || "ไม่สามารถลบเอกสารได้"), "error");
       }
     } catch (error) {
       console.error("Error deleting document:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -1059,14 +858,12 @@ export default function CheckFieldDetail() {
 
     const MAX_FILE_SIZE = 5 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
-      setMessage("ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 5MB)");
-      setMessageType("error");
+      notify("ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 5MB)", "error");
       return;
     }
     const fileType = file.type;
     if (!fileType.startsWith("image/") && fileType !== "application/pdf") {
-      setMessage("โปรดเลือกเฉพาะไฟล์รูปภาพหรือ PDF เท่านั้น");
-      setMessageType("error");
+      notify("โปรดเลือกเฉพาะไฟล์รูปภาพหรือ PDF เท่านั้น", "error");
       return;
     }
 
@@ -1075,8 +872,7 @@ export default function CheckFieldDetail() {
 
   const saveSingleDocument = async () => {
     if (!singleDocFile || !editingSingleDoc) {
-      setMessage("กรุณาเลือกไฟล์ก่อนบันทึก");
-      setMessageType("error");
+      notify("กรุณาเลือกไฟล์ก่อนบันทึก", "error");
       return;
     }
 
@@ -1099,8 +895,7 @@ export default function CheckFieldDetail() {
       const result = await response.json();
 
       if (response.ok) {
-        setMessage("แก้ไขเอกสารสำเร็จ");
-        setMessageType("success");
+        notify("แก้ไขเอกสารสำเร็จ", "success");
 
         const currentDocs = Array.isArray(field.documents)
           ? field.documents
@@ -1116,15 +911,11 @@ export default function CheckFieldDetail() {
         setEditingSingleDoc(null);
         setSingleDocFile(null);
       } else {
-        setMessage(
-          "เกิดข้อผิดพลาด: " + (result.error || "ไม่สามารถแก้ไขเอกสารได้")
-        );
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาด: " + (result.error || "ไม่สามารถแก้ไขเอกสารได้"), "error");
       }
     } catch (error) {
       console.error("Error replacing document:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -1137,40 +928,23 @@ export default function CheckFieldDetail() {
 
   const isEmptyValue = (value) => {
     if (value === null || value === undefined) return true;
-
-    if (typeof value === "string") {
-      return value.trim() === "";
-    }
-
-    if (typeof value === "number") {
-      return false;
-    }
-
-    if (value instanceof File) {
-      return value.size === 0;
-    }
-
-    if (Array.isArray(value)) {
-      return value.length === 0;
-    }
-
-    if (typeof value === "object") {
-      return Object.keys(value).length === 0;
-    }
-
+    if (typeof value === "string") return value.trim() === "";
+    if (typeof value === "number") return false;
+    if (value instanceof File) return value.size === 0;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === "object") return Object.keys(value).length === 0;
     return false;
   };
 
   const saveField = async (fieldName) => {
     if (fieldName === "open_days") {
       if (!selectedDays || selectedDays.length === 0) {
-        setMessage("กรุณาเลือกอย่างน้อย 1 วัน");
-        setMessageType("error");
+        notify("กรุณาเลือกอย่างน้อย 1 วัน", "error");
         return;
       }
       SetstartProcessLoad(true);
       try {
-        const response = await fetch(`${API_URL}/field/edit/${fieldId}`, {
+        const response = await fetch(`${API_URL}/field/update/${fieldId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -1179,26 +953,18 @@ export default function CheckFieldDetail() {
           body: JSON.stringify({ open_days: selectedDays }),
         });
 
-        let result = {};
-        try {
-          result = await response.json();
-        } catch (err) {
-          console.error("แปลง JSON ล้มเหลว:", err);
-        }
+        const result = await response.json();
 
         if (response.ok) {
           setField({ ...field, open_days: [...selectedDays] });
           setEditingField(null);
-          setMessage("อัปเดตข้อมูลสำเร็จ");
-          setMessageType("success");
+          notify("อัปเดตข้อมูลสำเร็จ", "success");
         } else {
-          setMessage("เกิดข้อผิดพลาด: " + (result.error || "ไม่ทราบสาเหตุ"));
-          setMessageType("error");
+          notify("เกิดข้อผิดพลาด: " + (result.error || "ไม่ทราบสาเหตุ"), "error");
         }
       } catch (error) {
         console.error("Error saving field:", error);
-        setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-        setMessageType("error");
+        notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
       } finally {
         SetstartProcessLoad(false);
       }
@@ -1206,16 +972,14 @@ export default function CheckFieldDetail() {
     }
 
     if (isEmptyValue(updatedValue)) {
-      setMessage("ห้ามปล่อยค่าว่าง หรือ ลบออกทั้งหมด");
-      setMessageType("error");
+      notify("ห้ามปล่อยค่าว่าง หรือ ลบออกทั้งหมด", "error");
       return;
     }
 
     if (fieldName === "price_deposit") {
       const deposit = Number(updatedValue);
       if (isNaN(deposit) || deposit < 0) {
-        setMessage("ค่ามัดจำไม่ถูกต้อง");
-        setMessageType("error");
+        notify("ค่ามัดจำไม่ถูกต้อง", "error");
         return;
       }
       const prices = (subFields || [])
@@ -1224,17 +988,14 @@ export default function CheckFieldDetail() {
       if (prices.length > 0) {
         const minPrice = Math.min(...prices);
         if (deposit > minPrice) {
-          setMessage(
-            `ค่ามัดจำต้องไม่มากกว่าราคาสนามย่อยที่ถูกที่สุด (${minPrice} บาท)`
-          );
-          setMessageType("error");
+          notify(`ค่ามัดจำต้องไม่มากกว่าราคาสนามย่อยที่ถูกที่สุด (${minPrice} บาท)`, "error");
           return;
         }
       }
     }
     SetstartProcessLoad(true);
     try {
-      const response = await fetch(`${API_URL}/field/edit/${fieldId}`, {
+      const response = await fetch(`${API_URL}/field/update/${fieldId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -1243,26 +1004,18 @@ export default function CheckFieldDetail() {
         body: JSON.stringify({ [fieldName]: updatedValue }),
       });
 
-      let result = {};
-      try {
-        result = await response.json();
-      } catch (err) {
-        console.error("แปลง JSON ล้มเหลว:", err);
-      }
+      const result = await response.json();
 
       if (response.ok) {
         setField({ ...field, [fieldName]: updatedValue });
         setEditingField(null);
-        setMessage("อัปเดตข้อมูลสำเร็จ");
-        setMessageType("success");
+        notify("อัปเดตข้อมูลสำเร็จ", "success");
       } else {
-        setMessage("เกิดข้อผิดพลาด: " + (result.error || "ไม่ทราบสาเหตุ"));
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาด: " + (result.error || "ไม่ทราบสาเหตุ"), "error");
       }
     } catch (error) {
       console.error("Error saving field:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -1270,8 +1023,7 @@ export default function CheckFieldDetail() {
 
   const addSubField = async (userId) => {
     if (!newSportId) {
-      setMessage("กรุณาเลือกประเภทกีฬาก่อนเพิ่มสนาม");
-      setMessageType("error");
+      notify("กรุณาเลือกประเภทกีฬาก่อนเพิ่มสนาม", "error");
       return;
     }
 
@@ -1286,10 +1038,7 @@ export default function CheckFieldDetail() {
         if (prices.length > 0) {
           const newMin = Math.min(...prices);
           if (deposit > newMin) {
-            setMessage(
-              `ค่ามัดจำปัจจุบัน (${deposit} บาท) มากกว่าราคาสนามย่อยที่ถูกที่สุดหลังเพิ่ม (${newMin} บาท) กรุณาปรับราคาหรือแก้ไขค่ามัดจำ`
-            );
-            setMessageType("error");
+            notify(`ค่ามัดจำปัจจุบัน (${deposit} บาท) มากกว่าราคาสนามย่อยที่ถูกที่สุดหลังเพิ่ม (${newMin} บาท) กรุณาปรับราคาหรือแก้ไขค่ามัดจำ`, "error");
             return;
           }
         }
@@ -1318,9 +1067,7 @@ export default function CheckFieldDetail() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("API Error: ", errorData);
-        setMessage(errorData.message || "ไม่สามารถเพิ่มสนามย่อยได้");
-        setMessageType("error");
+        notify(errorData.message || "ไม่สามารถเพิ่มสนามย่อยได้", "error");
         return;
       }
       const newField = await response.json();
@@ -1337,12 +1084,10 @@ export default function CheckFieldDetail() {
       };
 
       setSubFields([...subFields, newFieldWithSportName]);
-      setMessage("เพิ่มสนามย่อยสำเร็จ");
-      setMessageType("success");
+      notify("เพิ่มสนามย่อยสำเร็จ", "success");
     } catch (error) {
       console.error("Error: ", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -1368,8 +1113,7 @@ export default function CheckFieldDetail() {
 
   const deleteSubField = async (sub_field_id) => {
     if (!sub_field_id || isNaN(sub_field_id)) {
-      setMessage("Invalid sub-field ID");
-      setMessageType("error");
+      notify("Invalid sub-field ID", "error");
       return;
     }
     SetstartProcessLoad(true);
@@ -1386,20 +1130,17 @@ export default function CheckFieldDetail() {
       );
 
       if (response.ok) {
-        setMessage("ลบสนามย่อยสำเร็จ");
-        setMessageType("success");
+        notify("ลบสนามย่อยสำเร็จ", "success");
         setSubFields((prevSubFields) =>
           prevSubFields.filter((sub) => sub.sub_field_id !== sub_field_id)
         );
       } else {
         const errorData = await response.json();
-        setMessage(`${errorData.error || "เกิดข้อผิดพลาดในการลบสนาม"}`);
-        setMessageType("error");
+        notify(errorData.error || "เกิดข้อผิดพลาดในการลบสนาม", "error");
       }
     } catch (error) {
       console.error("Error deleting sub-field:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -1432,25 +1173,21 @@ export default function CheckFieldDetail() {
               : sub
           )
         );
-        setMessage("เพิ่มสำเร็จ");
-        setMessageType("success");
+        notify("เพิ่มสำเร็จ", "success");
       } else {
-        setMessage(result.message || "เกิดข้อผิดพลาด");
-        setMessageType("error");
+        notify(result.message || "เกิดข้อผิดพลาด", "error");
       }
     } catch (err) {
       console.error("ผิดพลาดขณะเพิ่ม Add-on:", err);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", err);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
   };
+
   const confirmDeleteAddOn = async () => {
     if (!selectedAddOn) return;
-
     await deleteAddOn(selectedAddOn.add_on_id);
-
     setShowDeleteAddOnModal(false);
     setSelectedAddOn(null);
   };
@@ -1470,24 +1207,21 @@ export default function CheckFieldDetail() {
       );
 
       if (response.ok) {
-        setMessage("ลบสำเร็จ");
-        setMessageType("success");
+        notify("ลบสำเร็จ", "success");
         setSubFields((prevSubFields) =>
           prevSubFields.map((sub) => ({
             ...sub,
-            add_ons: sub.add_ons.filter(
+            add_ons: (sub.add_ons || []).filter(
               (addon) => addon.add_on_id !== add_on_id
             ),
           }))
         );
       } else {
-        setMessage("เกิดข้อผิดพลาดในการลบ Add-On");
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาดในการลบกิจกรรมพิเศษ", "error");
       }
     } catch (error) {
       console.error("Error deleting add-on:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -1511,14 +1245,12 @@ export default function CheckFieldDetail() {
         }
       );
 
-      const result = await response.json();
       if (response.ok) {
-        setMessage("แก้ไขสำเร็จ");
-        setMessageType("success");
+        notify("แก้ไขสำเร็จ", "success");
         setSubFields((prevSubFields) =>
           prevSubFields.map((sub) => ({
             ...sub,
-            add_ons: sub.add_ons.map((addon) =>
+            add_ons: (sub.add_ons || []).map((addon) =>
               addon.add_on_id === editingAddon.addOnId
                 ? {
                     ...addon,
@@ -1531,24 +1263,20 @@ export default function CheckFieldDetail() {
         );
         setEditingAddon({ addOnId: null, content: "", price: "" });
       } else {
-        setMessage("เกิดข้อผิดพลาดในการอัปเดต");
-        setMessageType("error");
+        notify("เกิดข้อผิดพลาดในการอัปเดต", "error");
       }
     } catch (error) {
       console.error("Error saving add-on:", error);
-      setMessage("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", error);
-      setMessageType("error");
+      notify("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
     } finally {
       SetstartProcessLoad(false);
     }
   };
+
   const getGoogleMapsLink = (gpsLocation) => {
     if (!gpsLocation) return "#";
-
     const cleaned = gpsLocation.replace(/\s+/g, "");
-
     if (cleaned.startsWith("http")) return cleaned;
-
     if (/^-?[0-9.]+,-?[0-9.]+$/.test(cleaned)) {
       return `https://www.google.com/maps/search/?api=1&query=${cleaned}`;
     }
@@ -1569,7 +1297,7 @@ export default function CheckFieldDetail() {
     SetstartProcessLoad(true);
     try {
       const res = await fetch(`${API_URL}/field/appeal/${field.field_id}`, {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -1580,21 +1308,16 @@ export default function CheckFieldDetail() {
       });
 
       if (res.ok) {
-        setMessage("ส่งคำขอสำเร็จ");
-        setMessageType("success");
-        const updatedField = await res.json();
+        notify("ส่งคำขอสำเร็จ", "success");
         setTimeout(() => {
           router.push("/my-field");
         }, 2000);
       } else {
-        setMessage("เกิดข้อผิดพลาดในการอัปเดต");
-        setMessageType("error");
-        throw new Error("ไม่สามารถอัปเดตสถานะได้");
+        notify("เกิดข้อผิดพลาดในการอัปเดต", "error");
       }
     } catch (err) {
       console.error("Error:", err);
-      setMessage(err.message);
-      setMessageType("error");
+      notify(err.message, "error");
     } finally {
       SetstartProcessLoad(false);
     }
@@ -1625,2607 +1348,312 @@ export default function CheckFieldDetail() {
     });
   };
 
-  const handleSelectAllDays = () => {
-    setSelectedDays([...weekdayOrder]);
-  };
-
-  const handleClearDays = () => {
-    setSelectedDays([]);
-  };
   const formatPrice = (value) => new Intl.NumberFormat("th-TH").format(value);
 
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 2500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
-
-  if (dataLoading)
+  if (isLoading || dataLoading)
     return (
       <div className="load">
         <span className="spinner"></span>
       </div>
     );
 
+  if (!user) {
+    router.push("/login");
+    return null;
+  }
+
+  if (user?.status !== USER_STATUS.VERIFIED) {
+    router.push("/verification");
+    return null;
+  }
+
+  if (user?.role !== USER_ROLE.ADMIN && user?.role !== USER_ROLE.FIELD_OWNER) {
+    router.push("/");
+    return null;
+  }
+
   return (
-    <>
-      {message && (
-        <div className={`message-box ${messageType}`}>
-          <p>{message}</p>
+    <div className="editfield-container">
+      <h1>แก้ไขสนามกีฬา</h1>
+
+      <EditVenueProfileImage
+        field={field}
+        startProcessLoad={startProcessLoad}
+        saveImageField={saveImageField}
+        handleImgChange={handleImgChange}
+        cancelEditing={cancelEditing}
+        editingField={editingField}
+        startEditing={startEditing}
+        previewUrl={previewUrl}
+      />
+
+      <EditVenueBasicInfo
+        field={field}
+        editingField={editingField}
+        updatedValue={updatedValue}
+        setUpdatedValue={setUpdatedValue}
+        saveField={saveField}
+        cancelEditing={cancelEditing}
+        startEditing={startEditing}
+        startProcessLoad={startProcessLoad}
+        selectedDays={selectedDays}
+        handleDayToggle={handleDayToggle}
+        daysInThai={daysInThai}
+        dayCodes={dayCodes}
+        router={router}
+        getGoogleMapsLink={getGoogleMapsLink}
+        notify={notify}
+      />
+
+      <EditVenueDescription
+        field={field}
+        editingField={editingField}
+        editorContent={editorContent}
+        handleEditorChange={handleEditorChange}
+        saveField={saveField}
+        cancelEditing={cancelEditing}
+        startEditing={startEditing}
+        startProcessLoad={startProcessLoad}
+      />
+
+      <ManageFieldDocuments
+        field={field}
+        editingField={editingField}
+        startProcessLoad={startProcessLoad}
+        handleFileChange={handleFileChange}
+        saveDocumentField={saveDocumentField}
+        cancelEditing={cancelEditing}
+        handleDeleteDocument={handleDeleteDocument}
+        handleEditSingleDocument={handleEditSingleDocument}
+        editingSingleDoc={editingSingleDoc}
+        singleDocFile={singleDocFile}
+        handleSingleDocFileChange={handleSingleDocFileChange}
+        saveSingleDocument={saveSingleDocument}
+        cancelSingleDocEdit={cancelSingleDocEdit}
+      />
+
+      <div className="check-field-info"></div>
+
+      <ManageFacilities
+        fieldId={fieldId}
+        facilities={facilities}
+        editingFacility={editingFacility}
+        editFacilityData={editFacilityData}
+        handleEditFacility={handleEditFacility}
+        handleCancelEdit={handleCancelEdit}
+        handleSaveEditFacility={handleSaveEditFacility}
+        handleEditInputChange={handleEditInputChange}
+        handleEditImageChange={handleEditImageChange}
+        handleConfirmDelete={handleConfirmDelete}
+        showNewFacilityInput={showNewFacilityInput}
+        handleToggleNewFacility={handleToggleNewFacility}
+        newFac={newFac}
+        setNewFac={setNewFac}
+        handleChange={handleChange}
+        onSaveNewFac={onSaveNewFac}
+        startProcessLoad={startProcessLoad}
+        formatPrice={formatPrice}
+        notify={notify}
+      />
+
+      <ManageSubFields
+        field={field}
+        subFields={subFields}
+        sportsCategories={sportsCategories}
+        editingField={editingField}
+        updatedSubFieldName={updatedSubFieldName}
+        setUpdatedSubFieldName={setUpdatedSubFieldName}
+        updatedPrice={updatedPrice}
+        setUpdatedPrice={setUpdatedPrice}
+        updatedSubFieldPlayer={updatedSubFieldPlayer}
+        setUpdatedSubFieldPlayer={setUpdatedSubFieldPlayer}
+        updatedSubFieldWid={updatedSubFieldWid}
+        setUpdatedSubFieldWid={setUpdatedSubFieldWid}
+        updatedSubFieldLength={updatedSubFieldLength}
+        setUpdatedSubFieldLength={setUpdatedSubFieldLength}
+        updatedSubFieldFieldSurface={updatedSubFieldFieldSurface}
+        setUpdatedSubFieldFieldSurface={setUpdatedSubFieldFieldSurface}
+        updatedSportId={updatedSportId}
+        setUpdatedSportId={setUpdatedSportId}
+        saveSubField={saveSubField}
+        startEditingSubField={startEditingSubField}
+        cancelEditing={cancelEditing}
+        handleDeleteClick={handleDeleteClick}
+        showAddSubFieldForm={showAddSubFieldForm}
+        setShowAddSubFieldForm={setShowAddSubFieldForm}
+        newSubField={newSubField}
+        setNewSubField={setNewSubField}
+        newSportId={newSportId}
+        setNewSportId={setNewSportId}
+        addSubField={addSubField}
+        userId={userId}
+        showAddOnForm={showAddOnForm}
+        setShowAddOnForm={setShowAddOnForm}
+        addOnInputs={addOnInputs}
+        setAddOnInputs={setAddOnInputs}
+        handleAddOnInputChange={handleAddOnInputChange}
+        addAddOn={addAddOn}
+        editingAddon={editingAddon}
+        setEditingAddon={setEditingAddon}
+        saveAddon={saveAddon}
+        setSelectedAddOn={setSelectedAddOn}
+        setShowDeleteAddOnModal={setShowDeleteAddOnModal}
+        startProcessLoad={startProcessLoad}
+        formatPrice={formatPrice}
+        notify={notify}
+        startEditingAddon={startEditingAddon}
+      />
+
+      {field?.status == FIELD_STATUS.REJECTED && (
+        <div className="editbtn-editfield-request">
+          <button
+            onClick={upDateStatus}
+            style={{
+              cursor: startProcessLoad ? "not-allowed" : "pointer",
+            }}
+            disabled={startProcessLoad}
+            className="editbtn-editfield"
+          >
+            {startProcessLoad ? (
+              <span className="dot-loading">
+                <span className="dot one">●</span>
+                <span className="dot two">●</span>
+                <span className="dot three">●</span>
+              </span>
+            ) : (
+              "ส่งคำขอลงทะเบียนสนามอีกครั้ง"
+            )}
+          </button>
         </div>
       )}
-      <div className="editfield-container">
-        <h1>แก้ไขสนามกีฬา</h1>
-        <div className="input-group-editfield-profile">
-          {editingField === "img_field" ? (
-            <>
-              <div className="preview-container-editfield">
-                {previewUrl && <img src={previewUrl} alt="preview" />}
-              </div>
-              <div>
-                <label className="field-image-label-editfield">
-                  <input
-                    style={{ display: "none" }}
-                    type="file"
-                    onChange={handleImgChange}
-                    accept="image/*"
-                  />
-                  เลือกรูปภาพใหม่
-                </label>
 
-                <div className="btn-group-editfield">
-                  <button
-                    className="savebtn-editfield"
-                    style={{
-                      cursor: startProcessLoad ? "not-allowed" : "pointer",
-                    }}
-                    disabled={startProcessLoad}
-                    onClick={saveImageField}
-                  >
-                    {startProcessLoad ? (
-                      <span className="dot-loading">
-                        <span className="dot one">●</span>
-                        <span className="dot two">●</span>
-                        <span className="dot three">●</span>
-                      </span>
-                    ) : (
-                      "บันทึก"
-                    )}
-                  </button>
-                  <button
-                    className="canbtn-editfield"
-                    style={{
-                      cursor: startProcessLoad ? "not-allowed" : "pointer",
-                    }}
-                    disabled={startProcessLoad}
-                    onClick={cancelEditing}
-                  >
-                    ยกเลิก
-                  </button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <img
-                src={`${field?.img_field}`}
-                alt="รูปสนามกีฬา"
-                className="preview-container-editfield"
-              />
-              <div className="btn-group-editfield">
-                <button
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  className="editbtn-editfield-center"
-                  onClick={() => startEditing("img_field", field?.img_field)}
-                >
-                  แก้ไขรูปโปรไฟล์
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="check-field-info">
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>วันที่เปิดสนาม:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "open_days" ? (
-                  <div className="edit-field-inline">
-                    <div className="days-checkbox-container">
-                      {dayCodes.map((code) => (
-                        <label key={code} className="day-checkbox">
-                          <input
-                            type="checkbox"
-                            value={code}
-                            checked={selectedDays.includes(code)}
-                            disabled={startProcessLoad}
-                            onChange={() => handleDayToggle(code)}
-                          />
-                          {daysInThai[code]}
-                        </label>
-                      ))}
-                    </div>
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("open_days")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <div
-                      className="field-value-checkfield"
-                      style={{ marginBottom: "4px" }}
-                    >
-                      {field?.open_days && field.open_days.length > 0
-                        ? field.open_days.length === 7
-                          ? "เปิดทุกวัน"
-                          : field.open_days
-                              .slice()
-                              .sort(
-                                (a, b) =>
-                                  [
-                                    "Mon",
-                                    "Tue",
-                                    "Wed",
-                                    "Thu",
-                                    "Fri",
-                                    "Sat",
-                                    "Sun",
-                                  ].indexOf(a) -
-                                  [
-                                    "Mon",
-                                    "Tue",
-                                    "Wed",
-                                    "Thu",
-                                    "Fri",
-                                    "Sat",
-                                    "Sun",
-                                  ].indexOf(b)
-                              )
-                              .map((d) => daysInThai[d])
-                              .join(", ")
-                        : "ไม่มีข้อมูล"}
-                    </div>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() => startEditing("open_days", "")}
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>
-                แบ่งช่วงเวลาในการจอง ช่วงละ " 30 นาที " หรือ "ช่วงละ 1 ชั่วโมง :
-              </strong>
-              <div className="field-value-checkfield">
-                {editingField === "slot_duration" ? (
-                  <div className="edit-field-inline">
-                    <select
-                      value={updatedValue}
-                      onChange={(e) => setUpdatedValue(e.target.value)}
-                      className="inline-select"
-                    >
-                      <option value="30">30 นาที</option>
-                      <option value="60">1 ชั่วโมง</option>
-                    </select>
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("slot_duration")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>
-                      {Number(field?.slot_duration) === 30
-                        ? "30 นาที"
-                        : Number(field?.slot_duration) === 60
-                        ? "1 ชั่วโมง"
-                        : "ไม่มีข้อมูล"}
-                    </span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("slot_duration", field?.slot_duration)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="check-field-info">
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>ชื่อสนาม:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "field_name" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      maxLength={50}
-                      type="text"
-                      value={updatedValue}
-                      onChange={(e) => setUpdatedValue(e.target.value)}
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("field_name")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>{field?.field_name || "ไม่มีข้อมูล"}</span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("field_name", field?.field_name)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>เวลาเปิด:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "open_hours" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      type="time"
-                      value={updatedValue}
-                      onChange={(e) => setUpdatedValue(e.target.value)}
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("open_hours")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>{field?.open_hours || "ไม่มีข้อมูล"}</span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("open_hours", field?.open_hours)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>เวลาปิด:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "close_hours" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      type="time"
-                      value={updatedValue}
-                      onChange={(e) => setUpdatedValue(e.target.value)}
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("close_hours")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>{field?.close_hours || "ไม่มีข้อมูล"}</span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("close_hours", field?.close_hours)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="check-field-info">
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>พิกัด GPS:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "gps_location" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      maxLength={200}
-                      type="text"
-                      value={updatedValue}
-                      onChange={(e) => setUpdatedValue(e.target.value)}
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("gps_location")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>
-                      {field?.gps_location ? (
-                        <a
-                          href={getGoogleMapsLink(field.gps_location)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {field.gps_location}
-                        </a>
-                      ) : (
-                        "ไม่มีข้อมูล"
-                      )}
-                    </span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() => router.push(`/map/${field.field_id}`)}
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>ที่อยู่:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "address" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      maxLength={100}
-                      type="text"
-                      value={updatedValue}
-                      onChange={(e) => setUpdatedValue(e.target.value)}
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("address")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>{field?.address || "ไม่มีข้อมูล"}</span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() => startEditing("address", field?.address)}
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>ยกเลิกก่อนถึงเวลา:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "cancel_hours" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      type="text"
-                      value={updatedValue}
-                      pattern="[0-9]*"
-                      maxLength={2}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val > 24) {
-                          setMessage("ใส่ไม่เกินไม่เกิน 24 ชั่วโมง ");
-                          setMessageType("error");
-                          return;
-                        }
-                        setMessage(null);
-                        if (/^\d{0,2}$/.test(val)) {
-                          setUpdatedValue(val);
-                        }
-                      }}
-                      placeholder="ใส่ได้ไม่เกิน 24 ชม."
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("cancel_hours")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>{field?.cancel_hours || "0"} ชั่วโมง</span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("cancel_hours", field?.cancel_hours)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>ค่ามัดจำ:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "price_deposit" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      min="0"
-                      type="text"
-                      maxLength={7}
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={updatedValue}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-                        if (value.length > 6) {
-                          setMessage("ใส่ได้ไม่เกิน 6 หลัก");
-                          setMessageType("error");
-                          return;
-                        }
-                        setMessage(null);
-                        setMessageType(null);
-                        setUpdatedValue(Math.abs(Number(value)));
-                      }}
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("price_deposit")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>
-                      {field?.price_deposit === 0
-                        ? "ไม่มีค่ามัดจำ"
-                        : `${field?.price_deposit || "ไม่มีข้อมูล"} บาท`}
-                    </span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("price_deposit", field?.price_deposit)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>ธนาคาร:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "name_bank" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      maxLength={50}
-                      type="text"
-                      value={updatedValue}
-                      onChange={(e) => setUpdatedValue(e.target.value)}
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("name_bank")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>{field?.name_bank || "ไม่มีข้อมูล"}</span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("name_bank", field?.name_bank)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>ชื่อเจ้าของบัญชี:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "account_holder" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      maxLength={50}
-                      type="text"
-                      value={updatedValue}
-                      onChange={(e) => setUpdatedValue(e.target.value)}
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("account_holder")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>{field?.account_holder || "ไม่มีข้อมูล"}</span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("account_holder", field?.account_holder)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>เลขบัญชี:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "number_bank" ? (
-                  <div className="edit-field-inline">
-                    <input
-                      type="text"
-                      maxLength={13}
-                      pattern="[0-9]*"
-                      inputMode="numeric"
-                      value={updatedValue || ""}
-                      onChange={(e) => {
-                        let val = e.target.value.replace(/\D/g, "");
-                        setUpdatedValue(val);
-                        setMessage(null);
-                        setMessageType(null);
-                      }}
-                      onBlur={() => {
-                        const len = updatedValue?.length ?? 0;
-                        if (len !== 10 && len !== 13) {
-                          setMessage("ใส่เลขบัญชีต้อง 10 หรือ 13 หลัก");
-                          setMessageType("error");
-                          setUpdatedValue("");
-                        }
-                      }}
-                      placeholder="เลขบัญชีต้อง 10 หรือ 13 หลัก"
-                      className="inline-input"
-                    />
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("number_bank")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <span>{field?.number_bank || "ไม่มีข้อมูล"}</span>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing("number_bank", field?.number_bank)
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>คำแนะนำของสนาม:</strong>
-              <div className="field-value-checkfield">
-                {editingField === "field_description" ? (
-                  <div className="edit-field-full">
-                    <div className="tinymce-editor">
-                      <Editor
-                        apiKey={process.env.NEXT_PUBLIC_TINYMCE_KEY}
-                        value={editorContent}
-                        onEditorChange={handleEditorChange}
-                        init={{
-                          height: 350,
-                          menubar: false,
-                          plugins: [
-                            "advlist",
-                            "autolink",
-                            "lists",
-                            "link",
-                            "image",
-                            "charmap",
-                            "preview",
-                            "anchor",
-                            "searchreplace",
-                            "visualblocks",
-                            "code",
-                            "fullscreen",
-                            "insertdatetime",
-                            "media",
-                            "table",
-                            "code",
-                            "help",
-                            "wordcount",
-                          ],
-                          toolbar:
-                            "undo redo | blocks | " +
-                            "bold italic forecolor | alignleft aligncenter " +
-                            "alignright alignjustify | bullist numlist outdent indent | " +
-                            "removeformat | help",
-                          content_style:
-                            "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-                          branding: false,
-                          statusbar: false,
-                          resize: false,
-                          placeholder:
-                            "ใส่รายละเอียดสนาม ช่องทางการติดต่อ หมายเหตุต่างๆ เช่น: สนามหญ้าเทียม 7 คน",
-                          max_chars: 1000,
-                          setup: function (editor) {
-                            editor.on("init", function () {
-                              editor.getContainer().style.transition =
-                                "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out";
-                            });
-                          },
-                        }}
-                      />
-                    </div>
-                    <div className="inline-buttons">
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="savebtn-inline"
-                        onClick={() => saveField("field_description")}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึก"
-                        )}
-                      </button>
-                      <button
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        disabled={startProcessLoad}
-                        className="canbtn-inline"
-                        onClick={cancelEditing}
-                      >
-                        ยกเลิก
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="view-field-inline">
-                    <div
-                      className="field-description-display"
-                      dangerouslySetInnerHTML={{
-                        __html: field?.field_description || "ไม่มีข้อมูล",
-                      }}
-                    />
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="edit-btn-inline"
-                      onClick={() =>
-                        startEditing(
-                          "field_description",
-                          field?.field_description
-                        )
-                      }
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="documents-section-full">
-          <h2>เอกสารประกอบการสมัคร</h2>
-          {editingField === "documents" ? (
-            <div className="edit-documents-section">
-              <input
-                type="file"
-                onChange={handleFileChange}
-                multiple
-                accept="image/*,.pdf"
-                className="file-input-documents"
-              />
-              <div className="edit-documents-buttons">
-                <button
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  className="savebtn-inline"
-                  onClick={saveDocumentField}
-                >
-                  {startProcessLoad ? (
-                    <span className="dot-loading">
-                      <span className="dot one">●</span>
-                      <span className="dot two">●</span>
-                      <span className="dot three">●</span>
-                    </span>
-                  ) : (
-                    "บันทึก"
-                  )}
-                </button>
-                <button
-                  className="canbtn-inline"
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  onClick={cancelEditing}
-                >
-                  ยกเลิก
-                </button>
-              </div>
-            </div>
-          ) : field?.documents ? (
-            <div className="documents-grid">
-              {(Array.isArray(field.documents)
-                ? field.documents
-                : field.documents.split(",")
-              ).map((doc, i) => {
-                const docUrl = doc.trim();
-                const fileName = docUrl.split("/").pop() || `เอกสาร ${i + 1}`;
-                const fileExt = fileName.split(".").pop()?.toLowerCase();
-
-                return (
-                  <div className="document-card" key={i}>
-                    {editingSingleDoc && editingSingleDoc.index === i ? (
-                      <div className="single-doc-edit-form">
-                        <div className="document-icon">
-                          <span className="file-icon edit-mode">EDIT</span>
-                        </div>
-                        <div className="document-info">
-                          <h4 className="document-name">แก้ไขเอกสาร {i + 1}</h4>
-                          <div className="single-doc-file-input">
-                            <label className="edit-doc-label">
-                              <input
-                                type="file"
-                                style={{ display: "none" }}
-                                onChange={handleSingleDocFileChange}
-                                accept="image/*,.pdf"
-                                className="file-input-single-doc"
-                              />
-                              เลือกไฟล์ใหม่
-                            </label>
-
-                            {singleDocFile && (
-                              <p className="selected-file-name">
-                                ไฟล์ที่เลือก: {singleDocFile.name}
-                              </p>
-                            )}
-                          </div>
-                          <div className="inline-buttons">
-                            <button
-                              className="savebtn-inline"
-                              onClick={saveSingleDocument}
-                              disabled={startProcessLoad || !singleDocFile}
-                              style={{
-                                cursor:
-                                  startProcessLoad || !singleDocFile
-                                    ? "not-allowed"
-                                    : "pointer",
-                              }}
-                            >
-                              {startProcessLoad ? (
-                                <span className="dot-loading">
-                                  <span className="dot one">●</span>
-                                  <span className="dot two">●</span>
-                                  <span className="dot three">●</span>
-                                </span>
-                              ) : (
-                                "บันทึก"
-                              )}
-                            </button>
-                            <button
-                              className="canbtn-inline"
-                              onClick={cancelSingleDocEdit}
-                              disabled={startProcessLoad}
-                              style={{
-                                cursor: startProcessLoad
-                                  ? "not-allowed"
-                                  : "pointer",
-                              }}
-                            >
-                              ยกเลิก
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="document-icon">
-                          {fileExt === "pdf" ? (
-                            <div className="pdf-icon-display">
-                              <div className="pdf-icon-large">📄</div>
-                              <div className="pdf-text">PDF</div>
-                            </div>
-                          ) : fileExt === "jpg" ||
-                            fileExt === "jpeg" ||
-                            fileExt === "png" ||
-                            fileExt === "gif" ? (
-                            <div className="image-preview">
-                              <img
-                                src={docUrl}
-                                alt={`เอกสาร ${i + 1}`}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                  borderRadius: "4px",
-                                }}
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                  e.target.nextSibling.style.display = "flex";
-                                }}
-                              />
-                              <div
-                                className="file-fallback"
-                                style={{ display: "none" }}
-                              >
-                                IMG
-                              </div>
-                            </div>
-                          ) : (
-                            <span
-                              className={`file-icon ${
-                                fileExt === "doc" || fileExt === "docx"
-                                  ? "doc-icon"
-                                  : "file-icon"
-                              }`}
-                            >
-                              {(fileExt === "doc" || fileExt === "docx") &&
-                                "DOC"}
-                              {![
-                                "pdf",
-                                "jpg",
-                                "jpeg",
-                                "png",
-                                "gif",
-                                "doc",
-                                "docx",
-                              ].includes(fileExt) && "FILE"}
-                            </span>
-                          )}
-                        </div>
-                        <div className="document-info">
-                          <h4 className="document-name">
-                            เอกสาร {i + 1}
-                            <span
-                              className={`file-type-inline ${
-                                fileExt === "pdf"
-                                  ? "pdf-type"
-                                  : fileExt === "jpg" ||
-                                    fileExt === "jpeg" ||
-                                    fileExt === "png" ||
-                                    fileExt === "gif"
-                                  ? "image-type"
-                                  : fileExt === "doc" || fileExt === "docx"
-                                  ? "doc-type"
-                                  : "file-type"
-                              }`}
-                            >
-                              {fileExt === "pdf" && " PDF"}
-                              {(fileExt === "jpg" ||
-                                fileExt === "jpeg" ||
-                                fileExt === "png" ||
-                                fileExt === "gif") &&
-                                "  รูป"}
-                              {(fileExt === "doc" || fileExt === "docx") &&
-                                "DOC"}
-                              {![
-                                "pdf",
-                                "jpg",
-                                "jpeg",
-                                "png",
-                                "gif",
-                                "doc",
-                                "docx",
-                              ].includes(fileExt) && "FILE"}
-                            </span>
-                          </h4>
-                          <p className="document-filename">{fileName}</p>
-                          <div className="document-actions">
-                            <a
-                              href={docUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn-preview"
-                            >
-                              เปิด
-                            </a>
-
-                            <button
-                              className="edit-btn-inline"
-                              onClick={() =>
-                                handleEditSingleDocument(i, docUrl)
-                              }
-                              disabled={startProcessLoad || editingSingleDoc}
-                              style={{
-                                cursor:
-                                  startProcessLoad || editingSingleDoc
-                                    ? "not-allowed"
-                                    : "pointer",
-                              }}
-                            >
-                              แก้ไข
-                            </button>
-                            <button
-                              className="btn-delete-doc"
-                              onClick={() => handleDeleteDocument(docUrl, i)}
-                              disabled={startProcessLoad || editingSingleDoc}
-                              style={{
-                                cursor:
-                                  startProcessLoad || editingSingleDoc
-                                    ? "not-allowed"
-                                    : "pointer",
-                              }}
-                            >
-                              <img
-                                width={15}
-                                height={15}
-                                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAR1JREFUSEvNlusRwiAQhG870U5MJ6YStRLTiXZiOjmzGXAQjofJMCO/HDzug7tlCaQwVPUgIhcRORths5sbAPjfSRgqgIeInEoxC3wGcMzF1ADKhQCSOHe6VzcAwaqa3YA/0bozVW0pRaVSyd9r6Tzgnmnkr0nD+CeAodiDPdm/ShQmUlVKkvLcMliWKVxoqYPK2ApIFGcB9jQ8uROtAN7U+FTW3NrYWoliRa2LIilbc8w7ARhrgKvzHx/3V4Db4irc4GdYPaBMWaYtJxhbZEr3pJK6AagW3oUtgGP8NpRsuA+AWb0NO0Kziqx3wzQ7VQ3togsgtAsPsKDhnPl05k4Q+1GLVSQ2wRLnAPFdaLHu5JKVAKXPFQuWeJAPegM03+AZ7kVVEgAAAABJRU5ErkJggg=="
-                                alt=""
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="no-documents">
-              <div className="no-documents-icon">ไม่มีเอกสาร</div>
-              <p>ไม่มีเอกสารแนบ</p>
-            </div>
-          )}
-        </div>
-        <div className="check-field-info"></div>
-
-        <div className="field-row-checkfield">
-          <div className="field-details-checkfield-fac">
-            <strong>สิ่งอำนวยความสะดวกในสนาม:</strong>
-            <div className="field-value-checkfield">
-              <div className="facilities-display">
-                {Array.isArray(facilities) && facilities.length === 0 ? (
-                  <div className="no-facilities-message">
-                    <span>ยังไม่มีสิ่งอำนวยความสะดวกสำหรับสนามนี้</span>
-                  </div>
-                ) : Array.isArray(facilities) && facilities.length > 0 ? (
-                  <div className="facilities-grid-simple">
-                    {facilities.map((facility) => (
-                      <div
-                        className="facility-card-simple"
-                        key={facility.field_fac_id}
-                      >
-                        {editingFacility === facility.field_fac_id ? (
-                          <div className="facility-edit-form">
-                            <div className="facility-image-simple">
-                              {facility.image_path &&
-                              !editFacilityData.facility_image ? (
-                                <img
-                                  src={facility.image_path}
-                                  alt={facility.fac_name}
-                                  onError={(e) => {
-                                    e.target.src =
-                                      "/images/placeholder-image.png";
-                                  }}
-                                />
-                              ) : editFacilityData.facility_image ? (
-                                <img
-                                  src={URL.createObjectURL(
-                                    editFacilityData.facility_image
-                                  )}
-                                  alt="Preview"
-                                />
-                              ) : (
-                                <div className="facility-no-image">
-                                  ยังไม่มีรูป
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="facility-edit-inputs">
-                              <div className="input-group-edit">
-                                <label htmlFor="facility-name">
-                                  ชื่อสิ่งอำนวยความสะดวก
-                                </label>
-                                <input
-                                  id="facility-name"
-                                  type="text"
-                                  placeholder="กรุณาใส่ชื่อสิ่งอำนวยความสะดวก"
-                                  value={editFacilityData.facility_name}
-                                  onChange={(e) =>
-                                    handleEditInputChange(
-                                      "facility_name",
-                                      e.target.value
-                                    )
-                                  }
-                                  maxLength={50}
-                                />
-                              </div>
-
-                              <div className="input-group-edit">
-                                <label htmlFor="facility-price">
-                                  ราคา (บาท)
-                                </label>
-                                <input
-                                  id="facility-price"
-                                  type="text"
-                                  inputMode="numeric"
-                                  pattern="[0-9]*"
-                                  maxLength={7}
-                                  placeholder="กรุณาใส่ราคา"
-                                  value={editFacilityData.facility_price}
-                                  onChange={(e) => {
-                                    let value = e.target.value.replace(
-                                      /\D/g,
-                                      ""
-                                    );
-                                    if (value >= 999999) {
-                                      setMessage("ใส่ได้ไม่เกิน 5 หลัก");
-                                      setMessageType("error");
-                                      return;
-                                    }
-                                    setMessage(null);
-                                    setMessageType("error");
-                                    handleEditInputChange(
-                                      "facility_price",
-                                      value
-                                    );
-                                  }}
-                                />
-                              </div>
-
-                              <div className="input-group-edit">
-                                <label htmlFor="facility-count">จำนวน</label>
-                                <input
-                                  id="facility-count"
-                                  type="text"
-                                  inputMode="numeric"
-                                  pattern="[0-9]*"
-                                  maxLength={7}
-                                  placeholder="กรุณาใส่จำนวน"
-                                  value={editFacilityData.facility_count}
-                                  onChange={(e) => {
-                                    let value = e.target.value.replace(
-                                      /\D/g,
-                                      ""
-                                    );
-                                    if (value >= 999999) {
-                                      setMessage("ใส่ได้ไม่เกิน 5 หลัก");
-                                      setMessageType("error");
-                                      return;
-                                    }
-                                    setMessage(null);
-                                    setMessageType("error");
-                                    handleEditInputChange(
-                                      "facility_count",
-                                      value
-                                    );
-                                  }}
-                                  min="1"
-                                />
-                              </div>
-
-                              <div className="input-group-edit">
-                                <label htmlFor="facility-description">
-                                  รายละเอียด
-                                </label>
-                                <textarea
-                                  id="facility-description"
-                                  placeholder="ใส่รายละเอียดสิ่งอำนวยความสะดวก (ถ้ามี)"
-                                  value={editFacilityData.facility_description}
-                                  onChange={(e) =>
-                                    handleEditInputChange(
-                                      "facility_description",
-                                      e.target.value
-                                    )
-                                  }
-                                  rows="3"
-                                  maxLength={200}
-                                />
-                              </div>
-
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleEditImageChange}
-                                style={{ display: "none" }}
-                                className="file-label-fac"
-                                id={`facility-image-${facility.field_fac_id}`}
-                              />
-                              <label
-                                htmlFor={`facility-image-${facility.field_fac_id}`}
-                                className="facility-image-label"
-                              >
-                                {editFacilityData.facility_image
-                                  ? "เปลี่ยนรูปภาพ"
-                                  : "เปลี่ยนรูปภาพ"}
-                              </label>
-
-                              <div className="facility-edit-actions">
-                                <button
-                                  className="save-edit-btn"
-                                  onClick={handleSaveEditFacility}
-                                  disabled={startProcessLoad}
-                                >
-                                  {startProcessLoad ? (
-                                    <span className="dot-loading">
-                                      <span className="dot one">●</span>
-                                      <span className="dot two">●</span>
-                                      <span className="dot three">●</span>
-                                    </span>
-                                  ) : (
-                                    "บันทึก"
-                                  )}
-                                </button>
-                                <button
-                                  className="cancel-edit-btn"
-                                  onClick={handleCancelEdit}
-                                  disabled={startProcessLoad}
-                                >
-                                  ยกเลิก
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="facility-image-simple">
-                              {facility.image_path ? (
-                                <img
-                                  src={facility.image_path}
-                                  alt={facility.fac_name}
-                                  onError={(e) => {
-                                    e.target.src =
-                                      "/images/placeholder-image.png";
-                                  }}
-                                />
-                              ) : (
-                                <div className="facility-no-image">
-                                  ยังไม่มีรูป
-                                </div>
-                              )}
-                            </div>
-                            <div className="facility-info-simple">
-                              <h4 className="facility-name-simple">
-                                {facility.fac_name}
-                              </h4>
-
-                              <div className="facility-details-simple">
-                                <div className="detail-row">
-                                  <span>ราคา: </span>
-                                  <span>
-                                    {formatPrice(facility.fac_price)} บาท
-                                  </span>
-                                </div>
-                                <div className="detail-row">
-                                  <span>จำนวน: </span>
-                                  <span>{facility.quantity_total} ชิ้น</span>
-                                </div>
-                                <div className="detail-row">
-                                  <span>รายละเอียด: </span>
-                                  <span>
-                                    {facility.description &&
-                                    facility.description.trim() !== ""
-                                      ? facility.description
-                                      : "ยังไม่มีรายละเอียด"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="facility-actions">
-                                <button
-                                  style={{
-                                    cursor: startProcessLoad
-                                      ? "not-allowed"
-                                      : "pointer",
-                                  }}
-                                  disabled={startProcessLoad}
-                                  className="edit-btn-inline"
-                                  onClick={() => handleEditFacility(facility)}
-                                  title="แก้ไขสิ่งอำนวยความสะดวก"
-                                >
-                                  แก้ไข
-                                </button>
-                                <button
-                                  style={{
-                                    cursor: startProcessLoad
-                                      ? "not-allowed"
-                                      : "pointer",
-                                  }}
-                                  disabled={startProcessLoad}
-                                  className="delete-facility-btn-simple"
-                                  onClick={() =>
-                                    handleConfirmDelete(
-                                      fieldId,
-                                      facility.field_fac_id
-                                    )
-                                  }
-                                  title="ลบสิ่งอำนวยความสะดวก"
-                                >
-                                  ลบ
-                                </button>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="error-message">
-                    <span>ข้อมูลผิดพลาด</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="check-field-info">
-          <div className="field-row-checkfield">
-            <div className="field-details-checkfield">
-              <strong>เพิ่มสิ่งอำนวยความสะดวกใหม่:</strong>
-              <div className="field-value-checkfield">
-                <div className="btn-center-add-fac">
-                  <button
-                    type="button"
-                    className="toggle-addon-btn"
-                    onClick={handleToggleNewFacility}
-                    disabled={startProcessLoad}
-                  >
-                    {showNewFacilityInput
-                      ? "ยกเลิก"
-                      : "เพิ่มสิ่งอำนวยความสะดวกใหม่"}
-                  </button>
-                </div>
-                {newFac.map((fac, index) => (
-                  <div key={index} className="facility-form">
-                    <input
-                      placeholder="ชื่อสิ่งอำนวยความสะดวก"
-                      type="text"
-                      maxLength={50}
-                      value={fac.fac_name}
-                      onChange={(e) =>
-                        handleChange(index, "fac_name", e.target.value)
-                      }
-                    />
-                    <input
-                      placeholder="ราคา"
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={7}
-                      value={fac.fac_price || ""}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-                        if (value >= 999999) {
-                          setMessage("ใส่ได้ไม่เกิน 5 หลัก");
-                          setMessageType("error");
-                          return;
-                        }
-                        setMessage(null);
-                        setMessageType("error");
-                        handleChange(index, "fac_price", value);
-                      }}
-                    />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={7}
-                      placeholder="จำนวนทั้งหมด"
-                      value={fac.quantity_total}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-                        if (value >= 999999) {
-                          return;
-                        }
-                        setMessage(null);
-                        setMessageType("error");
-                        handleChange(index, "quantity_total", value);
-                      }}
-                    />
-                    <textarea
-                      maxLength={50}
-                      placeholder="รายละเอียด (ถ้ามี)"
-                      value={fac.description}
-                      onChange={(e) =>
-                        handleChange(index, "description", e.target.value)
-                      }
-                    />
-
-                    <div className="facility-image-input-row">
-                      <label className="file-label-fac">
-                        <input
-                          type="file"
-                          onChange={(e) =>
-                            handleChange(index, "image_path", e.target.files[0])
-                          }
-                          accept="image/*"
-                          className="file-input-hidden-fac"
-                          style={{ display: "none" }}
-                        />
-                        เลือกรูปภาพ (ถ้ามี)
-                      </label>
-                      {fac?.image_preview ? (
-                        <div className="fac-preview-wrap">
-                          <img
-                            src={fac.image_preview}
-                            alt={`preview-${index}`}
-                            className="fac-preview-img"
-                          />
-                          <button
-                            type="button"
-                            className="remove-fac-image-btn"
-                            onClick={() => {
-                              if (fac.image_preview) {
-                                try {
-                                  URL.revokeObjectURL(fac.image_preview);
-                                } catch (e) {}
-                              }
-                              setNewFac((prev) => {
-                                const updated = [...prev];
-                                updated[index] = {
-                                  ...updated[index],
-                                  image_path: null,
-                                  image_preview: null,
-                                };
-                                return updated;
-                              });
-                            }}
-                            title="ลบรูป"
-                          >
-                            ยกเลิก
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className="save-add-fac-edit-field">
-                      <button
-                        type="button"
-                        disabled={startProcessLoad}
-                        style={{
-                          cursor: startProcessLoad ? "not-allowed" : "pointer",
-                        }}
-                        className="save-btn-add-fac"
-                        onClick={() => onSaveNewFac(index)}
-                      >
-                        {startProcessLoad ? (
-                          <span className="dot-loading">
-                            <span className="dot one">●</span>
-                            <span className="dot two">●</span>
-                            <span className="dot three">●</span>
-                          </span>
-                        ) : (
-                          "บันทึกสิ่งอำนวยความสะดวก"
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="sub-fields-container-editfield">
-          <div className="add-sub-field-container">
-            <div className="input-group-editfield-addsubfield">
-              {!showAddSubFieldForm ? (
-                <button
-                  className="editbtn-editfield"
-                  onClick={() => setShowAddSubFieldForm(true)}
-                >
-                  เพิ่มสนามย่อย
-                </button>
-              ) : (
-                <div className="add-subfield-form-editfield">
-                  <div className="subfield-form-editfield">
-                    <input
-                      type="text"
-                      maxLength={20}
-                      placeholder="ชื่อสนามย่อย"
-                      value={newSubField.sub_field_name}
-                      onChange={(e) =>
-                        setNewSubField({
-                          ...newSubField,
-                          sub_field_name: e.target.value,
-                        })
-                      }
-                    />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={7}
-                      placeholder="ราคา"
-                      value={newSubField.price ?? ""}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-
-                        if (value > 999999) {
-                          setMessage("ใส่ได้ไม่เกิน 6 หลัก");
-                          setMessageType("error");
-                          return;
-                        }
-                        setMessage(null);
-                        setMessageType(null);
-
-                        setNewSubField({
-                          ...newSubField,
-                          price: Math.abs(Number(value)),
-                        });
-                      }}
-                    />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={2}
-                      placeholder="ผู้เล่น"
-                      value={newSubField.players_per_team || ""}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-
-                        if (value > 11) {
-                          setMessage("ใส่ได้ไม่เกิน 11 คน");
-                          setMessageType("error");
-                          return;
-                        }
-                        setMessage(null);
-                        setMessageType(null);
-                        setNewSubField({
-                          ...newSubField,
-                          players_per_team: Math.abs(e.target.value),
-                        });
-                      }}
-                    />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={4}
-                      placeholder="กว้าง"
-                      value={newSubField.wid_field || ""}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-
-                        if (value > 1000) {
-                          setMessage("ใส่ได้ไม่เกิน 1000 เมตร");
-                          setMessageType("error");
-                          return;
-                        }
-                        setMessage(null);
-                        setMessageType(null);
-                        setNewSubField({
-                          ...newSubField,
-                          wid_field: Math.abs(e.target.value),
-                        });
-                      }}
-                    />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={4}
-                      placeholder="ยาว"
-                      value={newSubField.length_field || ""}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-
-                        if (value > 1000) {
-                          setMessage("ใส่ได้ไม่เกิน 1000 เมตร");
-                          setMessageType("error");
-                          return;
-                        }
-                        setMessage(null);
-                        setMessageType(null);
-                        setNewSubField({
-                          ...newSubField,
-                          length_field: Math.abs(e.target.value),
-                        });
-                      }}
-                    />
-                    <input
-                      type="text"
-                      maxLength={20}
-                      placeholder="ประเภทของพื้นสนาม"
-                      value={newSubField.field_surface}
-                      onChange={(e) =>
-                        setNewSubField({
-                          ...newSubField,
-                          field_surface: e.target.value,
-                        })
-                      }
-                    />
-                    <select
-                      value={newSportId}
-                      onChange={(e) => setNewSportId(e.target.value)}
-                      className="sport-select-editfield"
-                    >
-                      <option value="">เลือกประเภทกีฬา</option>
-                      {sportsCategories.map((category) => (
-                        <option
-                          key={category.sport_id}
-                          value={String(category.sport_id)}
-                        >
-                          {category.sport_name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <button
-                    style={{
-                      cursor: startProcessLoad ? "not-allowed" : "pointer",
-                    }}
-                    disabled={startProcessLoad}
-                    className="savebtn-editfield"
-                    onClick={async () => {
-                      if (!userId) {
-                        setMessage("ยังไม่ได้โหลด user_id ");
-                        setMessageType("error");
-                        return;
-                      }
-                      await addSubField(userId);
-                      setNewSubField({
-                        sub_field_name: "",
-                        price: "",
-                        sport_id: "",
-                        players_per_team: "",
-                        wid_field: "",
-                        length_field: "",
-                        field_surface: "",
-                      });
-                      setShowAddSubFieldForm(false);
-                    }}
-                  >
-                    {startProcessLoad ? (
-                      <span className="dot-loading">
-                        <span className="dot one">●</span>
-                        <span className="dot two">●</span>
-                        <span className="dot three">●</span>
-                      </span>
-                    ) : (
-                      "บันทึกสนามย่อย"
-                    )}
-                  </button>
-
-                  <button
-                    className="canbtn-editfield"
-                    style={{
-                      cursor: startProcessLoad ? "not-allowed" : "pointer",
-                    }}
-                    disabled={startProcessLoad}
-                    onClick={() => setShowAddSubFieldForm(false)}
-                  >
-                    ยกเลิก
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          {subFields.map((sub, index) => (
-            <div key={sub.sub_field_id} className="sub-field-card-editfield">
-              <div className="sub-field-header">
-                <h3>สนามย่อย {sub.sub_field_name}</h3>
-                <span className="sub-field-sport">{sub.sport_name}</span>
-              </div>
-
-              {editingField === sub.sub_field_id ? (
-                <div className="sub-field-edit-form">
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>ชื่อสนามย่อย</label>
-                      <input
-                        maxLength={20}
-                        type="text"
-                        value={updatedSubFieldName}
-                        onChange={(e) => setUpdatedSubFieldName(e.target.value)}
-                        placeholder="ชื่อสนามย่อย"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>ราคา (บาท)</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={7}
-                        value={updatedPrice || ""}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, "");
-                          if (value.length > 6) {
-                            setMessage("ใส่ได้ไม่เกิน 6 หลัก");
-                            setMessageType("error");
-                            return;
-                          }
-                          setMessage(null);
-                          setMessageType(null);
-                          setUpdatedPrice(Math.abs(e.target.value));
-                        }}
-                        placeholder="ราคา"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>ผู้เล่นต่อทีม</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={2}
-                        value={updatedSubFieldPlayer || ""}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, "");
-                          if (value >= 100) {
-                            setMessage("ใส่ได้ไม่เกิน 99 คน");
-                            setMessageType("error");
-                            return;
-                          }
-                          setMessage(null);
-                          setMessageType("error");
-                          setUpdatedSubFieldPlayer(Math.abs(e.target.value));
-                        }}
-                        placeholder="จำนวนผู้เล่น"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>ความกว้าง (เมตร)</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={4}
-                        value={updatedSubFieldWid || ""}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, "");
-                          if (value > 1000) {
-                            setMessage("ใส่ได้ไม่เกิน 1000 เมตร");
-                            setMessageType("error");
-                            return;
-                          }
-                          setMessage(null);
-                          setMessageType(null);
-                          setUpdatedSubFieldWid(Math.abs(e.target.value));
-                        }}
-                        placeholder="ความกว้าง"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>ความยาว (เมตร)</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={4}
-                        value={updatedSubFieldLength || ""}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, "");
-                          if (value > 1000) {
-                            setMessage("ใส่ได้ไม่เกิน 1000 เมตร");
-                            setMessageType("error");
-                            return;
-                          }
-                          setMessage(null);
-                          setMessageType(null);
-                          setUpdatedSubFieldLength(Math.abs(e.target.value));
-                        }}
-                        placeholder="ความยาว"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>ประเภทพื้นสนาม</label>
-                      <input
-                        maxLength={20}
-                        type="text"
-                        value={updatedSubFieldFieldSurface}
-                        onChange={(e) =>
-                          setUpdatedSubFieldFieldSurface(e.target.value)
-                        }
-                        placeholder="เช่น หญ้าเทียม, คอนกรีต"
-                      />
-                    </div>
-
-                    <div className="form-group form-group-full">
-                      <label>ประเภทกีฬา</label>
-                      <select
-                        value={updatedSportId}
-                        onChange={(e) => setUpdatedSportId(e.target.value)}
-                        className="sport-select-editfield"
-                      >
-                        <option value="">เลือกประเภทกีฬา</option>
-                        {sportsCategories.map((category) => (
-                          <option
-                            key={category.sport_id}
-                            value={String(category.sport_id)}
-                          >
-                            {category.sport_name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="form-actions-editfield">
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="save-btn"
-                      onClick={() => saveSubField(sub.sub_field_id)}
-                    >
-                      {startProcessLoad ? (
-                        <span className="dot-loading">
-                          <span className="dot one">●</span>
-                          <span className="dot two">●</span>
-                          <span className="dot three">●</span>
-                        </span>
-                      ) : (
-                        "บันทึก"
-                      )}
-                    </button>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="cancel-btn"
-                      onClick={() => cancelEditing()}
-                    >
-                      ยกเลิก
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="sub-field-display">
-                  <div className="field-info-grid">
-                    <div className="info-item">
-                      <span className="info-label">ราคา:</span>
-                      <span className="info-value">
-                        {formatPrice(sub.price)} บาท
-                      </span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">ผู้เล่นต่อทีม:</span>
-                      <span className="info-value">
-                        {sub?.players_per_team} คน
-                      </span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">ขนาดสนาม:</span>
-                      <span className="info-value">
-                        {formatPrice(sub?.wid_field)} ×{" "}
-                        {formatPrice(sub?.length_field)} เมตร
-                      </span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">ประเภทพื้น:</span>
-                      <span className="info-value">{sub?.field_surface}</span>
-                    </div>
-                  </div>
-
-                  <div className="sub-field-actions">
-                    <button
-                      className="edit-btn-inline"
-                      onClick={() => startEditingSubField(sub)}
-                    >
-                      แก้ไข
-                    </button>
-                    <button
-                      className="delete-facility-btn-simple"
-                      onClick={() => handleDeleteClick(sub)}
-                    >
-                      ลบสนามย่อย
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <div className="addons-section">
-                <div className="addons-header">
-                  <h4>กิจกรรมพิเศษ</h4>
-                  <button
-                    style={{
-                      cursor: startProcessLoad ? "not-allowed" : "pointer",
-                    }}
-                    disabled={startProcessLoad}
-                    className="toggle-addon-btn"
-                    onClick={() =>
-                      setShowAddOnForm((prev) => ({
-                        ...prev,
-                        [sub.sub_field_id]: !prev[sub.sub_field_id],
-                      }))
-                    }
-                  >
-                    {showAddOnForm[sub.sub_field_id]
-                      ? "ยกเลิก"
-                      : "เพิ่มกิจกรรม"}
-                  </button>
-                </div>
-
-                {sub.add_ons && sub.add_ons.length > 0 ? (
-                  <div className="addons-list">
-                    {sub.add_ons.map((addon) => (
-                      <div
-                        key={`${sub.sub_field_id}-${addon.add_on_id}`}
-                        className="addon-item"
-                      >
-                        {editingAddon.addOnId === addon.add_on_id ? (
-                          <div className="addon-edit-form">
-                            <input
-                              maxLength={50}
-                              type="text"
-                              value={editingAddon.content}
-                              onChange={(e) =>
-                                setEditingAddon({
-                                  ...editingAddon,
-                                  content: e.target.value,
-                                })
-                              }
-                              placeholder="ชื่อกิจกรรม"
-                            />
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={7}
-                              value={editingAddon.price}
-                              onChange={(e) => {
-                                let value = e.target.value.replace(/\D/g, "");
-                                if (value.length > 6) {
-                                  setMessage("ใส่ได้ไม่เกิน 6 หลัก");
-                                  setMessageType("error");
-                                  return;
-                                }
-                                setEditingAddon({
-                                  ...editingAddon,
-                                  price: Math.abs(e.target.value),
-                                });
-                              }}
-                              placeholder="ราคา"
-                            />
-                            <div className="addon-actions">
-                              <button
-                                style={{
-                                  cursor: startProcessLoad
-                                    ? "not-allowed"
-                                    : "pointer",
-                                }}
-                                disabled={startProcessLoad}
-                                className="save-btn"
-                                onClick={saveAddon}
-                              >
-                                {startProcessLoad ? (
-                                  <span className="dot-loading">
-                                    <span className="dot one">●</span>
-                                    <span className="dot two">●</span>
-                                    <span className="dot three">●</span>
-                                  </span>
-                                ) : (
-                                  "บันทึก"
-                                )}
-                              </button>
-                              <button
-                                style={{
-                                  cursor: startProcessLoad
-                                    ? "not-allowed"
-                                    : "pointer",
-                                }}
-                                disabled={startProcessLoad}
-                                className="cancel-btn"
-                                onClick={() =>
-                                  setEditingAddon({
-                                    addOnId: null,
-                                    content: "",
-                                    price: "",
-                                  })
-                                }
-                              >
-                                ยกเลิก
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="addon-display">
-                            <div className="addon-info">
-                              <span className="addon-name">
-                                {addon.content}
-                              </span>
-                              <span className="addon-price">
-                                {formatPrice(addon.price)} บาท
-                              </span>
-                            </div>
-                            <div className="addon-actions">
-                              <button
-                                className="edit-btn-inline"
-                                onClick={() => startEditingAddon(addon)}
-                              >
-                                แก้ไข
-                              </button>
-                              <button
-                                style={{
-                                  cursor: startProcessLoad
-                                    ? "not-allowed"
-                                    : "pointer",
-                                }}
-                                disabled={startProcessLoad}
-                                className="delete-facility-btn-simple"
-                                onClick={() => {
-                                  setSelectedAddOn(addon);
-                                  setShowDeleteAddOnModal(true);
-                                }}
-                              >
-                                ลบ
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="no-addons">
-                    <span>ไม่มีกิจกรรมพิเศษ</span>
-                  </div>
-                )}
-
-                {showAddOnForm[sub.sub_field_id] && (
-                  <div className="add-addon-form">
-                    <input
-                      type="text"
-                      maxLength={50}
-                      placeholder="ชื่อกิจกรรมพิเศษ"
-                      value={addOnInputs[sub.sub_field_id]?.content || ""}
-                      onChange={(e) =>
-                        handleAddOnInputChange(
-                          sub.sub_field_id,
-                          "content",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={7}
-                      placeholder="ราคา"
-                      value={addOnInputs[sub.sub_field_id]?.price || ""}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-                        if (value.length >= 6) {
-                          setMessage("ใส่ได้ไม่เกิน 6 หลัก");
-                          setMessageType("error");
-                          return;
-                        }
-                        handleAddOnInputChange(
-                          sub.sub_field_id,
-                          "price",
-                          Math.abs(e.target.value)
-                        );
-                      }}
-                    />
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="save-btn"
-                      onClick={async () => {
-                        const content = addOnInputs[sub.sub_field_id]?.content;
-                        const price = addOnInputs[sub.sub_field_id]?.price;
-                        if (!content || !price) {
-                          setMessage("กรุณากรอกชื่อและราคาของกิจกรรมพิเศษ");
-                          setMessageType("error");
-                          return;
-                        }
-                        await addAddOn(sub.sub_field_id, content, price);
-                        setAddOnInputs((prev) => ({
-                          ...prev,
-                          [sub.sub_field_id]: { content: "", price: "" },
-                        }));
-                        setShowAddOnForm((prev) => ({
-                          ...prev,
-                          [sub.sub_field_id]: false,
-                        }));
-                      }}
-                    >
-                      {startProcessLoad ? (
-                        <span className="dot-loading">
-                          <span className="dot one">●</span>
-                          <span className="dot two">●</span>
-                          <span className="dot three">●</span>
-                        </span>
-                      ) : (
-                        "บันทึกกิจกรรม"
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {field?.status == "ไม่ผ่านการอนุมัติ" && (
-          <div className="editbtn-editfield-request">
-            <button
-              onClick={upDateStatus}
-              style={{
-                cursor: startProcessLoad ? "not-allowed" : "pointer",
-              }}
-              disabled={startProcessLoad}
-              className="editbtn-editfield"
-            >
-              {startProcessLoad ? (
-                <span className="dot-loading">
-                  <span className="dot one">●</span>
-                  <span className="dot two">●</span>
-                  <span className="dot three">●</span>
-                </span>
-              ) : (
-                "ส่งคำขอลงทะเบียนสนามอีกครั้ง"
-              )}
-            </button>
-          </div>
-        )}
-
-        {showDeleteModal && (
-          <div className="modal-overlay-editfield">
-            <div className="modal-editfield">
-              <h2>ยืนยันการลบสนามย่อย</h2>
-              <p>คุณต้องการลบสนามย่อยนี้และกิจกรรมพิเศษทั้งหมดหรือไม่?</p>
-              <div className="modal-actions-editfield">
-                <button
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  className="savebtn-editfield"
-                  onClick={confirmDeleteSubField}
-                >
-                  {startProcessLoad ? (
-                    <span className="dot-loading">
-                      <span className="dot one">●</span>
-                      <span className="dot two">●</span>
-                      <span className="dot three">●</span>
-                    </span>
-                  ) : (
-                    "ยืนยัน"
-                  )}
-                </button>
-                <button
-                  className="canbtn-editfield"
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  onClick={() => setShowDeleteModal(false)}
-                >
-                  ยกเลิก
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        {showDeleteAddOnModal && (
-          <div className="modal-overlay-editfield">
-            <div className="modal-editfield">
-              <h2>ยืนยันการลบกิจกรรมพิเศษ</h2>
-              <p>คุณต้องการลบกิจกรรม "{selectedAddOn?.content}" หรือไม่?</p>
-              <div className="modal-actions-editfield">
-                <button
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  className="savebtn-editfield"
-                  onClick={confirmDeleteAddOn}
-                >
-                  {startProcessLoad ? (
-                    <span className="dot-loading">
-                      <span className="dot one">●</span>
-                      <span className="dot two">●</span>
-                      <span className="dot three">●</span>
-                    </span>
-                  ) : (
-                    "ยืนยัน"
-                  )}
-                </button>
-                <button
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  className="canbtn-editfield"
-                  onClick={() => {
-                    setShowDeleteAddOnModal(false);
-                    setSelectedAddOn(null);
-                  }}
-                >
-                  ยกเลิก
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        {showModal && (
-          <div className="modal-overlay-editfield">
-            <div className="modal-editfield">
-              <h2>ยืนยันการลบ</h2>
-              <p
+      {showDeleteModal && (
+        <div className="modal-overlay-editfield">
+          <div className="modal-editfield">
+            <h2>ยืนยันการลบสนามย่อย</h2>
+            <p>คุณต้องการลบสนามย่อยนี้และกิจกรรมพิเศษทั้งหมดหรือไม่?</p>
+            <div className="modal-actions-editfield">
+              <button
                 style={{
-                  color: "#dc3545",
-                  fontSize: "16px",
-                  marginTop: "10px",
-                  marginBottom: "10px",
-                  fontWeight: "bold",
+                  cursor: startProcessLoad ? "not-allowed" : "pointer",
+                }}
+                disabled={startProcessLoad}
+                className="savebtn-editfield"
+                onClick={confirmDeleteSubField}
+              >
+                {startProcessLoad ? (
+                  <span className="dot-loading">
+                    <span className="dot one">●</span>
+                    <span className="dot two">●</span>
+                    <span className="dot three">●</span>
+                  </span>
+                ) : (
+                  "ยืนยัน"
+                )}
+              </button>
+              <button
+                className="canbtn-editfield"
+                style={{
+                  cursor: startProcessLoad ? "not-allowed" : "pointer",
+                }}
+                disabled={startProcessLoad}
+                onClick={() => setShowDeleteModal(false)}
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteAddOnModal && (
+        <div className="modal-overlay-editfield">
+          <div className="modal-editfield">
+            <h2>ยืนยันการลบกิจกรรมพิเศษ</h2>
+            <p>คุณต้องการลบกิจกรรม "{selectedAddOn?.content}" หรือไม่?</p>
+            <div className="modal-actions-editfield">
+              <button
+                style={{
+                  cursor: startProcessLoad ? "not-allowed" : "pointer",
+                }}
+                disabled={startProcessLoad}
+                className="savebtn-editfield"
+                onClick={confirmDeleteAddOn}
+              >
+                {startProcessLoad ? (
+                  <span className="dot-loading">
+                    <span className="dot one">●</span>
+                    <span className="dot two">●</span>
+                    <span className="dot three">●</span>
+                  </span>
+                ) : (
+                  "ยืนยัน"
+                )}
+              </button>
+              <button
+                style={{
+                  cursor: startProcessLoad ? "not-allowed" : "pointer",
+                }}
+                disabled={startProcessLoad}
+                className="canbtn-editfield"
+                onClick={() => {
+                  setShowDeleteAddOnModal(false);
+                  setSelectedAddOn(null);
                 }}
               >
-                หมายเหตุ:
-                การลบสิ่งอำนวยความสะดวกจะลบข้อมูลการจองที่เกี่ยวข้องด้วย
-              </p>
-              <div className="modal-actions-editfield">
-                <button
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  className="savebtn-editfield"
-                  onClick={handleDeleteFacility}
-                >
-                  {startProcessLoad ? (
-                    <span className="dot-loading">
-                      <span className="dot one">●</span>
-                      <span className="dot two">●</span>
-                      <span className="dot three">●</span>
-                    </span>
-                  ) : (
-                    "ลบ"
-                  )}
-                </button>
-                <button
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  className="canbtn-editfield"
-                  onClick={() => setShowModal(false)}
-                >
-                  ยกเลิก
-                </button>
-              </div>
+                ยกเลิก
+              </button>
             </div>
           </div>
-        )}
-      </div>
-    </>
+        </div>
+      )}
+      {showModal && (
+        <div className="modal-overlay-editfield">
+          <div className="modal-editfield">
+            <h2>ยืนยันการลบ</h2>
+            <p
+              style={{
+                color: "#dc3545",
+                fontSize: "16px",
+                marginTop: "10px",
+                marginBottom: "10px",
+                fontWeight: "bold",
+              }}
+            >
+              หมายเหตุ: การลบสิ่งอำนวยความสะดวกจะลบข้อมูลการจองที่เกี่ยวข้องด้วย
+            </p>
+            <div className="modal-actions-editfield">
+              <button
+                style={{
+                  cursor: startProcessLoad ? "not-allowed" : "pointer",
+                }}
+                disabled={startProcessLoad}
+                className="savebtn-editfield"
+                onClick={handleDeleteFacility}
+              >
+                {startProcessLoad ? (
+                  <span className="dot-loading">
+                    <span className="dot one">●</span>
+                    <span className="dot two">●</span>
+                    <span className="dot three">●</span>
+                  </span>
+                ) : (
+                  "ลบ"
+                )}
+              </button>
+              <button
+                style={{
+                  cursor: startProcessLoad ? "not-allowed" : "pointer",
+                }}
+                disabled={startProcessLoad}
+                className="canbtn-editfield"
+                onClick={() => setShowModal(false)}
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

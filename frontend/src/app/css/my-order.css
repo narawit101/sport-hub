@@ -411,6 +411,14 @@
   font-weight: 500;
 }
 
+.status-text-detail.unpaid {
+  color: #c2410c;
+  background-color: #ffedd5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
 .status-text-detail.approved {
   color: #155724;
   background-color: #d4f4dd;
@@ -436,6 +444,14 @@
 }
 
 .status-text-detail.rejected {
+  color: #721c24;
+  background-color: #fddede;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.status-text-detail.cancelled {
   color: #721c24;
   background-color: #fddede;
   padding: 4px 8px;

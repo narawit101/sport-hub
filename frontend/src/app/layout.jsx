@@ -1,8 +1,10 @@
 import { Kanit } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/app/components/Navbar";
-import Footer from "@/app/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/app/contexts/AuthContext";
+import { NotificationProvider } from "@/app/contexts/NotificationContext";
+import { SocketProvider } from "@/app/contexts/SocketContext";
 
 const kanitFont = Kanit({
   variable: "--font-kanit",
@@ -20,18 +22,22 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <AuthProvider>
-        <body className={`${kanitFont.variable} antialiased`}>
-            <div className="navbar">
-              <Navbar></Navbar>
-            </div>
-            <div className="body">{children}</div>
-            <footer>
-              <Footer></Footer>
-            </footer>
-        </body>
-      </AuthProvider>
+    <html lang="th">
+      <body className={`${kanitFont.variable} antialiased`}>
+        <SocketProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <div className="navbar">
+                <Navbar></Navbar>
+              </div>
+              <div className="body">{children}</div>
+              <footer>
+                <Footer></Footer>
+              </footer>
+            </NotificationProvider>
+          </AuthProvider>
+        </SocketProvider>
+      </body>
     </html>
   );
 }

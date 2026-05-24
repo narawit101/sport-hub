@@ -4,6 +4,7 @@ const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
 const { createUploader } = require("../utils/upload");
 const { getCache, setCache, invalidateCache } = require("../config/cache");
+const { BOOKING_STATUS } = require("../utils/constants");
 
 const upload = createUploader(
   { facility_image: "field-facility-images" },
@@ -188,7 +189,7 @@ router.get("/availability/:field_id/:bookingDate/:slots",authMiddleware, async (
        JOIN bookings b ON bf.booking_id = b.booking_id
        JOIN field_facilities ff ON bf.field_fac_id = ff.field_fac_id
        WHERE b.field_id = $1
-         AND b.status IN ('pending','confirmed')
+         AND b.status IN ('${BOOKING_STATUS.PENDING}', '${BOOKING_STATUS.APPROVED}')
          AND b.booking_date = $2
          AND b.selected_slots && $3
        GROUP BY bf.field_fac_id, ff.fac_name, ff.fac_price, ff.quantity_total`,

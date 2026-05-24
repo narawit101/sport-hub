@@ -1,5 +1,5 @@
 import React from "react";
-import MyFields from "@/app/components/ManageFields";
+import MyFields from "@/components/field/ManageFields";
 
 export default function page() {
   return (

@@ -7,6 +7,7 @@ const { otpVerification } = require("../utils/emailTemplates");
 const { generateNumericOtp } = require("../utils/otp");
 const { createRateLimiter } = require("../utils/rateLimiter");
 const { invalidateCache } = require("../config/cache");
+const { USER_ROLE, USER_STATUS } = require("../utils/constants");
 
 const LimiterRegister = createRateLimiter({
   windowMs: 30 * 60 * 1000,
@@ -69,10 +70,10 @@ router.post("/", LimiterRegister, async (req, res) => {
         last_name,
         email,
         hashedPassword,
-        role,
+        role || USER_ROLE.CUSTOMER,
         user_name,
         otp,
-        "รอยืนยัน",
+        USER_STATUS.PENDING,
         otpExpiry,
       ]
     );
@@ -129,7 +130,7 @@ router.post("/verify/:user_id", async (req, res) => {
 
     if (checkOtp === otp) {
       await pool.query("UPDATE users SET status = $1 WHERE user_id = $2", [
-        "ตรวจสอบแล้ว",
+        USER_STATUS.VERIFIED,
         user_id,
       ]);
       await invalidateCache(`user:profile:${user_id}`, "users:all");

@@ -31,12 +31,8 @@
   font-weight: 500;
 }
 
-.grid-myfield {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
+/* grid-myfield removed in favor of shared FieldGrid */
+
 
 .card-myfield {
   display: flex;
@@ -65,18 +61,24 @@
   top: 15px;
   right: 15px;
   background-color: #dc3545;
-  color: white;
+  color: white !important;
   border: none;
   border-radius: 50%;
   width: 35px;
   height: 35px;
   cursor: pointer;
-  font-size: 16px;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  z-index: 5;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-delete-btn svg {
+  color: white;
+  width: 16px;
+  height: 16px;
 }
 
 .card-delete-btn:hover {

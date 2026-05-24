@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./frontend/src/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    ".history",
+    "**/.history",
+    "**/node_modules",
+    "**/.next",
+    "frontend/.next"
+  ]
+}

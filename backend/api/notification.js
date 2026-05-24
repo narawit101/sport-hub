@@ -69,16 +69,15 @@ router.get("/all/:userId", authMiddleware, async (req, res) => {
   }
 });
 
-router.put("/read-notification", authMiddleware, async (req, res) => {
+router.put("/mark-read/:notifyId", authMiddleware, async (req, res) => {
   try {
-    const { key_id } = req.body;
-    const id = parseInt(key_id);
+    const { notifyId } = req.params;
     const user_id = req.user.user_id;
     const result = await pool.query(
       `UPDATE notifications
       SET status = 'read'
-      WHERE key_id = $1 AND recive_id = $2`,
-      [id, user_id]
+      WHERE notify_id = $1 AND recive_id = $2`,
+      [notifyId, user_id]
     );
     if (result.rowCount === 0) {
       return res.status(404).json({ message: "Notification not found" });
@@ -89,7 +88,76 @@ router.put("/read-notification", authMiddleware, async (req, res) => {
     );
     const unreadCount = countResult.rows[0]?.unread_count ?? 0;
     if (req && req.io) {
-      req.io.emit("new_notification", {
+      req.io.to(user_id.toString()).emit("new_notification", {
+        topic: "update_count",
+        reciveId: Number(user_id),
+        unreadCount,
+      });
+    }
+
+    res.status(200).json({
+      message: "Notification marked as read",
+      unreadCount,
+    });
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/mark-all-read/:userId", authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const authUserId = req.user.user_id;
+
+    if (Number(userId) !== authUserId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const result = await pool.query(
+      `UPDATE notifications
+       SET status = 'read'
+       WHERE recive_id = $1 AND status = 'unread'`,
+      [authUserId]
+    );
+
+    if (req && req.io) {
+      req.io.to(authUserId.toString()).emit("new_notification", {
+        topic: "reset_count",
+        reciveId: Number(authUserId),
+        unreadCount: 0,
+      });
+    }
+
+    res.status(200).json({
+      message: "Notifications marked as read",
+      updated: result.rowCount,
+    });
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/read-notification", authMiddleware, async (req, res) => {
+  try {
+    const { key_id } = req.body;
+    const id = parseInt(key_id);
+    const user_id = req.user.user_id;
+    const result = await pool.query(
+      `UPDATE notifications
+      SET status = 'read'
+      WHERE key_id = $1 AND recive_id = $2 AND status = 'unread'`,
+      [id, user_id]
+    );
+    
+    const countResult = await pool.query(
+      `SELECT COUNT(*)::int AS unread_count FROM notifications WHERE recive_id = $1 AND status = 'unread'`,
+      [user_id]
+    );
+    const unreadCount = countResult.rows[0]?.unread_count ?? 0;
+    if (req && req.io) {
+      req.io.to(user_id.toString()).emit("new_notification", {
         topic: "update_count",
         reciveId: Number(user_id),
         unreadCount,
@@ -124,7 +192,7 @@ router.put("/read-all-notification", authMiddleware, async (req, res) => {
     const unreadCount = countResult.rows[0]?.unread_count ?? 0;
 
     if (req && req.io) {
-      req.io.emit("new_notification", {
+      req.io.to(user_id.toString()).emit("new_notification", {
         topic: "reset_count",
         reciveId: Number(user_id),
         unreadCount,

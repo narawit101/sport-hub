@@ -13,6 +13,7 @@ const { resetPasswordOtp, contactAdmin: contactAdminTemplate } = require("../uti
 const { generateNumericOtp } = require("../utils/otp");
 const { createRateLimiter } = require("../utils/rateLimiter");
 const { getCache, setCache, invalidateCache } = require("../config/cache");
+const { USER_ROLE, USER_STATUS } = require("../utils/constants");
 
 const upload = createUploader(
   { user_profile: "user-profile" },
@@ -62,7 +63,7 @@ router.get("/me", authMiddleware, async (req, res) => {
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
+    if (req.user.role !== USER_ROLE.ADMIN) {
       return res.status(403).json({ message: "คุณไม่มีสิทธิ์เข้าถึงหน้านี้!" });
     }
 
@@ -77,9 +78,9 @@ router.get("/", authMiddleware, async (req, res) => {
             FROM users
             ORDER BY 
             CASE role
-              WHEN 'admin' THEN 1
-              WHEN 'customer' THEN 2
-              WHEN 'field_owner' THEN 3
+              WHEN '${USER_ROLE.ADMIN}' THEN 1
+              WHEN '${USER_ROLE.CUSTOMER}' THEN 2
+              WHEN '${USER_ROLE.FIELD_OWNER}' THEN 3
             ELSE 4
             END,
             user_id DESC;
@@ -108,7 +109,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
   try {
     if (
       !currentUser.user_id ||
-      (parseInt(id) !== currentUser.user_id && currentUser.role !== "admin")
+      (parseInt(id) !== currentUser.user_id && currentUser.role !== USER_ROLE.ADMIN)
     ) {
       return res.status(403).json({ message: "คุณไม่มีสิทธิ์แก้ไขข้อมูลนี้" });
     }
@@ -123,7 +124,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
     );
 
     if (req.io) {
-      req.io.emit("updated_status", {
+      req.io.to(id.toString()).emit("updated_status", {
         userId: id,
         userRole: result.rows[0].role,
       });
@@ -229,7 +230,7 @@ router.put("/update-profile/:id", authMiddleware, async (req, res) => {
   try {
     if (
       !currentUser.user_id ||
-      (parseInt(id) !== currentUser.user_id && currentUser.role !== "admin")
+      (parseInt(id) !== currentUser.user_id && currentUser.role !== USER_ROLE.ADMIN)
     ) {
       return res.status(403).json({ message: "คุณไม่มีสิทธิ์แก้ไขข้อมูลนี้" });
     }
@@ -259,7 +260,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   const currentUser = req.user;
 
   try {
-    if (currentUser.role !== "admin") {
+    if (currentUser.role !== USER_ROLE.ADMIN) {
       return res.status(403).json({ message: "คุณไม่มีสิทธิ์ลบผู้ใช้นี้" });
     }
 
@@ -523,7 +524,7 @@ router.post("/contact-admin", LimiterRequestContact, async (req, res) => {
 
   try {
     const adminRes = await pool.query(
-      "SELECT email FROM users WHERE role = 'admin'"
+      `SELECT email FROM users WHERE role = '${USER_ROLE.ADMIN}'`
     );
     let adminEmails = adminRes.rows.map(r => r.email).filter(Boolean);
     if (adminEmails.length === 0 && process.env.ADMIN_EMAIL) {

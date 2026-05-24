@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS field (
   documents         TEXT,
   img_field         TEXT,
   status            VARCHAR(50) DEFAULT 'รอตรวจสอบ',
+  reasoning         TEXT,
   open_days         TEXT[],
   field_description TEXT,
   cancel_hours      INTEGER DEFAULT 0,
@@ -150,6 +151,10 @@ CREATE TABLE IF NOT EXISTS bookings (
   activity        VARCHAR(200),
   status          VARCHAR(20) DEFAULT 'pending'
                   CHECK (status IN ('pending', 'approved', 'rejected', 'complete', 'verified', 'cancelled')),
+  reasoning       TEXT,
+  cancel_time     TIMESTAMPTZ,
+  deposit_slip    TEXT,
+  total_slip      TEXT,
   start_date      DATE,
   end_date        DATE,
   selected_slots  TEXT[],

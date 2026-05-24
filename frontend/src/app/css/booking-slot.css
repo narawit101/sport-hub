@@ -125,24 +125,24 @@
   color: #1e3a8a;
 }
 
-.approved-slot {
+.slot-box-book.approved-slot {
   background-color: #b31e1e;
   color: #ffffff;
   pointer-events: none;
 }
-.complete-slot {
+.slot-box-book.complete-slot {
   background-color: #b31e1e;
   color: #ffffff;
   pointer-events: none;
 }
 
-.pending-slot {
+.slot-box-book.pending-slot {
   background-color: #e8c124;
   color: rgb(73, 69, 69);
   pointer-events: none;
 }
 
-.past-slot {
+.slot-box-book.past-slot {
   background-color: #858b95;
   color: #ffffff;
   pointer-events: none;
@@ -365,6 +365,7 @@
 }
 
 .price-deposit {
+  text-align:center;
   font-size: 18px;
   font-weight: 700;
   color: #d32f2f;

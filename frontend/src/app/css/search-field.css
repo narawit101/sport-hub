@@ -24,12 +24,8 @@
   border-radius: 20px;
 }
 
-.grid-search {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-  padding: 20px;
-}
+/* grid-search removed in favor of shared FieldGrid */
+
 
 .card-search {
   display: flex;
@@ -203,20 +199,20 @@
     padding: 40px 16px;
     margin: 16px;
   }
-  
+
   .no-results-icon-search {
     font-size: 3rem;
     margin-bottom: 16px;
   }
-  
+
   .no-results-message-search h3 {
     font-size: 1.3rem;
   }
-  
+
   .no-results-message-search p {
     font-size: 1rem;
   }
-  
+
   .search-suggestions-search {
     padding: 16px;
   }
@@ -224,6 +220,7 @@
 
 .pagination-previwe-field-search {
   margin-top: 20px;
+  margin-bottom: 20px;
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -313,12 +310,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    110deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.55) 45%,
-    rgba(255, 255, 255, 0) 90%
-  );
+  background: linear-gradient(110deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.55) 45%,
+      rgba(255, 255, 255, 0) 90%);
   animation: skeletonShineSearch 1.3s linear infinite;
 }
 
@@ -332,7 +327,7 @@
   .skeleton-field-img-search {
     height: 220px;
   }
-  
+
   .skeleton-field-search {
     height: 380px;
   }

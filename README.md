@@ -93,6 +93,22 @@ Core backend modules include:
 - `Longdo Map` for location picking and map search
 - `PromptPay QR` for Thai payment QR generation
 
+## Architecture & Refactoring (May 2026 Update)
+
+The project has recently undergone a major architectural overhaul to ensure high quality and maintainability:
+
+### Frontend Improvements
+- **Component Decomposition:** Refactored monolithic files (2,000+ lines) into clean, focused components in `src/components/`.
+- **Centralized Logic:** 
+  - Integrated `apiClient` for all network requests.
+  - Implemented `NotificationContext` for global UI feedback.
+  - Unified `SocketContext` to manage real-time connections efficiently.
+- **Premium UI:** Redesigned key flows (e.g., Booking Details) with a "Premium" aesthetic, improved typography, and responsive layouts.
+- **Type Safety:** Eliminated "magic strings" by implementing centralized status and role constants.
+
+### Backend Improvements
+- **Service-Oriented Architecture:** Refactored API routes into a Controller-Service pattern to isolate business logic from transport layers.
+- **Enhanced Notifications:** Improved real-time and email notification triggers across the booking lifecycle.
 
 ## Local Setup
 

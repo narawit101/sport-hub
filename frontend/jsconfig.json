@@ -1,7 +1,16 @@
 {
   "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    ".next",
+    ".history",
+    "**/.history",
+    "**/node_modules"
+  ]
 }

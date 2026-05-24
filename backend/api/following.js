@@ -33,7 +33,7 @@ router.post("/add-following", async (req, res) => {
       );
 
       if (req.io) {
-        req.io.emit("new_notification", {
+        req.io.to(fieldOwnerId.toString()).emit("new_notification", {
           notifyId: notifyInsert.rows[0].notify_id,
           topic: "new_following",
           reciveId: Number(fieldOwnerId),
