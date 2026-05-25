@@ -11,7 +11,7 @@ export default function BookingActions({
   startProcessLoad,
 }) {
   const isFieldOwner = booking.field_user_id === user?.user_id;
-  const isCustomer = booking.user_id === user?.user_id;
+  const isCustomer = booking.user_id === user?.user_id && !isFieldOwner;
   const status = booking.status;
 
   const isTransfer = booking.pay_method === PAYMENT_METHOD.TRANSFER;
