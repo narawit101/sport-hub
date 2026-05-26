@@ -9,7 +9,7 @@ import apiClient from "@/lib/apiClient";
 
 export default function LogoutButton() {
   const router = useRouter();
-  const { setUser } = useAuth();
+  const { logout } = useAuth();
   const { notify } = useNotification();
   const [startProcessLoad, SetstartProcessLoad] = useState(false);
   usePreventLeave(startProcessLoad);
@@ -19,8 +19,7 @@ export default function LogoutButton() {
     try {
       await apiClient.post("/logout");
 
-      setUser(null);
-      localStorage.clear();
+      logout(); // ลบ token จาก localStorage + reset user state
       sessionStorage.clear();
       notify("ออกจากระบบสำเร็จ", "success");
       router.push("/login");

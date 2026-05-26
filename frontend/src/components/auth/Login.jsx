@@ -9,7 +9,7 @@ import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 import apiClient from "@/lib/apiClient";
 
 export default function Login() {
-  const { user, setUser, isLoading } = useAuth();
+  const { user, setUser, isLoading, login } = useAuth();
   const { notify } = useNotification();
   const [formData, setFormData] = useState({
     identifier: "",
@@ -45,7 +45,9 @@ export default function Login() {
     e.preventDefault();
     SetstartProcessLoad(true);
     try {
-      await apiClient.post("/login", formData);
+      const { token } = await apiClient.post("/login", formData);
+      // เก็บ token ใน localStorage เพื่อใช้เป็น fallback เมื่อ cookie ไม่ติด (เช่น mobile)
+      login(token);
 
       const userData = await apiClient.get("/users/me");
       notify("เข้าสู่ระบบสำเร็จ", "success");

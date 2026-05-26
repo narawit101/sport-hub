@@ -55,11 +55,7 @@ router.post("/", async (req, res) => {
       maxAge: expiresIn
     });
 
-    const responseData = {
-      message: "เข้าสู่ระบบสำเร็จ",
-    };
-
-    return res.status(200).json(responseData);
+    return res.status(200).json({ message: "เข้าสู่ระบบสำเร็จ", token });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ message: "เกิดข้อผิดพลาด", error: error.message });

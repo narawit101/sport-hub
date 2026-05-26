@@ -9,6 +9,14 @@ const authMiddleware = async (req, res, next) => {
     token = req.cookies.token;
   }
 
+  // Fallback: รับ token จาก Authorization header (สำหรับ mobile ที่บล็อค 3rd-party cookie)
+  if (!token) {
+    const authHeader = req.headers["authorization"];
+    if (authHeader?.startsWith("Bearer ")) {
+      token = authHeader.slice(7);
+    }
+  }
+
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: กรุณาเข้าสู่ระบบ" });
   }

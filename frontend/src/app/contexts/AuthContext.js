@@ -8,7 +8,7 @@ import {
   useCallback,
 } from "react";
 import { useSocket } from "@/app/contexts/SocketContext";
-import apiClient from "@/lib/apiClient";
+import apiClient, { tokenStorage } from "@/lib/apiClient";
 
 const AuthContext = createContext();
 
@@ -73,8 +73,21 @@ export function AuthProvider({ children }) {
     };
   }, [socket, fetchUser]);
 
+  // เก็บ token ใน localStorage หลัง login สำเร็จ
+  const login = useCallback((token) => {
+    if (token) {
+      tokenStorage.set(token);
+    }
+  }, []);
+
+  // ลบ token ออกจาก localStorage เมื่อ logout
+  const logout = useCallback(() => {
+    tokenStorage.remove();
+    setUser(null);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, setUser, isLoading }}>
+    <AuthContext.Provider value={{ user, setUser, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

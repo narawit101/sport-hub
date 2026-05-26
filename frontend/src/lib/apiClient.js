@@ -1,13 +1,37 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// Key ที่ใช้เก็บ token ใน localStorage
+const TOKEN_KEY = "auth_token";
+
+export const tokenStorage = {
+  get: () => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(TOKEN_KEY);
+  },
+  set: (token) => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(TOKEN_KEY, token);
+  },
+  remove: () => {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(TOKEN_KEY);
+  },
+};
+
 const apiClient = {
   async request(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
+
+    // อ่าน token จาก localStorage เพื่อส่งเป็น Authorization header
+    // (fallback สำหรับ mobile ที่บล็อค 3rd-party cookie)
+    const localToken = tokenStorage.get();
+
     const config = {
       ...options,
       credentials: "include",
       headers: {
         ...options.headers,
+        ...(localToken ? { Authorization: `Bearer ${localToken}` } : {}),
       },
     };
 
