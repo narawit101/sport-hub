@@ -70,12 +70,9 @@ export function useBookingFlow(subFieldId, user, notify) {
   }, []);
 
   useEffect(() => {
-    // Start ticking based on client time + server offset
     tickRef.current = setInterval(() => {
       setServerTime(new Date(Date.now() + serverOffsetRef.current));
     }, 1000);
-
-    // Fallback fetch if socket doesn't supply time within 1 second
     const fallback = setTimeout(() => {
       if (!loadedRef.current) fetchServerTimeOnce();
     }, 1000);
@@ -285,7 +282,6 @@ export function useBookingFlow(subFieldId, user, notify) {
 
   const handleShowSummary = () => {
     setShowSummary(true);
-    // Scroll will be handled by useEffect in the component
   };
 
   const handleSubmit = async () => {
@@ -301,7 +297,7 @@ export function useBookingFlow(subFieldId, user, notify) {
       await apiClient.postForm("/booking", { data: JSON.stringify(data) });
       notify("บันทึกการจองสำเร็จ", "success");
       resetSelection();
-      fetchBookedSlots(); // Reload slots to show new booking
+      fetchBookedSlots(); 
     } catch (error) {
       if (error.status === 429) router.push("/api-rate-limited");
       else notify(error.message || "เกิดข้อผิดพลาด", "error");

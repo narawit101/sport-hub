@@ -82,7 +82,7 @@ class FieldService {
 
       await client.query("COMMIT");
 
-      // Emails and Notifications
+
       if (user?.email) {
           sendEmail({ to: user.email, subject: "การลงทะเบียนสนาม", html: fieldRegistered() }).catch(e => console.error(e));
       }
@@ -263,7 +263,6 @@ class FieldService {
               throw new Error("ไม่สามารถลบสนามได้เนื่องจากมีการจองสนามอยู่ กรุณาติดต่อผู้ดูแลระบบ");
           }
 
-          // Delete related data
           const subFields = await client.query("SELECT sub_field_id FROM sub_field WHERE field_id = $1", [fieldId]);
           for (const sub of subFields.rows) {
               await client.query("DELETE FROM add_on WHERE sub_field_id = $1", [sub.sub_field_id]);

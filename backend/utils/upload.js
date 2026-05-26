@@ -23,7 +23,6 @@ function createUploader(folderRules = {}, options = {}) {
       let resourceType = "auto";
       let format = undefined;
 
-      // Check specific folder rules
       for (const [fieldname, folderName] of Object.entries(folderRules)) {
         if (
           file.fieldname === fieldname ||
@@ -36,7 +35,6 @@ function createUploader(folderRules = {}, options = {}) {
 
       folder = `project/sport-hub/${folder}`;
 
-      // Determine resource type based on mime
       if (file.mimetype.startsWith("image/")) {
         resourceType = "image";
       } else if (file.mimetype === "application/pdf") {

@@ -1,6 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Key ที่ใช้เก็บ token ใน localStorage
 const TOKEN_KEY = "auth_token";
 
 export const tokenStorage = {
@@ -22,26 +21,25 @@ const apiClient = {
   async request(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
 
-    // อ่าน token จาก localStorage เพื่อส่งเป็น Authorization header
-    // (fallback สำหรับ mobile ที่บล็อค 3rd-party cookie)
     const localToken = tokenStorage.get();
 
+    const { skipRedirect, ...fetchOptions } = options;
+
     const config = {
-      ...options,
+      ...fetchOptions,
       credentials: "include",
       headers: {
-        ...options.headers,
+        ...fetchOptions.headers,
         ...(localToken ? { Authorization: `Bearer ${localToken}` } : {}),
       },
     };
 
-    if (options.body) {
-      if (options.body instanceof FormData) {
-        config.body = options.body;
-        // Browser will set multipart/form-data with boundary
+    if (fetchOptions.body) {
+      if (fetchOptions.body instanceof FormData) {
+        config.body = fetchOptions.body;
       } else {
         config.headers["Content-Type"] = "application/json";
-        config.body = typeof options.body === "string" ? options.body : JSON.stringify(options.body);
+        config.body = typeof fetchOptions.body === "string" ? fetchOptions.body : JSON.stringify(fetchOptions.body);
       }
     }
 
@@ -53,6 +51,16 @@ const apiClient = {
           data = await response.json();
       } else {
           data = await response.text();
+      }
+
+      if (response.status === 401 && !skipRedirect && typeof window !== "undefined") {
+        const isPublicPath = ["/profile/"].some((p) => window.location.pathname.startsWith(p));
+        if (!isPublicPath) {
+          const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+          sessionStorage.setItem("login_message", "กรุณาเข้าสู่ระบบก่อนใช้งาน");
+          window.location.href = `/login?redirect=${redirect}`;
+          await new Promise(() => {});
+        }
       }
 
       if (!response.ok || data?.error) {

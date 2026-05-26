@@ -52,7 +52,7 @@ router.get("/me", authMiddleware, async (req, res) => {
     }
 
     const user = result.rows[0];
-    await setCache(cacheKey, user, 300); // cache for 5 minutes
+    await setCache(cacheKey, user, 300);
 
     res.status(200).json(user);
   } catch (error) {
@@ -85,7 +85,7 @@ router.get("/", authMiddleware, async (req, res) => {
             END,
             user_id DESC;
 `);
-    await setCache(cacheKey, result.rows, 300); // cache for 5 minutes
+    await setCache(cacheKey, result.rows, 300);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching manager data:", error);

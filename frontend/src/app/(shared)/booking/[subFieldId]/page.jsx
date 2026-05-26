@@ -18,13 +18,50 @@ export default function Booking() {
   const { user, isLoading: authLoading } = useAuth();
 
   const {
-    openHours, closeHours, slots, selectedSlots, selectedSlotsArr, canBook, timeStart, timeEnd,
-    startDate, endDate, totalHours, price, newPrice, addOns, activity, facilities, selectPrice,
-    selectedFacilities, priceDeposit, sumFac, totalPrice, totalRemaining, payMethod, setPayMethod,
-    bookingDate, setBookingDate, openDays, isBooked, subFieldData, fieldName,
-    showSummary, setShowSummary, bookTimeArr, dataLoading, startProcessLoad, facilityAvailability,
-    serverTime, handlePriceOnChange, handleFacilitySelect, resetSelection, handleSubmit, toggleSelectSlot,
-    bookingDateFormatted, summaryRef
+    openHours,
+    closeHours,
+    slots,
+    selectedSlots,
+    selectedSlotsArr,
+    canBook,
+    timeStart,
+    timeEnd,
+    startDate,
+    endDate,
+    totalHours,
+    price,
+    newPrice,
+    addOns,
+    activity,
+    facilities,
+    selectPrice,
+    selectedFacilities,
+    priceDeposit,
+    sumFac,
+    totalPrice,
+    totalRemaining,
+    payMethod,
+    setPayMethod,
+    bookingDate,
+    setBookingDate,
+    openDays,
+    isBooked,
+    subFieldData,
+    fieldName,
+    showSummary,
+    setShowSummary,
+    bookTimeArr,
+    dataLoading,
+    startProcessLoad,
+    facilityAvailability,
+    serverTime,
+    handlePriceOnChange,
+    handleFacilitySelect,
+    resetSelection,
+    handleSubmit,
+    toggleSelectSlot,
+    bookingDateFormatted,
+    summaryRef,
   } = useBookingFlow(subFieldId, user, notify);
 
   const [showCalendar, setShowCalendar] = useState(false);
@@ -43,12 +80,10 @@ export default function Booking() {
     if (!serverTime || !bookingDate) return false;
     const [st] = slot.split(" - ");
     const [h, m] = st.split(":").map(Number);
-    
-    // Create date based on selected booking date without time
+
     const sTime = new Date(bookingDate);
     sTime.setHours(h, m, 0, 0);
 
-    // Handle overnight fields
     if (openHours) {
       const [oh] = openHours.split(":").map(Number);
       if (h < oh) {
@@ -66,8 +101,8 @@ export default function Booking() {
     if (booked) {
       if (booked.status === BOOKING_STATUS.PENDING) return "pending-slot";
       if (
-        booked.status === BOOKING_STATUS.APPROVED || 
-        booked.status === BOOKING_STATUS.COMPLETE || 
+        booked.status === BOOKING_STATUS.APPROVED ||
+        booked.status === BOOKING_STATUS.COMPLETE ||
         booked.status === BOOKING_STATUS.VERIFIED
       ) {
         return "complete-slot";
@@ -90,7 +125,12 @@ export default function Booking() {
     handleSubmit();
   };
 
-  if (dataLoading || authLoading) return <div className="load"><span className="spinner"></span></div>;
+  if (dataLoading || authLoading)
+    return (
+      <div className="load">
+        <span className="spinner"></span>
+      </div>
+    );
 
   const today = serverTime || new Date();
   const maxDate = new Date(today.getTime());
@@ -98,7 +138,12 @@ export default function Booking() {
 
   const tileClassName = ({ date, view }) => {
     const day = date.getDay();
-    if (view === "month" && openDays.includes(day) && date <= maxDate && date >= new Date(today.setHours(0, 0, 0, 0))) {
+    if (
+      view === "month" &&
+      openDays.includes(day) &&
+      date <= maxDate &&
+      date >= new Date(today.setHours(0, 0, 0, 0))
+    ) {
       return "allowed-day";
     }
     return "";
@@ -108,21 +153,36 @@ export default function Booking() {
     <div>
       <div className="container-bookings">
         {slots.length === 0 ? (
-          <div className="loading-data"><div className="loading-data-spinner"></div></div>
+          <div className="loading-data">
+            <div className="loading-data-spinner"></div>
+          </div>
         ) : (
           <div className="book-content">
             <div className="calendar-btn-select-date">
               <div className="date-picker-container">
-                <div className="date-select-label"><h2>เลือกวันที่: </h2></div>
-                <button className="calendar-toggle-btn" onClick={() => setShowCalendar(!showCalendar)}>
-                  {bookingDate ? formatDateToThai(bookingDate) : (
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAUZJREFUSEvNVYFxwjAMfG1SJilMAkxSOgndBDpJYZJv3ycFJyF2Am6vvgMOR9G/9PLb8MvLpvKTfDGzSw2/FlcCOAIQyKYEQrIYNwIguVNiAG8AVEGtirXHnAF8mtlHTqgDIKnAxCZLWkseufSOPlp6ZxPtzQG+POB9yKKmQzyXHgBO+m9mq/BsL2+L2AtZpT68HERkU64AUPKdmU2KvgSRJH/IqxOHHCDEWpJrKla5zprAAFDf0maL7DEoQwAJU5z5ueAkQ+heBX8L4Cx0ktO4+bSJ2dy9RDjXoFfBPQtYsPcPWjRX0Htxs0RurYFO8nog6MiGF2ggq9BB24fIBwDbHODJFo0AdIqlfAuz032i6vdy5aigs1l/8JBluJNGa2927YcoQFpcOGKfSPbs2RmoXa+uQdxSNUl0i139opGe3Wri/yX0b2jJ5Bkv0yj2AAAAAElFTkSuQmCC" alt="calendar" />
+                <div className="date-select-label">
+                  <h2>เลือกวันที่: </h2>
+                </div>
+                <button
+                  className="calendar-toggle-btn"
+                  onClick={() => setShowCalendar(!showCalendar)}
+                >
+                  {bookingDate ? (
+                    formatDateToThai(bookingDate)
+                  ) : (
+                    <img
+                      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAUZJREFUSEvNVYFxwjAMfG1SJilMAkxSOgndBDpJYZJv3ycFJyF2Am6vvgMOR9G/9PLb8MvLpvKTfDGzSw2/FlcCOAIQyKYEQrIYNwIguVNiAG8AVEGtirXHnAF8mtlHTqgDIKnAxCZLWkseufSOPlp6ZxPtzQG+POB9yKKmQzyXHgBO+m9mq/BsL2+L2AtZpT68HERkU64AUPKdmU2KvgSRJH/IqxOHHCDEWpJrKla5zprAAFDf0maL7DEoQwAJU5z5ueAkQ+heBX8L4Cx0ktO4+bSJ2dy9RDjXoFfBPQtYsPcPWjRX0Htxs0RurYFO8nog6MiGF2ggq9BB24fIBwDbHODJFo0AdIqlfAuz032i6vdy5aigs1l/8JBluJNGa2927YcoQFpcOGKfSPbs2RmoXa+uQdxSNUl0i139opGe3Wri/yX0b2jJ5Bkv0yj2AAAAAElFTkSuQmCC"
+                      alt="calendar"
+                    />
                   )}
                 </button>
                 {showCalendar && (
                   <div className="calendar-popup-overlay">
                     <div className="calendar-popup">
-                      <button className="btn-cancel-select-date" onClick={() => setShowCalendar(false)}>
+                      <button
+                        className="btn-cancel-select-date"
+                        onClick={() => setShowCalendar(false)}
+                      >
                         ปิด
                       </button>
                       <Calendar
@@ -136,7 +196,9 @@ export default function Booking() {
                         minDate={new Date(today.setHours(0, 0, 0, 0))}
                         maxDate={maxDate}
                         tileClassName={tileClassName}
-                        tileDisabled={({ date, view }) => view === "month" && !openDays.includes(date.getDay())}
+                        tileDisabled={({ date, view }) =>
+                          view === "month" && !openDays.includes(date.getDay())
+                        }
                       />
                     </div>
                   </div>
@@ -174,7 +236,9 @@ export default function Booking() {
                   <div
                     key={index}
                     className={slotClass}
-                    onClick={() => !isPast && !statusClass && toggleSelectSlot(index)}
+                    onClick={() =>
+                      !isPast && !statusClass && toggleSelectSlot(index)
+                    }
                   >
                     <div className="slot-time-book">{slot}</div>
                   </div>
@@ -190,17 +254,25 @@ export default function Booking() {
                     className={`addon-card ${selectPrice === "subFieldPrice" ? "selected" : ""}`}
                     onClick={() => handlePriceOnChange("subFieldPrice")}
                   >
-                    <div className="addon-content-book">{subFieldData.sport_name}</div>
-                    <div className="addon-price-book">{formatPrice(price)} บาท/ชม.</div>
+                    <div className="addon-content-book">
+                      {subFieldData.sport_name}
+                    </div>
+                    <div className="addon-price-book">
+                      {formatPrice(price)} บาท/ชม.
+                    </div>
                   </div>
                   {addOns.map((addon) => (
                     <div
                       key={addon.add_on_id}
                       className={`addon-card ${selectPrice === addon.add_on_id.toString() ? "selected" : ""}`}
-                      onClick={() => handlePriceOnChange(addon.add_on_id.toString())}
+                      onClick={() =>
+                        handlePriceOnChange(addon.add_on_id.toString())
+                      }
                     >
                       <div className="addon-content-book">{addon.content}</div>
-                      <div className="addon-price-book">{formatPrice(addon.price)} บาท/ชม.</div>
+                      <div className="addon-price-book">
+                        {formatPrice(addon.price)} บาท/ชม.
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -212,26 +284,46 @@ export default function Booking() {
         <div className="book-sider">
           <div className="book-sum-box">
             <h1 className="field-title-book">{fieldName}</h1>
-            <h2 className="sub-field-title">สนาม: {subFieldData.sub_field_name}</h2>
+            <h2 className="sub-field-title">
+              สนาม: {subFieldData.sub_field_name}
+            </h2>
             <div className="time-info">
-              <p>วันที่: {bookingDate ? formatDateToThai(bookingDate) : "ยังไม่ได้เลือกวันที่"}</p>
+              <p>
+                วันที่:{" "}
+                {bookingDate
+                  ? formatDateToThai(bookingDate)
+                  : "ยังไม่ได้เลือกวันที่"}
+              </p>
             </div>
             <div className="time-info">
-              <p>เปิด: {openHours} - {closeHours} น</p>
+              <p>
+                เปิด: {openHours} - {closeHours} น
+              </p>
             </div>
             <div className="time-info-book">
               <strong>เวลาเริ่ม: {timeStart || "-"}</strong>
               <strong>เวลาสิ้นสุด: {timeEnd || "-"}</strong>
-              <strong>รวมเวลา: {totalHours ? formatTotalHours(totalHours) : "-"}</strong>
+              <strong>
+                รวมเวลา: {totalHours ? formatTotalHours(totalHours) : "-"}
+              </strong>
             </div>
             {canBook && bookingDate && (
               <>
-                <div className={`total-box ${canBook ? 'show' : ''}`}>
+                <div className={`total-box ${canBook ? "show" : ""}`}>
                   <strong>ราคารวม: {formatPrice(totalPrice)} บาท</strong>
-                  <span className="price-deposit">มัดจำ: {formatPrice(priceDeposit)} บาท</span>
+                  <span className="price-deposit">
+                    มัดจำ: {formatPrice(priceDeposit)} บาท
+                  </span>
                 </div>
-                <button onClick={() => setShowSummary(true)} className="btn-submit-book">จอง</button>
-                <button className="btn-reset" onClick={resetSelection}>รีเซ็ต</button>
+                <button
+                  onClick={() => setShowSummary(true)}
+                  className="btn-submit-book"
+                >
+                  จอง
+                </button>
+                <button className="btn-reset" onClick={resetSelection}>
+                  รีเซ็ต
+                </button>
               </>
             )}
           </div>
@@ -244,7 +336,9 @@ export default function Booking() {
             <h2 className="summary-header">สรุปการจอง</h2>
             <div className="summary-details">
               <h3 className="field-title-summary">{fieldName}</h3>
-              <p className="sub-field-title-summary">สนาม: {subFieldData.sub_field_name}</p>
+              <p className="sub-field-title-summary">
+                สนาม: {subFieldData.sub_field_name}
+              </p>
 
               <div className="time-summary-info">
                 <div className="summary-row">
@@ -253,7 +347,9 @@ export default function Booking() {
                 </div>
                 <div className="summary-row">
                   <strong>เวลา:</strong>
-                  <span>{timeStart} - {timeEnd} น.</span>
+                  <span>
+                    {timeStart} - {timeEnd} น.
+                  </span>
                 </div>
                 <div className="summary-row">
                   <strong>จำนวนเวลา:</strong>
@@ -271,27 +367,52 @@ export default function Booking() {
                   <div className="facilities-carousel">
                     {facilities.map((fac) => {
                       const isSelected = !!selectedFacilities[fac.field_fac_id];
-                      const available = facilityAvailability[fac.field_fac_id] ?? fac.fac_quantity;
+                      const available =
+                        facilityAvailability[fac.field_fac_id] ??
+                        fac.fac_quantity;
                       return (
-                        <div key={fac.field_fac_id} className={`facility-card-summary ${isSelected ? 'selected' : ''}`}>
+                        <div
+                          key={fac.field_fac_id}
+                          className={`facility-card-summary ${isSelected ? "selected" : ""}`}
+                        >
                           <div className="facility-image-container">
                             {fac.fac_image ? (
-                              <img src={fac.fac_image} alt={fac.fac_name} className="facility-image" />
+                              <img
+                                src={fac.fac_image}
+                                alt={fac.fac_name}
+                                className="facility-image"
+                              />
                             ) : (
-                              <div className="facility-no-image">ไม่มีรูปภาพ</div>
+                              <div className="facility-no-image">
+                                ไม่มีรูปภาพ
+                              </div>
                             )}
                           </div>
                           <div className="facility-info-summary">
                             <p className="facility-name">{fac.fac_name}</p>
-                            <p className="facility-price">{formatPrice(fac.fac_price)} บาท/ชิ้น</p>
-                            <p className="facility-availability">ว่าง: {available} ชิ้น</p>
+                            <p className="facility-price">
+                              {formatPrice(fac.fac_price)} บาท/ชิ้น
+                            </p>
+                            <p className="facility-availability">
+                              ว่าง: {available} ชิ้น
+                            </p>
                             <div className="facility-controls">
                               <button
-                                className={`facility-select-btn ${isSelected ? 'selected' : ''}`}
-                                onClick={() => handleFacilitySelect(fac.field_fac_id, fac.fac_price, fac.fac_name)}
+                                className={`facility-select-btn ${isSelected ? "selected" : ""}`}
+                                onClick={() =>
+                                  handleFacilitySelect(
+                                    fac.field_fac_id,
+                                    fac.fac_price,
+                                    fac.fac_name,
+                                  )
+                                }
                                 disabled={available <= 0 && !isSelected}
                               >
-                                {isSelected ? 'เลือกแล้ว' : available <= 0 ? 'สินค้าหมด' : 'เลือก'}
+                                {isSelected
+                                  ? "เลือกแล้ว"
+                                  : available <= 0
+                                    ? "สินค้าหมด"
+                                    : "เลือก"}
                               </button>
                             </div>
                           </div>
@@ -305,7 +426,9 @@ export default function Booking() {
               <div className="price-summary-section">
                 <div className="price-breakdown">
                   <div className="price-row">
-                    <strong>ราคาค่าสนาม ({formatPrice(newPrice)} / ชม.):</strong>
+                    <strong>
+                      ราคาค่าสนาม ({formatPrice(newPrice)} / ชม.):
+                    </strong>
                     <span>{formatPrice(newPrice * totalHours)} บาท</span>
                   </div>
                   {Object.values(selectedFacilities).length > 0 && (
@@ -356,10 +479,17 @@ export default function Booking() {
               </div>
 
               <div className="summary-actions">
-                <button className="btn-confirm-booking" onClick={handleConfirm} disabled={startProcessLoad}>
+                <button
+                  className="btn-confirm-booking"
+                  onClick={handleConfirm}
+                  disabled={startProcessLoad}
+                >
                   {startProcessLoad ? "กำลังประมวลผล..." : "ยืนยันการจอง"}
                 </button>
-                <button className="btn-cancel-booking" onClick={() => setShowSummary(false)}>
+                <button
+                  className="btn-cancel-booking"
+                  onClick={() => setShowSummary(false)}
+                >
                   ยกเลิก
                 </button>
               </div>

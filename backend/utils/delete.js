@@ -40,7 +40,6 @@ async function deleteCloudinaryFile(fileUrl) {
     if (result.result === "ok") {
       console.log(`[Cloudinary] Deleted: ${publicId}`);
     } else if (result.result === "not found") {
-      // Try alternative resource type
       const alternativeType = resourceType === "raw" ? "image" : "raw";
       const retryResult = await cloudinary.uploader.destroy(publicId, {
         resource_type: alternativeType,

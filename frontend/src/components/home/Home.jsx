@@ -24,33 +24,30 @@ export default function HomePage() {
   const socket = useSocket();
   const [dataLoading, setDataLoading] = useState(true);
 
-  // Socket connection สำหรับ real-time updates
   useEffect(() => {
     if (!socket) return;
 
-    // รับฟัง Socket Event สำหรับโพสใหม่
     const handleHomeNewPost = (newPost) => {
       console.log("=== HOME NEW POST EVENT RECEIVED ===");
       console.log("Received new post for home:", newPost);
-      
+
       setPostData((prevPosts) => {
-        // เพิ่มโพสใหม่ลงในด้านบนสุด และจำกัดให้แสดงแค่ 5 โพส (ตาม LIMIT ใน backend)
         const updatedPosts = [newPost, ...prevPosts].slice(0, 5);
         console.log("Updated home posts count:", updatedPosts.length);
         return updatedPosts;
       });
     };
 
-    // รับฟัง Socket Event สำหรับการลบโพส
     const handleHomePostDeleted = (data) => {
       console.log("=== HOME POST DELETED EVENT RECEIVED ===");
       console.log("Post to delete from home:", data.postId);
-      
+
       setPostData((prevPosts) => {
-        const filteredPosts = prevPosts.filter((post) => post.post_id !== data.postId);
+        const filteredPosts = prevPosts.filter(
+          (post) => post.post_id !== data.postId,
+        );
         console.log("Home posts after deletion:", filteredPosts.length);
-        
-        // ถ้าโพสถูกลบจนเหลือน้อยกว่า 5 โพส ให้ fetch โพสเพิ่ม
+
         if (filteredPosts.length < 5) {
           setTimeout(() => {
             fetchPosts();
@@ -153,18 +150,17 @@ export default function HomePage() {
               ))}
             </div>
           )}
-          {!dataLoading && postData.map((post) => (
-            <PostCard
-              key={post.post_id}
-              post={post}
-              mode="home"
-              onViewPost={(p) =>
-                router.push(
-                  `/profile/${p.field_id}?highlight=${p.post_id}`
-                )
-              }
-            />
-          ))}
+          {!dataLoading &&
+            postData.map((post) => (
+              <PostCard
+                key={post.post_id}
+                post={post}
+                mode="home"
+                onViewPost={(p) =>
+                  router.push(`/profile/${p.field_id}?highlight=${p.post_id}`)
+                }
+              />
+            ))}
         </div>
         <Category></Category>
       </div>

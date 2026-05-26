@@ -183,7 +183,7 @@ router.get("/:field_id", async (req, res) => {
       return res.status(200).json({ message: "ไม่มีโพส" });
     }
 
-    await setCache(cacheKey, data, 300); // cache for 5 minutes
+    await setCache(cacheKey, data, 300); 
     res.status(200).json({ data });
   } catch (error) {
     console.error("Database Error:", error);
@@ -226,7 +226,7 @@ router.get("/", async (req, res) => {
       return res.status(200).json({ message: "ไม่มีโพส" });
     }
 
-    await setCache(cacheKey, data, 300); // cache for 5 minutes
+    await setCache(cacheKey, data, 300);
     res.status(200).json({ data });
   } catch (error) {
     console.error("Database Error:", error);

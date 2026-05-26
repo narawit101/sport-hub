@@ -46,7 +46,6 @@ export default function Login() {
     SetstartProcessLoad(true);
     try {
       const { token } = await apiClient.post("/login", formData);
-      // เก็บ token ใน localStorage เพื่อใช้เป็น fallback เมื่อ cookie ไม่ติด (เช่น mobile)
       login(token);
 
       const userData = await apiClient.get("/users/me");

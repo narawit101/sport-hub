@@ -13,7 +13,7 @@ router.get("/", authMiddleware, async (req, res) => {
       return res.json(cached);
     }
     const result = await pool.query("SELECT * FROM sports_types");
-    await setCache(cacheKey, result.rows, 3600); // cache for 1 hour
+    await setCache(cacheKey, result.rows, 3600); 
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: "Database error fetching sports types" });
@@ -182,7 +182,7 @@ router.get("/preview/type", async (req, res) => {
       return res.json(cached);
     }
     const result = await pool.query("SELECT * FROM sports_types");
-    await setCache(cacheKey, result.rows, 3600); // cache for 1 hour
+    await setCache(cacheKey, result.rows, 3600);
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: "Database error fetching sports types" });

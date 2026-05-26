@@ -12,8 +12,6 @@ const DEFAULT_SOCKET_OPTIONS = {
 export function createSocket(apiUrl, options = {}) {
   if (!apiUrl) return null;
 
-  // ส่ง token ผ่าน auth option ของ socket.io
-  // (fallback สำหรับ mobile ที่บล็อค 3rd-party cookie ทำให้ withCredentials ไม่ส่ง cookie)
   const localToken = tokenStorage.get();
   const authOption = localToken ? { auth: { token: localToken } } : {};
 

@@ -21,7 +21,6 @@ const upload = createUploader(
 );
 
 module.exports = function (io) {
-  // Attach io to req
   router.use((req, res, next) => {
     req.io = io;
     next();
@@ -74,7 +73,6 @@ module.exports = function (io) {
     });
   }
 
-  // Routes
   router.get("/server-time", (req, res) => {
     res.status(200).json({ timestamp: Date.now() });
   });

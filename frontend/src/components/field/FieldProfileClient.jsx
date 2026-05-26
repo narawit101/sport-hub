@@ -61,7 +61,9 @@ export default function CheckFieldDetail() {
   const fetchFollowing = useCallback(async () => {
     if (!user?.user_id || !fieldId) return;
     try {
-      const data = await apiClient.get(`/following/get-following/${user.user_id}/${fieldId}`);
+      const data = await apiClient.get(
+        `/following/get-following/${user.user_id}/${fieldId}`,
+      );
       if (data.following === 1) {
         setUserFollowing(true);
       } else {
@@ -85,7 +87,7 @@ export default function CheckFieldDetail() {
 
   useEffect(() => {
     if (!socket) return;
-    
+
     const handleFollowing = (data) => {
       if (data.fieldId === Number(fieldId)) {
         fetchFollowerAll();
@@ -111,7 +113,7 @@ export default function CheckFieldDetail() {
       if (data.fieldId === Number(fieldId)) {
         setPostData((prevPosts) => {
           const filteredPosts = prevPosts.filter(
-            (post) => post.post_id !== data.postId
+            (post) => post.post_id !== data.postId,
           );
           return filteredPosts;
         });
@@ -121,7 +123,7 @@ export default function CheckFieldDetail() {
     socket.on("following", handleFollowing);
     socket.on("new_post_created", handleNewPostCreated);
     socket.on("post_deleted", handlePostDeleted);
-    
+
     return () => {
       socket.off("following", handleFollowing);
       socket.off("new_post_created", handleNewPostCreated);
@@ -158,13 +160,15 @@ export default function CheckFieldDetail() {
       try {
         const keyToMark = highlightId ? Number(highlightId) : Number(fieldId);
         if (!keyToMark) return;
-        await apiClient.put("/notification/read-notification", { key_id: keyToMark });
+        await apiClient.put("/notification/read-notification", {
+          key_id: keyToMark,
+        });
 
         console.log("Notifications marked as read for key_id:", keyToMark);
         window.dispatchEvent(
           new CustomEvent("notifications-marked-read", {
             detail: { key_id: keyToMark },
-          })
+          }),
         );
       } catch (error) {
         console.error("Error marking notifications as read:", error);
@@ -191,7 +195,10 @@ export default function CheckFieldDetail() {
         const currentUserId = user?.user_id;
         const currentUserRole = user?.role;
 
-        if (currentUserRole === USER_ROLE.ADMIN || fieldOwnerId === currentUserId) {
+        if (
+          currentUserRole === USER_ROLE.ADMIN ||
+          fieldOwnerId === currentUserId
+        ) {
           setCanPost(true);
         } else {
           setCanPost(false);
@@ -207,7 +214,10 @@ export default function CheckFieldDetail() {
         if (error.status === 404) {
           setNotFoundFlag(true);
         } else {
-          notify(error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
+          notify(
+            error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+            "error",
+          );
         }
       } finally {
         setDataLoading(false);
@@ -230,7 +240,7 @@ export default function CheckFieldDetail() {
           setPostData(data.data);
           if (highlightId) {
             const exists = data.data.some(
-              (p) => String(p.post_id) === String(highlightId)
+              (p) => String(p.post_id) === String(highlightId),
             );
             if (!exists) setHighlightMissing(true);
           }
@@ -250,12 +260,10 @@ export default function CheckFieldDetail() {
     fetchFollowerAll();
   }, [fetchFollowing, fetchFollowerAll]);
 
-  // ตรวจสอบ query parameter showDescription สำหรับเปิดโมดัลคำแนะนำสนาม
   useEffect(() => {
     const showDescription = searchParams.get("showDescription");
     if (showDescription === "true") {
       setShowModalDescription(true);
-      // ลบ parameter ออกจาก URL หลังจากเปิดโมดัล
       const params = new URLSearchParams(searchParams.toString());
       params.delete("showDescription");
       router.replace(`?${params.toString()}`, { scroll: false });
@@ -357,9 +365,12 @@ export default function CheckFieldDetail() {
     newImages.forEach((img) => formData.append("img_url", img));
     SetstartProcessLoad(true);
     try {
-      const updated = await apiClient.patchForm(`/posts/update/${postId}`, formData);
+      const updated = await apiClient.patchForm(
+        `/posts/update/${postId}`,
+        formData,
+      );
       setPostData((prev) =>
-        prev.map((post) => (post.post_id === postId ? updated : post))
+        prev.map((post) => (post.post_id === postId ? updated : post)),
       );
       setEditingPostId(null);
       notify("แก้ไขโพสต์สำเร็จ", "success");
@@ -380,7 +391,6 @@ export default function CheckFieldDetail() {
     try {
       await apiClient.delete(`/posts/delete/${postToDelete}`);
       notify("ลบโพสต์เรียบร้อย", "success");
-      // โพสจะถูกลบผ่าน Socket Event แล้ว ไม่ต้องลบที่นี่
       console.log("โพสถูกลบแล้ว Socket จะจัดการให้");
       setShowModal(false);
     } catch (error) {
@@ -446,8 +456,6 @@ export default function CheckFieldDetail() {
     return "#";
   };
 
-  // formatPrice is imported from @/app/utils/format
-
   if (dataLoading) return <LoadingSpinner />;
 
   if (!dataLoading && notFoundFlag) {
@@ -486,7 +494,10 @@ export default function CheckFieldDetail() {
   const handleFollow = async () => {
     try {
       SetstartProcessLoad(true);
-      await apiClient.post("/following/add-following", { fieldId: fieldId, userId: user?.user_id });
+      await apiClient.post("/following/add-following", {
+        fieldId: fieldId,
+        userId: user?.user_id,
+      });
       setUserFollowing(true);
       notify("ติดตามสนามเรียบร้อย", "success");
       fetchFollowing();
@@ -502,7 +513,10 @@ export default function CheckFieldDetail() {
   const cancelFollow = async () => {
     try {
       SetstartProcessLoad(true);
-      await apiClient.delete("/following/cancel-following", { fieldId, userId: user?.user_id });
+      await apiClient.delete("/following/cancel-following", {
+        fieldId,
+        userId: user?.user_id,
+      });
       setUserFollowing(false);
       notify("เลิกติดตามสนามเรียบร้อย", "success");
       fetchFollowing();
@@ -727,18 +741,13 @@ export default function CheckFieldDetail() {
               setCurrentPage={setCurrentPage}
               fieldId={fieldId}
               onPostSuccess={(newPost) => {
-                // โพสจะถูกเพิ่มผ่าน Socket Event แล้ว ไม่ต้องเพิ่มที่นี่
                 console.log("โพสใหม่ถูกสร้างแล้ว Socket จะจัดการให้:", newPost);
               }}
             />
           )}
-          {currentPostProfile.map((post) => (
+          {currentPostProfile.map((post) =>
             editingPostId === post.post_id ? (
-              <PostCard
-                key={post.post_id}
-                post={post}
-                mode="profile"
-              >
+              <PostCard key={post.post_id} post={post} mode="profile">
                 <form
                   onSubmit={(e) => handleEditSubmit(e, post.post_id)}
                   className="edit-form-post"
@@ -827,8 +836,8 @@ export default function CheckFieldDetail() {
                 onDeletePost={confirmDelete}
                 setSelectedImage={setSelectedImage}
               />
-            )
-          ))}
+            ),
+          )}
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -1170,4 +1179,3 @@ export default function CheckFieldDetail() {
     </>
   );
 }
-

@@ -4,16 +4,22 @@ import FieldProfileClient from "@/components/field/FieldProfileClient";
 export async function generateMetadata({ params }) {
   const { fieldId } = await params;
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profile/${fieldId}`);
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/profile/${fieldId}`,
+    );
     const data = await res.json();
     if (res.ok && data?.data) {
-      // Remove HTML tags from rich description for clean meta description snippet
       const cleanDesc = data.data.field_description
-        ? data.data.field_description.replace(/<[^>]*>/g, "").trim().substring(0, 150)
+        ? data.data.field_description
+            .replace(/<[^>]*>/g, "")
+            .trim()
+            .substring(0, 150)
         : "";
       return {
         title: `${data.data.field_name} - Sport Hub`,
-        description: cleanDesc || `รายละเอียดของสนาม ${data.data.field_name} และทำการจองออนไลน์`,
+        description:
+          cleanDesc ||
+          `รายละเอียดของสนาม ${data.data.field_name} และทำการจองออนไลน์`,
       };
     }
   } catch (error) {
@@ -28,7 +34,13 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { fieldId } = await params;
   return (
-    <Suspense fallback={<div className="load"><span className="spinner"></span></div>}>
+    <Suspense
+      fallback={
+        <div className="load">
+          <span className="spinner"></span>
+        </div>
+      }
+    >
       <FieldProfileClient fieldId={fieldId} />
     </Suspense>
   );

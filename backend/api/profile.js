@@ -53,7 +53,7 @@ router.get("/:field_id", async (req, res) => {
       return res.status(404).json({ message: "ไม่พบข้อมูลสนามกีฬา" });
     }
     const data = result.rows[0];
-    await setCache(cacheKey, data, 300); // Cache for 5 minutes
+    await setCache(cacheKey, data, 300);
     return res.status(200).json({ data });
   } catch (error) {
     console.error("Database Error:", error);

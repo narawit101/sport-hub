@@ -340,7 +340,6 @@
   align-items: center;
 }
 
-/* Responsive Design //////////////////////////////////////////////////////////////////////////////////////*/
 @media screen and (max-width: 888px) {
   .facility-item-admin,
   .typename-admin {

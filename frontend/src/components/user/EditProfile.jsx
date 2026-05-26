@@ -10,7 +10,6 @@ import apiClient from "@/lib/apiClient";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { USER_STATUS, USER_ROLE } from "@/constants/status";
 
-
 export default function EditProfile() {
   const { notify } = useNotification();
   const [currentUser, setCurrentUser] = useState(null);
@@ -64,7 +63,10 @@ export default function EditProfile() {
     SetstartProcessLoad(true);
 
     try {
-      await apiClient.put(`/users/update-profile/${currentUser.user_id}`, updatedUser);
+      await apiClient.put(
+        `/users/update-profile/${currentUser.user_id}`,
+        updatedUser,
+      );
 
       notify("ข้อมูลโปรไฟล์ของคุณถูกอัปเดตแล้ว", "success");
       setCurrentUser((prev) => ({
@@ -119,7 +121,7 @@ export default function EditProfile() {
       formData.append("user_profile", selectedFile);
       const result = await apiClient.putForm(
         `/users/update-user-profile/${currentUser.user_id}`,
-        formData
+        formData,
       );
 
       notify("อัปโหลดรูปสำเร็จ", "success");
@@ -207,10 +209,11 @@ export default function EditProfile() {
         ) : (
           <div className="container-user-profile">
             <img
-              src={`${currentUser?.user_profile
+              src={`${
+                currentUser?.user_profile
                   ? currentUser.user_profile
                   : "https://res.cloudinary.com/dlwfuul9o/image/upload/v1755157542/qlementine-icons--user-24_zre8k9.png"
-                }`}
+              }`}
               alt="รุปโปรไฟล์"
               className="preview-container-user-profile"
             />
@@ -353,18 +356,18 @@ export default function EditProfile() {
                   marginRight: 8,
                   verticalAlign: "middle",
                 }}
-                //
                 src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1757081429/material-symbols-light--verified-outline_ug65kg.png"
                 alt=""
               />
               <strong>สถานะบัญชี:</strong>
               <strong
-                className={`status-text-manager ${currentUser?.status === USER_STATUS.PENDING
+                className={`status-text-manager ${
+                  currentUser?.status === USER_STATUS.PENDING
                     ? "pending"
                     : currentUser?.status === USER_STATUS.VERIFIED
                       ? "approved"
                       : "unknown"
-                  }`}
+                }`}
               >
                 {currentUser?.status}
               </strong>

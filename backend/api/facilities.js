@@ -29,7 +29,7 @@ router.get("/:field_id", async (req, res) => {
       [field_id]
     );
     const data = result.rows || [];
-    await setCache(cacheKey, data, 300); // cache for 5 minutes
+    await setCache(cacheKey, data, 300); 
     return res.status(200).json({ success: true, data });
   } catch (err) {
     console.error("GET /facilities/:field_id error:", err);

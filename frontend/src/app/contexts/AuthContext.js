@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
   const fetchUser = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await apiClient.get("/users/me");
+      const data = await apiClient.get("/users/me", { skipRedirect: true });
       setUser(data);
     } catch (error) {
       console.error("Error fetching user", error);
@@ -73,14 +73,12 @@ export function AuthProvider({ children }) {
     };
   }, [socket, fetchUser]);
 
-  // เก็บ token ใน localStorage หลัง login สำเร็จ
   const login = useCallback((token) => {
     if (token) {
       tokenStorage.set(token);
     }
   }, []);
 
-  // ลบ token ออกจาก localStorage เมื่อ logout
   const logout = useCallback(() => {
     tokenStorage.remove();
     setUser(null);

@@ -135,7 +135,7 @@ WHERE b.field_id = $1
       },
     };
 
-    await setCache(cacheKey, responseData, 60); // cache for 1 minute
+    await setCache(cacheKey, responseData, 60);
 
     res.status(200).json(responseData);
   } catch (error) {

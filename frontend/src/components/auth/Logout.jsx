@@ -19,7 +19,7 @@ export default function LogoutButton() {
     try {
       await apiClient.post("/logout");
 
-      logout(); // ลบ token จาก localStorage + reset user state
+      logout();
       sessionStorage.clear();
       notify("ออกจากระบบสำเร็จ", "success");
       router.push("/login");

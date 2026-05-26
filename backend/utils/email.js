@@ -16,7 +16,7 @@ const brevo = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
 
 /** Retry config */
 const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 2000; // 2 s, doubles each retry
+const BASE_DELAY_MS = 2000;
 
 /**
  * Delay helper (exponential back-off with jitter)
@@ -63,7 +63,6 @@ async function sendEmail({ to, subject, html }) {
         errMsg
       );
 
-      // Only retry on transient / network errors (5xx, timeout, network)
       const isRetryable =
         err?.statusCode >= 500 ||
         err?.code === "ETIMEDOUT" ||
@@ -72,12 +71,10 @@ async function sendEmail({ to, subject, html }) {
         err?.code === "ENOTFOUND";
 
       if (!isRetryable) {
-        break; // non-retryable (e.g. 400 bad request, 401 auth) → bail
+        break; 
       }
     }
   }
-
-  // All retries exhausted
   const finalMsg = lastErr?.body?.message || lastErr?.message || String(lastErr);
   console.error("[Email] Failed to send after all retries:", finalMsg);
 

@@ -56,7 +56,7 @@ router.get("/", async (req, res) => {
     );
 
     if (exactResult.rows.length > 0) {
-      await setCache(cacheKey, exactResult.rows, 60); // cache for 60 seconds
+      await setCache(cacheKey, exactResult.rows, 60);
       return res.status(200).json({ data: exactResult.rows });
     }
 
@@ -99,7 +99,7 @@ router.get("/", async (req, res) => {
       [query]
     );
 
-    await setCache(cacheKey, fuzzyResult.rows, 60); // cache for 60 seconds
+    await setCache(cacheKey, fuzzyResult.rows, 60); 
     return res.status(200).json({ data: fuzzyResult.rows });
   } catch (error) {
     console.error("error", error);

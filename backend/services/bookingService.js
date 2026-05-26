@@ -38,7 +38,6 @@ class BookingService {
     try {
       await client.query("BEGIN");
 
-      // Check overlap
       const overlapResult = await client.query(
         `SELECT * FROM bookings
         WHERE sub_field_id = $1
@@ -64,7 +63,6 @@ class BookingService {
         throw new Error("ช่วงเวลาที่เลือกมีผู้จองแล้ว กรุณาเลือกเวลาใหม่");
       }
 
-      // Check facilities availability
       for (const facility of selectedFacilities || []) {
         const facInfoRes = await client.query(
           `SELECT field_fac_id, quantity_total, fac_name 
@@ -103,7 +101,6 @@ class BookingService {
         }
       }
 
-      // Insert booking
       const bookingResult = await client.query(
         `INSERT INTO bookings (field_id, user_id, sub_field_id, booking_date, start_time, end_time, total_hours, total_price, pay_method, total_remaining, activity, status, start_date, end_date, selected_slots)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING booking_id`,
@@ -112,7 +109,6 @@ class BookingService {
 
       const bookingId = bookingResult.rows[0].booking_id;
 
-      // Insert booking facilities
       for (const facility of selectedFacilities || []) {
         await client.query(
           `INSERT INTO booking_fac (booking_id, field_fac_id, fac_name, quantity) 
@@ -121,7 +117,6 @@ class BookingService {
         );
       }
 
-      // Get owner info for email and notification
       const ownerRes = await client.query(
         `SELECT uf.user_id, uf.email AS field_owner_email, f.field_name
          FROM field f
@@ -131,7 +126,6 @@ class BookingService {
       );
       const owner = ownerRes.rows[0];
 
-      // Send email
       if (owner?.field_owner_email) {
         sendEmail({
           to: owner.field_owner_email,
@@ -140,7 +134,6 @@ class BookingService {
         }).catch(err => console.error("Email send error:", err));
       }
 
-      // Insert notification
       const notifyData = await client.query(
         `INSERT INTO notifications (sender_id, recive_id, topic, messages, key_id, status)
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
@@ -149,7 +142,6 @@ class BookingService {
 
       await client.query("COMMIT");
 
-      // Emit socket events
       if (io) {
         io.emit("slot_booked", { subFieldId, bookingDate, bookingId });
         io.to(owner.user_id.toString()).emit("new_notification", {
@@ -325,7 +317,6 @@ class BookingService {
       const userRes = await client.query(`SELECT email, first_name FROM users WHERE user_id = $1`, [booking.user_id]);
       const fieldRes = await client.query(`SELECT field_name FROM field WHERE field_id = $1`, [booking.field_id]);
       
-      // Notification
       const notifyData = await client.query(
         `INSERT INTO notifications (sender_id, recive_id, topic, messages, key_id, status)
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
@@ -348,7 +339,6 @@ class BookingService {
         });
       }
 
-      // Email
       if (userRes.rows[0]?.email) {
           const emailData = { fieldName: fieldRes.rows[0].field_name, bookingId, reasoning };
           let html;
@@ -439,7 +429,7 @@ class BookingService {
               topic = "total_slip_payment_uploaded";
           }
 
-          // Check if payment entry exists
+
           const paymentCheck = await client.query(`SELECT * FROM payment WHERE booking_id = $1`, [bookingId]);
           if (paymentCheck.rowCount === 0) {
               await client.query(
@@ -478,7 +468,6 @@ class BookingService {
             });
           }
 
-          // Email to owner
           const ownerEmailRes = await client.query(`SELECT email FROM users WHERE user_id = $1`, [owner.user_id]);
           if (ownerEmailRes.rows[0]?.email) {
               sendEmail({

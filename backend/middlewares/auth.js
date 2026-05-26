@@ -9,7 +9,6 @@ const authMiddleware = async (req, res, next) => {
     token = req.cookies.token;
   }
 
-  // Fallback: รับ token จาก Authorization header (สำหรับ mobile ที่บล็อค 3rd-party cookie)
   if (!token) {
     const authHeader = req.headers["authorization"];
     if (authHeader?.startsWith("Bearer ")) {
@@ -24,7 +23,6 @@ const authMiddleware = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Try cache first for user role
     const cacheKey = `user_role:${decoded.user_id}`;
     let role = await getCache(cacheKey);
 
@@ -39,7 +37,7 @@ const authMiddleware = async (req, res, next) => {
       }
 
       role = result.rows[0].role;
-      await setCache(cacheKey, role, 300); // cache 5 min
+      await setCache(cacheKey, role, 300);
     }
 
     req.user = {

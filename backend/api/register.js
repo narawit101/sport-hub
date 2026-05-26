@@ -23,7 +23,6 @@ router.get("/check-duplicate", async (req, res) => {
     return res.status(400).json({ message: "Field and value are required" });
   }
 
-  // Whitelist allowed fields to prevent SQL injection
   const allowedFields = ["email", "user_name"];
   if (!allowedFields.includes(field)) {
     return res.status(400).json({ message: "Invalid field" });
