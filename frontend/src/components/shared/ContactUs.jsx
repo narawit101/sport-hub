@@ -72,49 +72,71 @@ export default function Contact() {
   return (
     <>
       <div className="contact-container">
-        <div className="head-titel-contact">
-          <h1>ติดต่อผู้ดูแลระบบ</h1>
+        <div className="contact-header">
+          <div className="header-icon-wrapper">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+          <h1 className="contact-title">ติดต่อผู้ดูแลระบบ</h1>
+          <p className="contact-subtitle">
+            แจ้งปัญหาการใช้งาน ส่งข้อเสนอแนะ หรือสอบถามข้อมูลเพิ่มเติมเกี่ยวกับบริการของเรา
+          </p>
         </div>
-        <form onSubmit={request}>
-          <div className="input-contact">
+
+        <form onSubmit={request} className="contact-form">
+          <div className="form-group">
+            <label>อีเมลสำหรับติดต่อกลับ</label>
             <input
               readOnly={startProcessLoad}
               required
               type="email"
-              placeholder="Email ของคุณ (สำหรับการตอบกลับ)"
+              placeholder="กรอกอีเมลของคุณ เช่น example@mail.com"
               value={userEmail}
               onChange={(e) => setUserEmail(e.target.value)}
             />
+          </div>
 
+          <div className="form-group">
+            <label>หัวข้อ / เรื่องที่ต้องการติดต่อ</label>
             <input
               required
               readOnly={startProcessLoad}
               maxLength={50}
               type="text"
-              placeholder="หัวข้อ, เรื่องที่ต้องการติดต่อ"
+              placeholder="กรอกหัวข้อหรือเรื่องที่ต้องการติดต่อ"
               value={subJect}
               onChange={(e) => setSubject(e.target.value)}
             />
+          </div>
 
+          <div className="form-group">
+            <label>รายละเอียดข้อความ</label>
             <textarea
               readOnly={startProcessLoad}
               maxLength={500}
               required
-              type="text"
-              placeholder="เนื้อหา, ข้อความที่ต้องการติดต่อ, แจ้งปัญหา, ข้อเสนอแนะ"
+              placeholder="ระบุข้อความ รายละเอียดปัญหา หรือข้อเสนอแนะที่ต้องการแจ้งแก่ผู้ดูแลระบบ"
               value={conTent}
               onChange={(e) => setContent(e.target.value)}
             />
           </div>
-          <div className="btn-send-contact">
+
+          <div className="form-actions-contact">
             <button
-              style={{
-                cursor:
-                  !canRequest || startProcessLoad ? "not-allowed" : "pointer",
-              }}
-              disabled={!canRequest}
-              type="button"
-              onClick={request}
+              className="send-contact-btn"
+              disabled={!canRequest || startProcessLoad}
+              type="submit"
             >
               {startProcessLoad ? (
                 <span className="dot-loading">
@@ -123,10 +145,47 @@ export default function Contact() {
                   <span className="dot three">●</span>
                 </span>
               ) : (
-                "ส่งข้อความ"
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ marginRight: "8px" }}
+                  >
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                  <span>ส่งข้อความ</span>
+                </>
               )}
             </button>
-            {!canRequest && <p>กรุณารอ {timer} วินาทีก่อนส่งข้อความ</p>}
+            
+            {!canRequest && (
+              <div className="rate-limit-warning">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ marginRight: "6px" }}
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <span>กรุณารอ {timer} วินาทีก่อนส่งข้อความอีกครั้ง</span>
+              </div>
+            )}
           </div>
         </form>
       </div>

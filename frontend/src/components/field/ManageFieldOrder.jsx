@@ -9,6 +9,7 @@ import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 import Pagination from "@/components/ui/Pagination";
 import BookingCard from "@/components/booking/BookingCard";
 import DateRangeFilter from "@/components/ui/DateRangeFilter";
+import BookingStatsSummary from "@/components/ui/BookingStatsSummary";
 import apiClient from "@/lib/apiClient";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { USER_ROLE, USER_STATUS, BOOKING_STATUS } from "@/constants/status";
@@ -60,7 +61,7 @@ export default function Myorder() {
       if (filters.status) queryParams.append("status", filters.status);
 
       const data = await apiClient.get(
-        `/booking/my-orders/${fieldId}?${queryParams.toString()}`
+        `/booking/my-orders/${fieldId}?${queryParams.toString()}`,
       );
 
       setMybooking(data.data);
@@ -73,7 +74,7 @@ export default function Myorder() {
         setFieldName(error.fieldInfo.field_name || "");
         notify(
           `สนาม ${error.fieldInfo.field_name} ${error.fieldInfo.field_status}`,
-          "error"
+          "error",
         );
         setTimeout(() => {
           router.replace("/my-field");
@@ -139,17 +140,26 @@ export default function Myorder() {
 
   const formatDate = (isoString) => formatDateToThai(isoString);
 
-
-
   const calculateStats = () => {
     const stats = {
       total: booking.length,
-      pending: booking.filter((item) => item.status === BOOKING_STATUS.PENDING).length,
-      approved: booking.filter((item) => item.status === BOOKING_STATUS.APPROVED).length,
-      rejected: booking.filter((item) => item.status === BOOKING_STATUS.REJECTED).length,
-      cancelled: booking.filter((item) => item.status === BOOKING_STATUS.CANCELLED).length,
-      complete: booking.filter((item) => item.status === BOOKING_STATUS.COMPLETE).length,
-      verified: booking.filter((item) => item.status === BOOKING_STATUS.VERIFIED).length,
+      pending: booking.filter((item) => item.status === BOOKING_STATUS.PENDING)
+        .length,
+      approved: booking.filter(
+        (item) => item.status === BOOKING_STATUS.APPROVED,
+      ).length,
+      rejected: booking.filter(
+        (item) => item.status === BOOKING_STATUS.REJECTED,
+      ).length,
+      cancelled: booking.filter(
+        (item) => item.status === BOOKING_STATUS.CANCELLED,
+      ).length,
+      complete: booking.filter(
+        (item) => item.status === BOOKING_STATUS.COMPLETE,
+      ).length,
+      verified: booking.filter(
+        (item) => item.status === BOOKING_STATUS.VERIFIED,
+      ).length,
       totalRevenue: booking
 
         .filter((item) => item.status === BOOKING_STATUS.COMPLETE)
@@ -192,10 +202,8 @@ export default function Myorder() {
   const indexOfFirstBooking = indexOfLastBooking - bookingPerPage;
   const currentBookings = filteredBookings.slice(
     indexOfFirstBooking,
-    indexOfLastBooking
+    indexOfLastBooking,
   );
-
-
 
   return (
     <>
@@ -212,54 +220,7 @@ export default function Myorder() {
           totalRevenue={stats.totalRevenue}
         />
 
-        {booking.length > 0 && (
-          <div className="stats-summary">
-            <div className="stats-grid">
-              <div className="stat-card">
-                <p className="stat-inline">
-                  รายการทั้งหมด:{" "}
-                  <span className="stat-number">{stats.total}</span>
-                </p>
-              </div>
-              <div className="stat-card pending">
-                <p className="stat-inline">
-                  รอตรวจสอบ:{" "}
-                  <span className="stat-number">{stats.pending}</span>
-                </p>
-              </div>
-              <div className="stat-card approved">
-                <p className="stat-inline">
-                  อนุมัติแล้ว:{" "}
-                  <span className="stat-number">{stats.approved}</span>
-                </p>
-              </div>
-              <div className="stat-card rejected">
-                <p className="stat-inline">
-                  ไม่อนุมัติ:{" "}
-                  <span className="stat-number">{stats.rejected}</span>
-                </p>
-              </div>
-              <div className="stat-card rejected">
-                <p className="stat-inline">
-                  ยกเลิกแล้ว:{" "}
-                  <span className="stat-number">{stats.cancelled}</span>
-                </p>
-              </div>
-              <div className="stat-card complete">
-                <p className="stat-inline">
-                  การจองสำเร็จ:{" "}
-                  <span className="stat-number">{stats.complete}</span>
-                </p>
-              </div>
-              <div className="stat-card verified">
-                <p className="stat-inline">
-                  ตรวจสอบสลิปมัดจำแล้ว:{" "}
-                  <span className="stat-number">{stats.verified}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {booking.length > 0 && <BookingStatsSummary stats={stats} />}
         {dataLoading ? (
           <ul className="booking-list skeleton-list" aria-hidden="true">
             {Array.from({ length: 8 }).map((_, i) => (

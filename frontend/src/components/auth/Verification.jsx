@@ -96,27 +96,47 @@ export default function Verification() {
   return (
     <>
       <div className="verification-container">
-        <div className="head-titel">
-          <h1>ยืนยันบัญชีของคุณก่อนใช้บริการ</h1>
+        <div className="verification-header">
+          <div className="header-icon-wrapper">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <polyline points="9 11 11 13 15 9" />
+            </svg>
+          </div>
+          <h1 className="verification-title">ยืนยันอีเมลของคุณ</h1>
+          <p className="verification-subtitle">
+            เราได้ส่งรหัสผ่าน OTP ไปยังอีเมลของท่านแล้ว กรุณากรอกรหัสผ่าน 6 หลักเพื่อยืนยันการลงทะเบียน
+          </p>
         </div>
-        <form onSubmit={onSave}>
-          <div className="input-verify">
+
+        <form onSubmit={onSave} className="verification-form">
+          <div className="form-group">
+            <label>รหัสผ่าน OTP 6 หลัก</label>
             <input
               required
               maxLength={6}
               type="text"
-              placeholder="Enter OTP"
+              placeholder="กรอกรหัส OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
+              className="otp-input"
             />
           </div>
 
-          <div className="btn-submit-verify">
+          <div className="form-actions-verify">
             <button
               type="submit"
-              style={{
-                cursor: startProcessLoad ? "not-allowed" : "pointer",
-              }}
+              className="submit-verify-btn"
               disabled={startProcessLoad}
             >
               {startProcessLoad ? (
@@ -126,26 +146,44 @@ export default function Verification() {
                   <span className="dot three">●</span>
                 </span>
               ) : (
-                "ยืนยัน E-mail"
+                "ยืนยันรหัสอีเมล"
               )}
             </button>
           </div>
-          <div className="btn-resend-otp">
+
+          <div className="resend-otp-section">
             <button
-              style={{
-                cursor:
-                  !canRequestOTP || startProcessLoad
-                    ? "not-allowed"
-                    : "pointer",
-              }}
-              disabled={!canRequestOTP}
+              className="resend-otp-btn"
+              disabled={!canRequestOTP || startProcessLoad}
               type="button"
               onClick={requestOTP}
             >
-              ขอรหัสใหม่
+              ขอรหัส OTP อีกครั้ง
             </button>
-            {!canRequestOTP && <p>กรุณารอ {timer} วินาทีก่อนขอ OTP ใหม่</p>}
-            <p> (OTP มีเวลา 5 นาที ถ้าหมดต้องกดขอใหม่) </p>
+            
+            {!canRequestOTP && (
+              <div className="rate-limit-warning">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ marginRight: "6px" }}
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <span>กรุณารอ {timer} วินาทีก่อนขอ OTP ใหม่</span>
+              </div>
+            )}
+            <p className="otp-expiry-note">
+              * รหัส OTP จะมีอายุการใช้งาน 5 นาที หากหมดเวลาต้องกดขอใหม่
+            </p>
           </div>
         </form>
       </div>

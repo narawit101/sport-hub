@@ -3,1145 +3,214 @@
   --primary-bg: #ffffff;
   --secondary-bg: #f8f9fa;
   --border-color: #e9ecef;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  --border-radius: 12px;
-  --spacing: 1.5rem;
-  --success-color: #28a745;
-  --danger-color: #dc3545;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --border-radius: 8px;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
 }
 
+/* Page Container */
 .check-field-detail-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 80px auto;
-  padding: 1rem 2rem 2rem 2rem;
+  width: calc(100% - 48px);
+  max-width: 1400px;
+  margin: 20px auto 30px auto;
+  padding: 1rem;
   background: var(--primary-bg);
-  box-shadow: var(--shadow);
-  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
   border: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
 .check-field-detail-container h1 {
-  text-align: center;
+  text-align: left;
   color: var(--text-color);
-  margin-bottom: 0.5rem;
-  font-size: 1.3rem;
-  font-weight: 600;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing);
-  margin-bottom: 2rem;
-}
-
-.form-section {
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.form-section:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-2px);
-}
-
-.form-section h2 {
-  color: var(--text-color);
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-align: center;
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 0.5rem;
-}
-
-.form-section p {
-  font-size: 1rem;
-  color: #333;
-  margin: 0.5rem 0;
-  line-height: 1.5;
-}
-
-.form-section strong {
-  color: var(--text-color);
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.image-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: var(--secondary-bg);
-  padding: 16px 20px;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  color: #333;
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 20px;
-}
-
-.check-field-image {
-  width: 300px;
-  height: 300px;
-  max-width: 100%;
-  border-radius: 25px;
-  object-fit: cover;
-  border: 4px solid var(--border-color);
-  box-shadow: var(--shadow);
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing);
-  margin-bottom: 2rem;
-}
-
-.info-card {
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.info-card h3 {
-  color: var(--text-color);
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.info-card .value {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #333;
-}
-
-.document-container {
-  background: var(--secondary-bg);
-  border: 2px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 0.7rem;
-  margin: 0.7rem 0;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.document-link {
-  text-decoration: none;
-  color: var(--text-color);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.document-link:hover {
-  text-decoration: none;
-}
-
-.sub-fields-container-check-field {
-  max-height: none;
-  overflow: visible;
-  margin-top: 1rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid var(--border-color);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.5rem;
-}
-.sub-fields-container-check-field h2 {
+  margin: 0 0 1rem 0;
   font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-color);
-  margin-bottom: 1.5rem;
-  text-align: center;
-  grid-column: 1 / -1;
+  font-weight: 800;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 8px;
 }
 
-.sub-field-card-check-field {
-  text-align: center;
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.sub-field-card-check-field:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-2px);
-}
-
-.sub-field-card-check-field h2 {
-  color: var(--text-color);
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-align: center;
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 0.5rem;
-}
-
-.sub-field-card-check-field p {
-  font-size: 1rem;
-  color: #333;
-  margin: 0.5rem 0;
-  line-height: 1.5;
-}
-
-.sub-field-card-check-field strong {
-  color: var(--text-color);
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.field-facilities-check-field {
-  margin: 10px auto;
-  max-height: 600px;
-  overflow-y: auto;
-  padding: 16px 20px;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  background: white;
-  color: #333;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.field-facilities-check-field:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-2px);
-}
-
-.field-facilities-check-field h1 {
-  color: var(--text-color);
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-.field-facilities-check-field p {
-  text-align: center;
-}
-
-.facbox-checkfield {
+/* Row & Grid Layouts */
+.check-field-info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.facitem-checkfield {
-  background: var(--primary-bg);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-}
-.facility-image-simple-checkfield {
-  margin: 10px auto;
-  width: 300px;
-  height: 300px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+.check-field-secondary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: stretch;
 }
 
-.facility-image-simple-checkfield img {
-  width: 100%;
+.check-field-secondary-grid>div {
   height: 100%;
-  object-fit: contain;
+  display: flex;
+  flex-direction: column;
 }
-.facilities-grid-simple-checkfield {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 16px;
-}
-.facility-card-simple-checkfield {
+
+/* Section Card Base */
+.check-field-section-card,
+.check-field-description-card,
+.documents-section-full,
+.field-facilities-check-field {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  align-items: flex-start;
-}
-.facility-no-image-checkfield {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
-  font-size: 12px;
-  color: #94a3b8;
-  text-align: center;
-  padding: 8px;
-  background: #f8fafc;
+  box-sizing: border-box;
+  margin: 0 !important;
 }
-.facility-info-simple-checkfield {
-  width: 100%;
+
+/* Header Styles - Small and Blue */
+.check-field-section-card h2,
+.check-field-description-card h2,
+.documents-section-full h2,
+.field-facilities-check-field h1 {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  margin: 0 0 10px 0 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding: 0 0 8px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px;
+  min-height: auto !important;
+  text-transform: none !important;
+}
+
+.check-field-section-card h2::before,
+.check-field-description-card h2::before,
+.documents-section-full h2::before,
+.field-facilities-check-field h1::before {
+  display: none !important;
+}
+
+/* Action buttons in header to the right */
+.check-field-section-card h2 button,
+.check-field-description-card h2 button,
+.documents-section-full h2 button,
+.field-facilities-check-field h1 button {
+  margin-left: auto !important;
+}
+
+/* Content & Scrolling */
+.check-field-scroll-section {
   flex: 1;
-  min-width: 0;
-  text-align: center;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 5px;
+  scrollbar-width: thin;
+}
+
+.field-description-display {
+  flex: 1;
+  border: 1px solid #f8fafc;
+  padding: 10px;
+  border-radius: 6px;
+  background: #fcfdfe;
+  font-size: 14.5px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* Info List Style (Basic Info) */
+.info-detail-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-.facility-name-simple-checkfield {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 12px 0;
-  line-height: 1.3;
-  word-wrap: break-word;
-}
-.facility-details-simple {
-  margin-bottom: 16px;
-}
-.detail-row {
-  display: flex;
-  gap: 5px;
-  padding: 4px 0;
-  font-size: 14px;
-}
-
-.detail-row:last-child {
-  border-bottom: none;
-}
-
-.detail-row span:first-child {
-  color: #64748b;
-  font-weight: 500;
-}
-
-.detail-row span:last-child {
-  color: #1e293b;
-  font-weight: 600;
-  text-align: right;
-  max-width: 60%;
-  word-wrap: break-word;
-}
-
-.detail-row.description {
-  flex-direction: column;
-  align-items: flex-start;
   gap: 4px;
 }
 
-.detail-row.description span:last-child {
-  text-align: left;
-  max-width: 100%;
-  font-weight: 400;
-  color: #475569;
-  line-height: 1.4;
-}
-
-.facitem-checkfield strong {
-  color: var(--text-color);
-  font-size: 1rem;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.facitem-checkfield p {
-  color: #333;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.add-ons-container-check-field {
-  background: #e3f2fd;
-  border: 1px solid #bbdefb;
-  border-radius: var(--border-radius);
-  padding: 1rem;
-  margin-top: 1rem;
-}
-
-.add-ons-container-check-field h3 {
-  color: var(--text-color);
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-.status-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-.status-buttons button {
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  min-width: 120px;
-}
-
-.status-buttons button:active {
-  transform: scale(0.98);
-}
-
-.approve-btn {
-  background-color: #28a745;
-  color: white;
-}
-
-.reject-btn {
-  background-color: #dc3545;
-  color: white;
-}
-.status-text {
-  display: inline-block;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  margin: 10px auto;
-}
-
-.status-text-approved {
-  color: #155724;
-  background-color: #d4f4dd;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.status-text-rejected {
-  color: #721c24;
-  background-color: #fddede;
-  padding: 4px 8px;
-  border-radius: 8px;
-
-  font-weight: 500;
-}
-
-.status-text-pending {
-  color: #856404;
-  background-color: #fff4ce;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.newstatus {
-  font-size: 1.1rem;
-  color: #333;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.detail-checkfield {
-  background: var(--primary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-.check-field-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.check-field-under p {
-  font-weight: 500;
-  font-size: 1.1rem;
-  color: var(--text-color);
-  text-align: center;
-  margin: 1rem 0;
-}
-
-.confirm-modal-check-field {
-  backdrop-filter: blur(3px);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.modal-content-check-field {
-  background: var(--primary-bg);
-  padding: 2rem;
-  border-radius: var(--border-radius);
-  text-align: center;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-color);
-}
-
-.modal-content-check-field p {
-  font-size: 1.1rem;
-  color: #333;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-}
-
-.modal-actions-check-field {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.modal-actions-check-field button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  min-width: 100px;
-}
-
-.confirmbtn {
-  background-color: #28a745;
-  color: white;
-}
-
-.cancelbtn {
-  background-color: #dc3545;
-  color: white;
-}
-
-.status-approve {
-  color: #28a745;
-}
-.status-reject {
-  color: #dc3545;
-}
-
-.resoning-check-field {
-  display: flex;
-  flex-direction: column;
-  margin: 20px auto;
-}
-
-.resoning-check-field textarea {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-.resoning-check-field textarea {
-  height: 200px;
-  resize: none;
-}
-.newstatus-text {
-  margin: 10px auto;
-}
-
-.field-row-checkfield {
-  display: flex;
-  flex-direction: column;
-  padding: 1.2rem;
-  margin-bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  height: 100%;
-}
-
-.field-row-checkfield:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-}
-
-.field-details-checkfield {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  flex: 1;
-  height: 100%;
-}
-
-.field-details-checkfield strong {
-  color: var(--text-color);
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-align: left;
-  border-bottom: 2px solid #e9ecef;
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.field-value-checkfield {
-  color: var(--text-dark, #333);
-  font-size: 0.95rem;
-  font-weight: 500;
-  flex: 1;
-  word-wrap: break-word;
-  line-height: 1.4;
-}
-
-.field-value-checkfield a {
-  color: var(--primary-color, #007bff);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.field-value-checkfield a:hover {
-  color: var(--primary-hover, #0056b3);
-  text-decoration: underline;
-}
-
-.doc-fac-conntainer-check-field {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.documents-container-check-field {
-  margin: 10px auto;
-  max-height: 350px;
-  overflow-y: auto;
-  padding: 16px 20px;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  background: white;
-  color: #333;
-  width: 100%;
-  box-sizing: border-box;
-}
-.documents-container-check-field:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-2px);
-}
-
-.sub-field-card-check-field {
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  margin-bottom: 0;
-  transition: all 0.3s ease;
-  max-width: 100%;
-  height: fit-content;
-}
-
-.sub-field-card-check-field:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-2px);
-}
-
-@media (max-width: 1200px) {
-  .sub-fields-container-check-field {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  }
-}
-
-@media (max-width: 1028px) {
-  .check-field-detail-container {
-    margin-top: 5rem;
-    width: 800px;
-  }
-}
-@media (max-width: 900px) {
-  .sub-fields-container-check-field {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
-@media (max-width: 768px) {
-  .check-field-detail-container {
-    padding: 1.5rem;
-    width: 600px;
-  }
-
-  .facilities-grid-simple {
-    grid-template-columns: 1fr;
-  }
-
-  .facility-card-simple-checkfield {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .facility-image-simple-checkfield {
-    width: 300px;
-    height: 300px;
-    margin: 0 auto;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .sub-fields-container-check-field {
-    grid-template-columns: 1fr;
-  }
-
-  .facbox-checkfield {
-    grid-template-columns: 1fr;
-  }
-
-  .status-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .status-buttons button {
-    width: 100%;
-    max-width: 300px;
-  }
-
-  .modal-actions-check-field {
-    flex-direction: column;
-  }
-
-  .modal-actions-check-field button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .check-field-detail-container {
-    padding: 1rem;
-  }
-
-  .check-field-image {
-    width: 200px;
-    height: 200px;
-  }
-
-  .form-section {
-    padding: 1rem;
-  }
-
-  .info-card {
-    padding: 1rem;
-  }
-
-  .sub-field-card-check-field {
-    padding: 1rem;
-  }
-
-  .modal-content-check-field {
-    padding: 1.5rem;
-    margin: 1rem;
-  }
-}
-
-@media (max-width: 1200px) {
-  .check-field-info {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 0.8rem;
-  }
-}
-
-@media (max-width: 968px) {
-  .check-field-info {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .field-row-checkfield {
-    padding: 1rem;
-  }
-
-  .field-details-checkfield strong {
-    font-size: 0.85rem;
-  }
-
-  .field-value-checkfield {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .check-field-info {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 0.6rem;
-  }
-
-  .field-row-checkfield {
-    padding: 0.9rem;
-  }
-
-  .field-details-checkfield strong {
-    font-size: 0.8rem;
-    padding-bottom: 0.4rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .field-value-checkfield {
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 580px) {
-  .check-field-info {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-  }
-
-  .field-row-checkfield {
-    padding: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .check-field-info {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
-  .field-row-checkfield {
-    padding: 0.75rem;
-  }
-
-  .field-details-checkfield strong {
-    font-size: 0.8rem;
-  }
-
-  .field-value-checkfield {
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 360px) {
-  .check-field-detail-container {
-    padding: 0.75rem;
-  }
-
-  .check-field-image {
-    width: 150px;
-    height: 150px;
-  }
-
-  .form-section,
-  .info-card,
-  .sub-field-card-check-field {
-    padding: 0.75rem;
-  }
-}
-
-.sub-fields-container-editfield {
-  max-height: none;
-  overflow: visible;
-  margin-top: 1rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid var(--border-color);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.5rem;
-}
-
-.sub-fields-container-editfield h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-color);
-  margin-bottom: 1.5rem;
-  text-align: center;
-  grid-column: 1 / -1;
-}
-
-.sub-field-card-editfield {
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  margin-bottom: 0;
-  transition: all 0.3s ease;
-  max-width: 100%;
-  height: fit-content;
-}
-
-.sub-field-card-editfield:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-2px);
-}
-
-.sub-field-header {
+.info-detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 5px 0;
+  border-bottom: 1px solid #fcfdfe;
 }
 
-.sub-field-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
+.info-detail-label {
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-color);
-}
-
-.sub-field-sport {
-  background: var(--text-color);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.sub-field-display {
-  margin-bottom: 1rem;
-}
-
-.field-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.info-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #666;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.info-value {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-color);
+.info-detail-val {
+  font-size: 14.2px;
+  font-weight: 700;
+  color: #334155;
 }
 
-.addons-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+.price-highlight {
+  color: #10b981 !important;
+  font-weight: 800;
 }
 
-.addons-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+.account-number-val {
+  font-family: monospace;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
 }
 
-.addons-header h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.addons-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.addon-item {
-  background: var(--primary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.addon-display {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.addon-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.addon-name {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.addon-price {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.no-addons {
-  text-align: center;
-  color: #666;
-  font-style: italic;
-  padding: 1rem;
-}
-
-@media (max-width: 1200px) {
-  .sub-fields-container-editfield {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .sub-fields-container-editfield {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .sub-field-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    text-align: center;
-  }
-
-  .field-info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .addon-display {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .addons-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .sub-fields-container-editfield {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem 0;
-  }
-
-  .sub-field-card-editfield {
-    padding: 1rem;
-  }
-
-  .sub-field-header h3 {
-    font-size: 1.1rem;
-  }
-}
-
-.documents-section-full {
-  margin: 2rem 0;
-  background: var(--primary-bg);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
-}
-
-.documents-section-full h2 {
-  color: var(--text-color);
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
+/* Document Component Styles */
 .documents-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
 }
 
 .document-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.2rem;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 10px;
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.document-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  gap: 10px;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .document-icon {
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
+  background: #f1f5f9;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
 }
 
-.file-icon {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
+.document-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pdf-icon-display {
   text-align: center;
-  min-width: 35px;
-}
-
-.pdf-icon {
-  background: #dc3545;
-}
-
-.image-icon {
-  background: #28a745;
-}
-
-.doc-icon {
-  background: #007bff;
-}
-
-.file-icon:not(.pdf-icon):not(.image-icon):not(.doc-icon) {
-  background: #214a6f;
+  color: #ef4444;
+  font-weight: 900;
+  font-size: 10px;
+  line-height: 1;
 }
 
 .document-info {
@@ -1150,178 +219,555 @@
 }
 
 .document-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin: 0;
   color: var(--text-color);
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.3rem 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .document-filename {
-  color: #6c757d;
-  font-size: 0.85rem;
-  margin: 0 0 1rem 0;
-  word-break: break-all;
+  font-size: 11.5px;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.file-type-inline {
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.pdf-type {
+  background: #ef4444;
+}
+
+.image-type {
+  background: #10b981;
+}
+
+.doc-type {
+  background: #3b82f6;
+}
+
+.file-type {
+  background: #64748b;
 }
 
 .document-actions {
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.btn-preview,
-.btn-download {
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
+  gap: 5px;
+  margin-top: 4px;
 }
 
 .btn-preview {
-  background: linear-gradient(135deg, #007bff, #0056b3);
+  padding: 3px 10px;
+  font-size: 11.5px;
+  border-radius: 4px;
+  background: var(--text-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-delete-doc {
+  position: absolute;
+  top: -1px;
+  right: -5px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  line-height: 1;
+}
+
+/* Facility Component Styles */
+.facilities-grid-simple-checkfield {
+  display: flex;
+  flex-direction: column;
+}
+
+.facility-card-simple-checkfield {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.facility-image-simple-checkfield {
+  width: 55px;
+  height: 55px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.facility-image-simple-checkfield img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.facility-no-image {
+  font-size: 9px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-align: center;
+}
+
+.facility-details-simple-checkfield {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.facility-name-simple-checkfield {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0 0 2px 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+}
+
+.detail-row span:first-child {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.detail-row span:last-child {
+  color: #334155;
+  font-weight: 700;
+}
+
+.detail-row.description {
+  flex-direction: column;
+  margin-top: 2px;
+  padding-top: 2px;
+  border-top: 1px dashed #f1f5f9;
+}
+
+.detail-row.description span:last-child {
+  text-align: left;
+  font-weight: 500;
+  color: #64748b;
+  font-size: 11.5px;
+}
+
+.facility-actions {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+}
+
+/* Sub-field Component Styles */
+.sub-fields-container-editfield {
+  display: flex;
+  flex-direction: column;
+}
+
+.sub-field-card-editfield {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.sub-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed #f1f5f9;
+  padding-bottom: 4px;
+}
+
+.sub-field-header h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.sub-field-sport {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.field-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #fcfdfe;
+}
+
+.info-label {
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+.info-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Add-ons Styles */
+.addons-section {
+  margin-top: 8px;
+  padding: 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #f1f5f9;
+}
+
+.addons-header h4 {
+  margin: 0 0 6px 0;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.addon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.addon-item {
+  background: white;
+  padding: 3px 6px;
+  border-radius: 5px;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  align-items: center;
+}
+
+.addon-name {
+  color: #475569;
+  font-weight: 600;
+}
+
+.addon-price {
+  color: #10b981;
+  font-weight: 800;
+}
+
+.sub-field-actions,
+.addon-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 5px;
+}
+
+/* Unified Action Buttons */
+.edit-btn-inline,
+.delete-facility-btn-simple {
+  padding: 4px 0 !important;
+  width: 70px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid #e2e8f0 !important;
+  transition: all 0.2s;
+}
+
+.edit-btn-inline {
+  background: #f1f5f9 !important;
+  color: var(--text-color) !important;
+}
+
+.edit-btn-inline:hover {
+  background: var(--text-color) !important;
+  color: white !important;
+}
+
+.delete-facility-btn-simple {
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+  border-color: #fecaca !important;
+}
+
+.delete-facility-btn-simple:hover {
+  background: #ef4444 !important;
+  color: white !important;
+}
+
+/* Special Header Action Button */
+h1 .edit-btn-inline,
+h2 .edit-btn-inline {
+  width: auto !important;
+  padding: 4px 12px !important;
+  background: var(--text-color) !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* Modals */
+.modal-overlay-editfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-editfield {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header-editfield {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-header-editfield h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-color);
+}
+
+.modal-close-btn {
+  width: 26px;
+  height: 26px;
+  font-size: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.modal-actions-editfield {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.savebtn-editfield {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 800;
+  cursor: pointer;
+  flex: 1;
+  font-size: 13px;
+}
+
+.canbtn-editfield {
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 800;
+  cursor: pointer;
+  flex: 1;
+  font-size: 13px;
+}
+
+/* Status Text & Buttons */
+.status-text-pending {
+  color: #f59e0b;
+  font-weight: 800;
+}
+
+.status-text-approved,
+.status-text-verified {
+  color: #10b981;
+  font-weight: 800;
+}
+
+.status-text-rejected {
+  color: #ef4444;
+  font-weight: 800;
+}
+
+.status-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.status-buttons button {
+  padding: 8px 22px;
+  border-radius: 6px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.approve-btn {
+  background: #10b981;
   color: white;
 }
 
-.btn-preview:hover {
-  background: linear-gradient(135deg, #0056b3, #004085);
-
+.reject-btn {
+  background: #ef4444;
+  color: white;
 }
 
-.no-documents {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #6c757d;
+/* Helper classes */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.no-documents-icon {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  opacity: 0.7;
-  color: #6c757d;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.no-documents p {
-  font-size: 1rem;
-  margin: 0;
+.form-group-full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 8px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* Inline Edit Controls */
+.edit-field-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.view-field-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.inline-input {
+  padding: 6px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13.5px;
+  width: 100%;
+}
+
+.inline-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+@media (max-width: 1024px) {
+  .check-field-secondary-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
-  .documents-grid {
+  .check-field-info-grid {
     grid-template-columns: 1fr;
   }
-
-  .document-card {
-    padding: 1rem;
-  }
-
-  .document-icon {
-    font-size: 2rem;
-  }
-
-  .document-actions {
-    flex-direction: column;
-  }
-
-  .btn-preview {
-    justify-content: center;
-  }
-}
-
-.pdf-preview,
-.image-preview {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.file-fallback {
-  width: 100%;
-  height: 100%;
-  background: #6c757d;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  border-radius: 4px;
-}
-
-.document-icon img {
-  transition: transform 0.3s ease;
-}
-
-.document-icon:hover img {
-  transform: scale(1.05);
-}
-
-.pdf-icon-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  background: #f8f9fa;
-  border: 2px dashed #dc3545;
-  border-radius: 8px;
-  color: #dc3545;
-}
-
-.pdf-icon-large {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.pdf-text {
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.pdf-icon-display:hover {
-  background: #e9ecef;
-  border-color: #c82333;
-  color: #c82333;
-}
-
-.file-type-inline {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 2px 6px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.pdf-type {
-  background: #dc3545;
-  color: white;
-}
-
-.image-type {
-  background: #28a745;
-  color: white;
-}
-
-.doc-type {
-  background: #007bff;
-  color: white;
-}
-
-.file-type {
-  background: #6c757d;
-  color: white;
 }

@@ -360,11 +360,25 @@ class FieldService {
     return filePath;
   }
 
-  async uploadFieldDocuments(fieldId, existingDocuments, newFilePaths) {
+  async uploadFieldDocuments(fieldId, newFilePaths) {
+    const currentDocs = await pool.query("SELECT documents FROM field WHERE field_id = $1", [fieldId]);
     let allDocuments = [];
-    if (existingDocuments) {
-      allDocuments = existingDocuments.split(",").map(path => path.trim()).filter(Boolean);
+    if (currentDocs.rows[0]?.documents) {
+      allDocuments = currentDocs.rows[0].documents.split(",").map(path => path.trim()).filter(Boolean);
     }
+
+    if (allDocuments.length + newFilePaths.length > 10) {
+      // Clean up uploaded files in Cloudinary
+      for (const p of newFilePaths) {
+        try {
+          await deleteCloudinaryFile(p);
+        } catch (err) {
+          console.warn("Clean up file error:", err.message);
+        }
+      }
+      throw new Error(`ไม่สามารถอัปโหลดไฟล์เพิ่มได้ เนื่องจากจะเกินขีดจำกัดสูงสุด 10 ไฟล์ (ปัจจุบันมี ${allDocuments.length} ไฟล์, ต้องการเพิ่มอีก ${newFilePaths.length} ไฟล์)`);
+    }
+
     allDocuments = [...allDocuments, ...newFilePaths];
     await pool.query(`UPDATE field SET documents = $1 WHERE field_id = $2`, [allDocuments.join(", "), fieldId]);
     return { newFilePaths, allDocuments };

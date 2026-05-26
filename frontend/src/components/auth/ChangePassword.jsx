@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import "@/app/css/change-password.css";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useNotification } from "@/app/contexts/NotificationContext";
@@ -98,52 +99,103 @@ export default function ChangePassword() {
             <div className="loading-data-spinner"></div>
           </div>
         )}
-        <h2 className="change-password-head">เปลี่ยนรหัสผ่าน</h2>
+        
+        <div className="change-password-header">
+          <div className="header-icon-wrapper">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <h2 className="change-password-head">เปลี่ยนรหัสผ่าน</h2>
+        </div>
+
+        <div className="password-requirements-box">
+          <p className="requirements-title">ข้อกำหนดการตั้งรหัสผ่านใหม่:</p>
+          <ul className="requirements-list">
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>ความยาวอย่างน้อย 10 ตัวอักษร</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>ประกอบด้วยตัวอักษรพิมพ์ใหญ่ (A-Z) และพิมพ์เล็ก (a-z)</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>ประกอบด้วยตัวเลข (0-9)</span>
+            </li>
+            <li>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>ประกอบด้วยอักขระพิเศษอย่างน้อยหนึ่งตัว (เช่น !@#$%)</span>
+            </li>
+          </ul>
+        </div>
+
         <form onSubmit={handlePasswordChange} className="changepassword-form">
-          <label className="change-reset-password">รหัสเดิม:</label>
-          <input
-            maxLength={50}
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            required
-          />
+          <div className="form-group">
+            <label className="change-reset-password">รหัสเดิม:</label>
+            <input
+              maxLength={50}
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+            />
+          </div>
 
-          <label className="change-reset-password">รหัสใหม่:</label>
-          <input
-            maxLength={50}
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-          />
+          <div className="form-group">
+            <label className="change-reset-password">รหัสใหม่:</label>
+            <input
+              maxLength={50}
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+          </div>
 
-          <label className="change-reset-password">ยืนยันรหัสใหม่:</label>
-          <input
-            maxLength={50}
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-          <button
-            type="submit"
-            className="save-btn"
-            style={{
-              cursor: startProcessLoad ? "not-allowed" : "pointer",
-            }}
-            disabled={startProcessLoad}
-          >
-            {startProcessLoad ? (
-              <span className="dot-loading">
-                <span className="dot one">●</span>
-                <span className="dot two">●</span>
-                <span className="dot three">●</span>
-              </span>
-            ) : (
-              "บันทึก"
-            )}
-          </button>
+          <div className="form-group">
+            <label className="change-reset-password">ยืนยันรหัสใหม่:</label>
+            <input
+              maxLength={50}
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="submit"
+              className="save-btn"
+              disabled={startProcessLoad}
+            >
+              {startProcessLoad ? (
+                <span className="dot-loading">
+                  <span className="dot one">●</span>
+                  <span className="dot two">●</span>
+                  <span className="dot three">●</span>
+                </span>
+              ) : (
+                "บันทึกรหัสผ่าน"
+              )}
+            </button>
+            <Link href="/edit-profile" className="back-link-btn">
+              ย้อนกลับ
+            </Link>
+          </div>
         </form>
       </div>
     </div>

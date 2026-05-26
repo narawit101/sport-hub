@@ -1,407 +1,431 @@
 :root {
-  --text-color: #03045e;
-  --primary-bg: #ffffff;
-  --secondary-bg: #f8f9fa;
-  --border-color: #e9ecef;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  --border-radius: 12px;
-  --spacing: 1.5rem;
-  --success-color: #28a745;
-  --hover-success-color: #177c2e;
-  --danger-color: #dc3545;
-  --hover-danger-color: #a32b37;
-  --edit-color: #2f2a2a9a;
-  --hover-edit-color: #4c4444;
+  --primary-color: #03045e;
+  --primary-hover: #02033b;
+  --accent-color: #4f46e5;
+  --accent-hover: #4338ca;
+  --success-color: #10b981;
+  --success-hover: #059669;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --card-bg: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 10px 25px -5px rgba(79, 70, 229, 0.15), 0 8px 10px -6px rgba(79, 70, 229, 0.15);
+  
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .fac-container-admin {
-  border-radius: 20px;
-  background: rgba(204, 220, 223, 0.376);
-  width: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-lg), 0 4px 30px rgba(0, 0, 0, 0.03);
+  border-radius: 24px;
+  width: 92%;
   max-width: 1200px;
-  margin: 100px auto;
-  padding: 30px;
-  min-height: 400px;
-  overflow-y: auto;
-}
-
-.input-group-admin {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
-}
-
-.input-group-admin label {
-  color: var(--text-color);
-  font-weight: 800;
-  font-size: 26px;
-  margin: 10px auto;
-}
-
-.factcon-admin,
-.typecon-admin {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.facility-item-admin,
-.typename-admin {
-  background-color: white;
-  padding: 20px;
-  border-radius: 25px;
-  width: calc(25% - 20px);
+  margin: 120px auto 40px auto;
+  padding: 40px;
+  min-height: 450px;
   box-sizing: border-box;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
 }
 
-.facility-item-admin:hover {
-  transform: scale(1.05);
-}
-.typename-admin:hover {
-  transform: scale(1.05);
-}
-.input-group-checkbox-admin {
+/* Header toolbar row layout */
+.input-group-admin {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-}
-
-.input-group-checkbox-admin label {
-  margin-right: 10px;
-}
-
-.fac-container-admin button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  margin: 10px;
-  transition: background-color 0.2s;
-}
-
-.editbtn-admin {
-  background-color: var(--edit-color);
-  color: white;
-  margin: 0px auto;
-}
-
-.editbtn-admin:hover {
-  background-color: var(--hover-edit-color);
-}
-
-.deletebtn-admin {
-  background-color: #dc3545;
-  color: white;
-  margin: 0px 10px;
-}
-
-.deletebtn-admin:hover {
-  background-color: darkred;
-}
-
-.addsport-admin {
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--success-color);
-  color: white;
-  margin-top: 20px;
-}
-.addsport-admin:hover {
-  width: 50%;
-  background-color: var(--hover-success-color);
-}
-
-.addfac-admin {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--text-color);
-  color: white;
-  margin-top: 20px;
-}
-
-.add-fac-title {
-  text-align: center;
-  margin: 10 auto;
 }
 
 .add-sport-title {
-  text-align: center;
-  margin: 10 auto;
-}
-
-.addfaccon-admin {
-  margin: 10px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #1e3a8a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
 }
 
 .addsportcon-admin {
-  margin: 10px;
-  width: 100%;
+  margin: 0;
+  width: auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
-.addfac-admin:hover {
-  width: 100%;
-  background-color: #0056b3;
-}
-
-.confirm-modal-type {
-  backdrop-filter: blur(3px);
-  z-index: 100;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
+.addsport-admin {
+  display: inline-flex;
   align-items: center;
-}
-
-.modal-content-type {
-  z-index: 2;
-  background-color: white;
-  padding: 20px;
-  border-radius:25px;
-  text-align: center;
-  max-width: 100%;
-  width: 400px;
-}
-.modal-content-type input {
-  border-radius: 8px;
-  padding: 8px;
-}
-
-.confirmbtn-type,
-.cancelbtn-type {
-  padding: 10px 20px;
-  margin: 10px;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  transition: all var(--transition-fast) !important;
+  margin: 0 !important;
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.2);
   border: none;
   cursor: pointer;
-  border-radius: 8px;
+  font-size: 16px;
 }
 
-.confirmbtn-type {
-  background-color: green;
-  color: white;
+.addsport-admin:hover {
+  background-color: var(--primary-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(3, 4, 94, 0.3);
 }
 
-.confirmbtn-type:hover {
-  background-color: darkgreen;
+.addsport-admin:active {
+  transform: translateY(0);
 }
 
-.cancelbtn-type {
-  background-color: #dc3545;
-  color: white;
+/* Card Grid Layout */
+.typecon-admin {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+  justify-content: stretch;
+  align-items: stretch;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
-.cancelbtn-type:hover {
-  background-color: darkred;
-}
-
-.edit-form-fac {
-  z-index: 2;
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  max-width: 90%;
-  width: 400px;
-}
-
-.edit-form-fac input {
+.typename-admin {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 28px 24px;
+  box-shadow: var(--shadow-sm);
   display: flex;
-  padding: 8px;
-  margin: 10px auto;
-  border-radius: 4px;
-  width: auto;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  transition: all var(--transition-normal);
+  position: relative;
   box-sizing: border-box;
 }
 
-.form-actions-admin {
-  justify-content: center;
-  display: flex;
-  gap: 10px;
-  margin: 10px auto;
+.typename-admin:hover {
+  transform: translateY(-6px);
 }
 
-.savebtn-admin {
-  margin: 10px;
-  background-color: green;
-  color: white;
-}
-
-.savebtn-admin:hover {
-  background-color: darkgreen;
-}
-
-.cancelbtn-admin,
-.canbtn-admin {
-  width: auto;
-  margin: 10px;
-  background-color: var(--danger-color);
-  color: white;
-}
-
-.cancelbtn-admin:hover {
-  background-color: var(--hover-danger-color);
-}
-.canbtn-admin:hover {
-  background-color: darkgray;
-}
-
-.add-facility-form-admin {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  max-width: 90%;
-  width: 400px;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0px 10px 10px;
-}
-.add-facility-form-admin input {
-  height: 30px;
-  border-radius: 8px;
-  padding: 8px;
-  max-width: 100%;
-  width: 200px;
-}
-.add-sport-form {
-  z-index: 2;
-  background-color: white;
-  padding: 20px;
-  border-radius: 25px;
-  text-align: center;
-  max-width: 100%;
-}
-
-.add-sport-form input {
-  border-radius: 8px;
-  padding: 8px;
-
-  margin: 20px 10px;
-  height: 30px;
-  max-width: 100%;
-  width: 200px;
-}
 .sportname-admin {
-  margin-bottom: 10px;
-}
-
-.no-sport-type {
-  margin: 0 auto;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 24px;
   text-align: center;
-}
-
-.pagination-facilities {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-
-.pagination-facilities button {
-  padding: 6px 12px;
-  font-size: 14px;
-  background: #eee;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.pagination-facilities button.active {
-  background-color: var(--text-color);
-  color: white;
-  font-weight: bold;
+  word-break: break-word;
+  line-height: 1.4;
 }
 
 .button-group-add {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 12px;
+  width: 100%;
 }
 
-@media screen and (max-width: 888px) {
-  .facility-item-admin,
-  .typename-admin {
-    width: calc(50% - 20px);
-  }
+.button-group-add button {
+  flex: 1;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast) !important;
+  margin: 0 !important;
 }
+
+.editbtn-admin {
+  background-color: #f1f5f9 !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.editbtn-admin:hover {
+  background-color: #e2e8f0 !important;
+  color: var(--primary-color) !important;
+  border-color: #cbd5e1 !important;
+}
+
+.deletebtn-admin {
+  background-color: #fef2f2 !important;
+  color: var(--danger-color) !important;
+  border: 1px solid #fee2e2 !important;
+}
+
+.deletebtn-admin:hover {
+  background-color: var(--danger-color) !important;
+  color: white !important;
+  border-color: var(--danger-color) !important;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+}
+
+/* Modal Overlay Backdrop Blur */
+.confirm-modal-type,
+.edit-modal-type {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content-type {
+  background-color: #ffffff;
+  padding: 32px;
+  border-radius: 24px;
+  text-align: left;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: var(--shadow-lg), 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-sizing: border-box;
+}
+
+.modal-content-type p {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.modal-content-type h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.modal-content-type input {
+  width: 100%;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 16px;
+  margin: 16px 0 24px 0;
+  box-sizing: border-box;
+  outline: none;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.modal-content-type input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(3, 4, 94, 0.15);
+}
+
+/* Modal Actions */
+.modal-actions-type,
+.modal-actions-tpye {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.modal-actions-type button,
+.modal-actions-tpye button {
+  padding: 12px 20px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast) !important;
+  margin: 0 !important;
+  flex: 1;
+}
+
+.confirmbtn-type {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.2);
+}
+
+.confirmbtn-type:hover {
+  background-color: var(--primary-hover) !important;
+  transform: translateY(-1px);
+}
+
+.cancelbtn-type {
+  background-color: #f1f5f9 !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.cancelbtn-type:hover {
+  background-color: #e2e8f0 !important;
+  color: var(--text-primary) !important;
+}
+
+/* Danger Modal Confirm overrides */
+.confirm-modal-type .confirmbtn-type {
+  background-color: var(--danger-color) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.confirm-modal-type .confirmbtn-type:hover {
+  background-color: var(--danger-hover) !important;
+}
+
+/* Empty State UX */
+.no-sport-type {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 16px;
+  padding: 48px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Pagination modern styling */
+.pagination-facilities {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-facilities button {
+  min-width: 40px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  background: white;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.pagination-facilities button:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: #f8fafc;
+}
+
+.pagination-facilities button.active {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Media Queries for Responsiveness */
 @media screen and (max-width: 768px) {
-  .modal-actions-tpye {
-    display: flex;
-    justify-content: center;
+  .fac-container-admin {
+    padding: 24px;
+    margin-top: 100px;
+  }
+  
+  .input-group-admin {
     flex-direction: column;
-    align-items: center;
-    width: 100%;
-    gap: 10px;
+    align-items: flex-start;
+    gap: 16px;
   }
-  .cancelbtn-admin,
-  .canbtn-admin {
+  
+  .addsportcon-admin {
     width: 100%;
   }
-  .facility-item-admin,
-  .typename {
-    align-items: center;
-    justify-content: center;
-    width: calc(50% - 20px);
+  
+  .addsport-admin {
+    width: 100% !important;
+  }
+  
+  .typecon-admin {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  
+  .confirm-modal-type,
+  .edit-modal-type {
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   .modal-content-type {
-    width: 100%;
-  }
-
-  .edit-form-fac input {
-    width: 100%;
-  }
-
-  .input-group-checkbox-admin {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .form-actions-admin {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    padding: 32px 24px;
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
-    width: 100%;
-  }
-  .confirmbtn-type,
-  .cancelbtn-type,
-  .savebtn-admin,
-  .cancelbtn-admin {
-    width: 100%;
+    justify-content: center;
+    border: none;
   }
 }
 
 @media screen and (max-width: 480px) {
-  .facility-item-admin,
-  .typename-admin {
-    width: 100%;
-  }
-  .fac-container-admin {
-    width: 100%;
-  }
-  .modal-content-type {
-    width: 100%;
+  .typecon-admin {
+    grid-template-columns: 1fr;
   }
 }

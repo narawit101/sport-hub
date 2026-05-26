@@ -86,14 +86,13 @@ class FieldController {
 
   async uploadFieldDocuments(req, res) {
     const { field_id } = req.params;
-    const { existing_documents } = req.body;
     try {
       if (!req.files || req.files.length === 0) return res.status(400).json({ error: "ไม่พบไฟล์เอกสาร" });
-      const result = await fieldService.uploadFieldDocuments(field_id, existing_documents, req.files.map(f => f.path));
+      const result = await fieldService.uploadFieldDocuments(field_id, req.files.map(f => f.path));
       res.json({ message: "อัปโหลดเอกสารสำเร็จ", paths: result.newFilePaths, all_documents: result.allDocuments });
     } catch (error) {
       console.error("UPLOAD DOCUMENTS ERROR:", error);
-      res.status(500).json({ error: "อัปโหลดเอกสารไม่สำเร็จ", details: error.message });
+      res.status(500).json({ error: error.message || "อัปโหลดเอกสารไม่สำเร็จ", details: error.message });
     }
   }
 

@@ -1,594 +1,512 @@
 :root {
   --text-color: #03045e;
+  --primary-hover: #02033b;
+  --border-color: #e2e8f0;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .admin-manager-container {
   max-width: 1200px;
-  margin: 60px auto;
-  padding: 20px;
+  margin: 120px auto 40px auto;
+  padding: 0 24px;
 }
 
+.admin-manager-container .Title {
+  font-size: 28px;
+  color: var(--text-color);
+  margin-bottom: 24px;
+  font-weight: 800;
+}
+
+.admin-manager-container .Head {
+  font-size: 20px;
+  color: var(--text-color);
+  margin: 36px 0 16px 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Tables and Wrappers */
 .table-wrapper {
   overflow-x: auto;
-  margin: 20px 0;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background: white;
+  margin: 16px 0 32px 0;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .manager-table,
 .manager-table-user {
   width: 100%;
-  min-width: 800px;
   border-collapse: collapse;
-  background: white;
-}
-
-.manager-table th,
-.manager-table td,
-.manager-table-user th,
-.manager-table-user td {
-  padding: 15px 12px;
+  background: #ffffff;
   text-align: left;
-  border-bottom: 1px solid #e0e0e0;
-  white-space: nowrap;
-}
-
-.user-container-mannager {
-  background-color: #084fac;
-  max-height: 700px;
-  overflow-y: auto;
 }
 
 .manager-table th,
 .manager-table-user th {
-  color: white;
+  background: var(--text-color);
+  color: #ffffff;
   font-weight: 600;
+  font-size: 14px;
+  padding: 16px 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  position: sticky;
-  top: 0;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.modal-manager select {
-  width: 100%;
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 10px;
+.manager-table td,
+.manager-table-user td {
+  padding: 16px 20px;
+  font-size: 15px;
+  color: var(--text-primary);
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
-.filter-role-container {
-  margin: 20px 0;
-  display: flex;
-  justify-content: flex-end;
+.manager-table tr:last-child td,
+.manager-table-user tr:last-child td {
+  border-bottom: none;
 }
 
-.head-select-manager {
-  justify-content: space-between;
-  display: flex;
+.manager-table tr:hover td,
+.manager-table-user tr:hover td {
+  background-color: #f8fafc;
 }
 
-.filter-role-container select {
-  padding: 10px 20px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  background: white;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
+/* User profile avatar */
+.user-profile-manager {
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  display: block;
 }
 
-.filter-role-container select:focus {
-  outline: none;
-  border-color: var(--text-color);
+.user-profile-modal-manager {
+  display: block;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 24px auto;
+  object-fit: cover;
+  border: 3px solid var(--border-color);
+  box-shadow: var(--shadow-md);
 }
 
-.pagination-container-manager {
-  display: flex;
-  justify-content: center;
+/* Status badging */
+.status-text-manager {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
-
-.pagination-container-manager button {
-  padding: 6px 12px;
-  background-color: var(--text-color);
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s;
-}
-
-.pagination-container-manager .active-page-manager {
-  background: #3498db;
-  color: white;
-  font-weight: bold;
-}
-
-.pagination-container-manager button:hover {
-  background: #2778ae;
-}
-
-.pagination-container-manager button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
-
-.pagination-dots-manager {
-  padding: 6px 10px;
-  color: #555;
-  font-weight: bold;
-}
-
-.admin-manager-container .Title {
-  font-size: 2rem;
-  color: var(--text-color);
-  text-align: center;
-  margin-bottom: 30px;
-  font-weight: 700;
-}
-
-.admin-manager-container .Head {
-  font-size: 1.5rem;
-  color: var(--text-color);
-  margin: 30px 0 20px 0;
+  justify-content: center;
+  font-size: 13px;
   font-weight: 600;
-  padding-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  line-height: 1;
 }
 
-.admin-manager-container table {
-  width: 100%;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+.status-text-manager.pending {
+  color: #d97706;
+  background-color: #fef3c7;
 }
 
-.admin-manager-container th {
-  font-size: 20px;
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
-}
-.admin-manager-container td {
-  font-size: 20px;
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
+.status-text-manager.approved {
+  color: #059669;
+  background-color: #d1fae5;
 }
 
-.admin-manager-container th {
-  background: var(--text-color);
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase;
+.status-text-manager.unknown {
+  color: var(--text-secondary);
+  background-color: #f1f5f9;
 }
 
-.admin-manager-container td {
-  font-size: 20px;
-  color: #333;
-}
-
-.admin-manager-container button {
-  padding: 8px 12px;
-  border: none;
-  cursor: pointer;
-  border-radius: 12px;
-  transition: all 0.3s ease-in-out;
-}
-
+/* Row edit/delete buttons */
 .edit-btn,
 .delete-btn {
-  height: 40px;
-  width: 40px;
+  height: 38px;
+  width: 38px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  margin: 2px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  margin: 0;
+  padding: 0;
 }
 
 .edit-btn {
-  background: var(--text-color);
-  color: white;
+  background: #f1f5f9;
+  color: #475569;
 }
 
 .edit-btn:hover {
-  background: #062e73;
+  background: #cbd5e1;
+  color: var(--text-color);
 }
 
 .delete-btn {
-  background-color: #dc3545;
-  color: white;
+  background: #fef2f2;
+  color: #ef4444;
 }
 
 .delete-btn:hover {
-  background: #d32f2f;
+  background: #ef4444;
+  color: #ffffff;
 }
 
-.ProveEdit-btn {
-  margin: 10px;
-  background-color: #03045e;
-  color: rgb(255, 255, 255);
-  font-weight: bold;
-  border-radius: 15px;
-}
-.ProveDelete-btn {
-  background-color: #dc3545;
-  color: white;
-  font-weight: bold;
-  border-radius: 15px;
+.edit-btn svg,
+.delete-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
-.modal-manager {
-  backdrop-filter: blur(5px);
+/* Header select filters & refreshes */
+.head-select-manager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 36px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.head-select-manager .Head {
+  margin: 0;
+}
+
+.head-refresh-manager {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.refresh-btn-manager button {
+  height: 40px;
+  width: 40px;
+  background-color: #f1f5f9;
+  border: 1px solid var(--border-color);
+  color: #475569;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn-manager button:hover {
+  background-color: #cbd5e1;
+  color: var(--text-color);
+}
+
+.refresh-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.filter-role-container select {
+  padding: 10px 16px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.filter-role-container select:focus {
+  border-color: var(--text-color);
+  box-shadow: 0 0 0 3px rgba(3, 4, 94, 0.1);
+}
+
+/* Overlay Modals */
+.modal-manager,
+.confirm-modal-user,
+.confirm-modal-field {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
 }
 
-.modal-content-manager {
-  animation: modalSlideIn 0.3s ease;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
+.modal-content-manager,
+.modal-content-user,
+.modal-content-field {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 20px;
   width: 90%;
-  max-width: 400px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  max-width: 440px;
+  box-shadow: var(--shadow-lg), 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-sizing: border-box;
   max-height: 90vh;
   overflow-y: auto;
 }
 
 .modal-content-manager::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .modal-content-manager::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+  background: #f8fafc;
 }
 
 .modal-content-manager::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-.modal-content-manager::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #cbd5e1;
+  border-radius: 3px;
 }
 
 .modal-content-manager h3 {
   margin-top: 0;
   color: var(--text-color);
-  background: white;
+  font-size: 22px;
+  font-weight: 700;
   text-align: center;
+  margin-bottom: 24px;
 }
 
 .modal-content-manager label {
-  color: var(--text-color);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
   display: block;
-  margin-top: 10px;
+  margin-top: 12px;
+  margin-bottom: 4px;
 }
 
-.modal-content-manager input {
+.modal-content-manager input,
+.modal-content-manager select {
   width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  color: var(--text-primary);
+  background: #ffffff;
+  transition: all 0.2s ease;
 }
 
-.modal-buttons {
-  margin-top: 15px;
+.modal-content-manager input:focus,
+.modal-content-manager select:focus {
+  border-color: var(--text-color);
+  box-shadow: 0 0 0 3px rgba(3, 4, 94, 0.1);
+}
+
+.modal-buttons,
+.modal-actions-user,
+.modal-actions-field {
+  margin-top: 28px;
   display: flex;
-  justify-content: space-between;
-}
-.save-btn-manager {
-  background-color: #28a745;
-  color: white;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
-.cancel-btn-manager {
-  background-color: #dc3545;
-  color: white;
-}
-
-.confirm-modal-field,
-.confirm-modal-user {
-  backdrop-filter: blur(3px);
-  z-index: 999;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content-field,
-.modal-content-user {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  width: 300px;
-}
-
+.modal-buttons button,
+.modal-actions-user button,
 .modal-actions-field button {
-  margin: 10px;
-  padding: 10px 20px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
 }
 
-.modal-actions-user button {
-  margin: 10px;
-  padding: 10px 20px;
-  cursor: pointer;
+.save-btn-manager,
+.confirmbtn-user,
+.confirmbtn-field {
+  background-color: var(--text-color);
+  color: #ffffff;
 }
 
-.confirmbtn-field,
-.confirmbtn-user {
-  background-color: #28a745;
-  color: white;
+.save-btn-manager:hover,
+.confirmbtn-user:hover,
+.confirmbtn-field:hover {
+  background-color: var(--primary-hover);
 }
 
-.cancelbtn-field,
-.cancelbtn-user {
-  background-color: #dc3545;
-  color: white;
+.cancel-btn-manager,
+.cancelbtn-user,
+.cancelbtn-field {
+  background-color: #f1f5f9;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 
-.status-text-manager {
-  font-weight: 500;
+.cancel-btn-manager:hover,
+.cancelbtn-user:hover,
+.cancelbtn-field:hover {
+  background-color: #cbd5e1;
+  color: var(--text-primary);
 }
 
-.status-text-manager.pending {
-  display: inline-block;
-  color: #856404;
-  background-color: #fff4ce;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-weight: 500;
+/* User delete warning styles */
+.confirm-modal-user .modal-content-user p.comfirm-message {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
 }
 
-.status-text-manager.approved {
-  display: inline-block;
-  color: #155724;
-  background-color: #d4f4dd;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-weight: 500;
+.confirm-modal-user .confirmbtn-user {
+  background-color: #ef4444;
 }
 
-.status-text-manager.unknown {
-  display: inline-block;
-  color: gray;
-  background-color: #dadfdc;
-  padding: 4px 8px;
-  border-radius: 10px;
-  font-weight: 500;
+.confirm-modal-user .confirmbtn-user:hover {
+  background-color: #dc2626;
 }
-.user-profile-modal-manager {
+
+/* Pagination container styling */
+.pagination-container-manager {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%;
-  width: 170px;
-  height: 170px;
-  margin: 10px auto;
-  object-fit: cover;
-  margin-bottom: 10px;
-}
-.user-profile-manager {
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
+  gap: 8px;
+  margin-top: 32px;
 }
 
+.pagination-container-manager button {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
 
-@media (max-width: 968px) {
+.pagination-container-manager button:hover:not(:disabled) {
+  border-color: var(--text-color);
+  color: var(--text-color);
+  background-color: #f8fafc;
+}
+
+.pagination-container-manager .active-page-manager {
+  background-color: var(--text-color) !important;
+  border-color: var(--text-color) !important;
+  color: #ffffff !important;
+}
+
+.pagination-container-manager button:disabled {
+  background-color: #f1f5f9;
+  color: #cbd5e1;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+.pagination-dots-manager {
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+/* Responsive view overrides */
+@media (max-width: 768px) {
   .admin-manager-container {
-    padding: 15px;
+    padding: 0 16px;
+    margin-top: 100px;
   }
-
-  .Title {
-    font-size: 1.5rem;
-  }
-
-  .Head {
-    font-size: 1.2rem;
-  }
-
-  .manager-table,
-  .manager-table-user {
-    min-width: 700px;
-  }
-
-  .manager-table th,
-  .manager-table td,
-  .manager-table-user th,
-  .manager-table-user td {
-    padding: 10px 8px;
-    font-size: 0.9rem;
-  }
-
-  .edit-btn,
-  .delete-btn {
-    padding: 6px 12px;
-    font-size: 0.8rem;
-  }
-
-  .modal-content-manager {
-    padding: 20px;
-    width: 95%;
-  }
-
-  .modal-buttons {
+  
+  .head-select-manager {
     flex-direction: column;
+    align-items: stretch;
   }
-
-  .save-btn-manager,
-  .cancel-btn-manager {
-    margin-bottom: 10px;
+  
+  .filter-role-container select {
     width: 100%;
   }
 
-  .pagination-container-manager {
-    gap: 5px;
+  .modal-manager,
+  .confirm-modal-user {
+    align-items: stretch;
+    justify-content: stretch;
   }
 
-  .pagination-container-manager button {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-manager-container {
-    padding: 10px;
-  }
-
-  .Title {
-    font-size: 1.3rem;
-  }
-
-  .Head {
-    font-size: 1.1rem;
-  }
-
-  .manager-table,
-  .manager-table-user {
-    min-width: 600px;
-  }
-
-  .manager-table th,
-  .manager-table td,
-  .manager-table-user th,
-  .manager-table-user td {
-    padding: 8px 6px;
-    font-size: 0.8rem;
-  }
-
-  .edit-btn,
-  .delete-btn {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-  }
-
-  .status-text-manager {
-    font-size: 0.75rem;
-    padding: 4px 8px;
-    min-width: 60px;
-  }
-
-  .modal-content-manager {
-    padding: 15px;
-  }
-
-  .pagination-container-manager button {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-  }
-}
-
-.table-wrapper {
-  position: relative;
-  overflow-x: auto;
-  margin: 20px 0;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background: white;
-}
-
-.table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-.head-refresh-manager {
-  display: flex;
-  gap: 20px;
-  margin-right: 10px;
-}
-
-.refresh-icon {
-  width: 22px;
-  height: 22px;
-}
-
-.refresh-btn-manager button {
-  min-height: 50px;
-  width: 50px;
-  margin: 20px 0 20px 0;
-  background-color: var(--text-color);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s ease;
-}
-
-.refresh-btn-manager button:hover {
-  background-color: #080870;
-}
-
-.loading-data {
-  position: absolute;
-  width: 34px;
-  height: 34px;
-}
-
-.loading-data-spinner {
-  width: 100%;
-  height: 100%;
-  border: 3px solid #fff;
-  border-top: 3px solid #9370db;
-  border-radius: 50%;
-  animation: spin-manager 0.8s linear infinite;
-}
-
-@keyframes spin-manager {
-  to {
-    transform: rotate(360deg);
+  .modal-content-manager,
+  .modal-content-user {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: none;
   }
 }

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import "@/app/css/edit-profile.css";
 import { useAuth } from "@/app/contexts/AuthContext";
@@ -20,10 +20,9 @@ export default function EditProfile() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const [startProcessLoad, SetstartProcessLoad] = useState(false);
-  const [editingField, setEditingField] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [updatedValue, setUpdatedValue] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   usePreventLeave(startProcessLoad);
 
@@ -81,19 +80,23 @@ export default function EditProfile() {
       SetstartProcessLoad(false);
     }
   };
+
   const cancelEditing = () => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
-    setEditingField(null);
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
-  const startEditing = (user_profile) => {
-    setEditingField(user_profile);
-  };
+
   const MAX_FILE_SIZE = 8 * 1024 * 1024;
   const handleImgChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
     if (file.size > MAX_FILE_SIZE) {
       notify("ไฟล์รูปภาพมีขนาดใหญ่เกินไป (สูงสุด 8MB)", "error");
       e.target.value = null;
@@ -102,13 +105,13 @@ export default function EditProfile() {
 
     if (file.type.startsWith("image/")) {
       setSelectedFile(file);
-      setUpdatedValue(file.name);
       setPreviewUrl(URL.createObjectURL(file));
     } else {
       e.target.value = null;
       notify("โปรดเลือกเฉพาะไฟล์รูปภาพเท่านั้น", "error");
     }
   };
+
   const saveImageField = async () => {
     SetstartProcessLoad(true);
     try {
@@ -125,7 +128,6 @@ export default function EditProfile() {
       );
 
       notify("อัปโหลดรูปสำเร็จ", "success");
-      setEditingField(null);
       setSelectedFile(null);
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
@@ -135,7 +137,6 @@ export default function EditProfile() {
         ...prev,
         user_profile: result.user_profile,
       }));
-      console.log("Updated user profile:", result.user_profile);
     } catch (error) {
       console.error("Error saving image field:", error);
       notify(error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
@@ -154,240 +155,199 @@ export default function EditProfile() {
   return (
     <>
       <div className="edit-profile-container">
-        <h2 className="head-edit-profile">ข้อมูลของคุณ</h2>
-        {editingField === "user_profile" ? (
-          <div className="container-user-profile">
-            <div className="preview-container-user-profile">
-              {previewUrl && <img src={previewUrl} alt="preview" />}
-            </div>
-            <div>
-              <div>
-                <div className="file-input-edit-profile">
-                  <label className="user-profile-image-label">
-                    <input
-                      style={{ display: "none" }}
-                      type="file"
-                      onChange={handleImgChange}
-                      accept="image/*"
-                    />
-                    เลือกรูปภาพ
-                  </label>
+        <h2 className="head-edit-profile">ข้อมูลส่วนตัวของคุณ</h2>
+        
+        <div className="profile-grid">
+          {/* Left Column: Profile Picture & Status Card */}
+          <div className="profile-left-col">
+            <div className="avatar-card">
+              <div className="avatar-wrapper" onClick={() => fileInputRef.current.click()} title="คลิกเพื่อเปลี่ยนรูปโปรไฟล์">
+                <img
+                  src={
+                    previewUrl ||
+                    currentUser?.user_profile ||
+                    "https://res.cloudinary.com/dlwfuul9o/image/upload/v1755157542/qlementine-icons--user-24_zre8k9.png"
+                  }
+                  alt="รูปโปรไฟล์"
+                />
+                <div className="avatar-hover-overlay">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  <span>เปลี่ยนรูปภาพ</span>
                 </div>
               </div>
-              <div className="btn-group-edit-profile">
-                <button
-                  className="savebtn-edit-profile"
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  onClick={saveImageField}
-                >
-                  {startProcessLoad ? (
-                    <span className="dot-loading">
-                      <span className="dot one">●</span>
-                      <span className="dot two">●</span>
-                      <span className="dot three">●</span>
-                    </span>
-                  ) : (
-                    "บันทึก"
-                  )}
-                </button>
-                <button
-                  className="canbtn-edit-profile"
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
-                  disabled={startProcessLoad}
-                  onClick={cancelEditing}
-                >
-                  ยกเลิก
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="container-user-profile">
-            <img
-              src={`${
-                currentUser?.user_profile
-                  ? currentUser.user_profile
-                  : "https://res.cloudinary.com/dlwfuul9o/image/upload/v1755157542/qlementine-icons--user-24_zre8k9.png"
-              }`}
-              alt="รุปโปรไฟล์"
-              className="preview-container-user-profile"
-            />
-            <div className="btn-group-edit-profile">
-              <button
-                style={{
-                  cursor: startProcessLoad ? "not-allowed" : "pointer",
-                }}
-                disabled={startProcessLoad}
-                className="editbtn-editfield-profile"
-                onClick={() =>
-                  startEditing("user_profile", currentUser?.user_profile)
-                }
-              >
-                แก้ไขรูปโปรไฟล์
-              </button>
-            </div>
-          </div>
-        )}
-        <form onSubmit={handleUpdateProfile} className="editprofile-form">
-          <div className="edit-f-l-name-row">
-            <div className="name-fields-container">
-              <div className="name-field-group">
-                <label className="edit-profile-title-first-last_name">
-                  ชื่อ:
-                </label>
-                <input
-                  type="text"
-                  maxLength={100}
-                  value={updatedUser.first_name}
-                  onChange={(e) =>
-                    setUpdatedUser({
-                      ...updatedUser,
-                      first_name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="name-field-group">
-                <label className="edit-profile-title-first-last_name">
-                  นามสกุล:
-                </label>
-                <input
-                  type="text"
-                  maxLength={100}
-                  value={updatedUser.last_name}
-                  onChange={(e) =>
-                    setUpdatedUser({
-                      ...updatedUser,
-                      last_name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <div className="buttons-container">
-              <button
-                type="submit"
-                className="save-btn-edit-profile"
-                style={{
-                  cursor: startProcessLoad ? "not-allowed" : "pointer",
-                }}
-                disabled={startProcessLoad}
-              >
-                {startProcessLoad ? (
-                  <span className="dot-loading">
-                    <span className="dot one">●</span>
-                    <span className="dot two">●</span>
-                    <span className="dot three">●</span>
-                  </span>
-                ) : (
-                  "บันทึกข้อมูล"
-                )}
-              </button>
-              <Link href="/change-password" className="change-password-link">
-                เปลี่ยนรหัสผ่าน
-              </Link>
-            </div>
-          </div>
-        </form>
-        <div className="user-info">
-          <div className="info-row">
-            <p>
-              <img
-                width={20}
-                height={20}
-                style={{
-                  marginRight: 8,
-                  verticalAlign: "middle",
-                }}
-                src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1755157542/qlementine-icons--user-24_zre8k9.png"
-                alt=""
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleImgChange}
+                accept="image/*"
               />
-              <strong>ชื่อผู้ใช้:</strong> {currentUser?.user_name}
-            </p>
-            <p>
-              <img
-                width={20}
-                height={20}
-                style={{
-                  marginRight: 8,
-                  verticalAlign: "middle",
-                }}
-                src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1757077456/ic--outline-email_n4x6hb.png"
-                alt=""
-              />
-              <strong>อีเมล:</strong> {currentUser?.email}
-            </p>
-          </div>
-          <div className="info-row">
-            <p>
-              <img
-                width={20}
-                height={20}
-                style={{
-                  marginRight: 8,
-                  verticalAlign: "middle",
-                }}
-                src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1757081428/eos-icons--role-binding-outlined_ps5xfm.png"
-                alt=""
-              />
-              <strong>ประเภทบัญชี:</strong>
-              {currentUser?.role === USER_ROLE.ADMIN ? (
-                <strong className="user-role-editprofile">ผู้ดูแลระบบ</strong>
-              ) : currentUser?.role === USER_ROLE.CUSTOMER ? (
-                <strong className="user-role-editprofile">ลูกค้า</strong>
-              ) : currentUser?.role === USER_ROLE.FIELD_OWNER ? (
-                <strong className="user-role-editprofile">
-                  เจ้าของสนามกีฬา
-                </strong>
-              ) : (
-                "ไม่ทราบบทบาท"
+
+              {previewUrl && (
+                <div className="avatar-actions">
+                  <button
+                    className="save-avatar-btn"
+                    onClick={saveImageField}
+                    disabled={startProcessLoad}
+                    type="button"
+                  >
+                    {startProcessLoad ? "บันทึก..." : "บันทึกรูปใหม่"}
+                  </button>
+                  <button
+                    className="cancel-avatar-btn"
+                    onClick={cancelEditing}
+                    disabled={startProcessLoad}
+                    type="button"
+                  >
+                    ยกเลิก
+                  </button>
+                </div>
               )}
-            </p>
-            <p>
-              <img
-                width={20}
-                height={20}
-                style={{
-                  marginRight: 8,
-                  verticalAlign: "middle",
-                }}
-                src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1757081429/material-symbols-light--verified-outline_ug65kg.png"
-                alt=""
-              />
-              <strong>สถานะบัญชี:</strong>
-              <strong
-                className={`status-text-manager ${
-                  currentUser?.status === USER_STATUS.PENDING
-                    ? "pending"
-                    : currentUser?.status === USER_STATUS.VERIFIED
-                      ? "approved"
-                      : "unknown"
-                }`}
-              >
-                {currentUser?.status}
-              </strong>
-            </p>
+
+              <div className="profile-badges">
+                <span className="badge-role">
+                  {currentUser?.role === USER_ROLE.ADMIN
+                    ? "ผู้ดูแลระบบ"
+                    : currentUser?.role === USER_ROLE.CUSTOMER
+                    ? "ลูกค้า"
+                    : currentUser?.role === USER_ROLE.FIELD_OWNER
+                    ? "เจ้าของสนามกีฬา"
+                    : "ไม่ทราบบทบาท"}
+                </span>
+                <span
+                  className={`badge-status ${
+                    currentUser?.status === USER_STATUS.VERIFIED ? "approved" : "pending"
+                  }`}
+                >
+                  {currentUser?.status === USER_STATUS.VERIFIED
+                    ? "ยืนยันตัวตนแล้ว"
+                    : "รอการยืนยัน"}
+                </span>
+              </div>
+
+              <div className="profile-joined">
+                <span>เป็นสมาชิกตั้งแต่:</span>
+                <strong>
+                  {formatDateToThai(currentUser?.created_at, "ไม่ทราบวันที่")}
+                </strong>
+              </div>
+            </div>
           </div>
-          <div className="info-row">
-            <p>
-              <img
-                width={20}
-                height={20}
-                style={{
-                  marginRight: 8,
-                  verticalAlign: "middle",
-                }}
-                src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1757081573/icon-park-outline--log_buq556.png"
-                alt=""
-              />
-              <strong>วันที่สมัคร:</strong>{" "}
-              {formatDateToThai(currentUser?.created_at, "ไม่ทราบวันที่")}
-            </p>
+
+          {/* Right Column: Form Editing & Account Details */}
+          <div className="profile-right-col">
+            <form onSubmit={handleUpdateProfile} className="profile-form">
+              <h3 className="section-title">แก้ไขข้อมูลชื่อ-นามสกุล</h3>
+              <div className="form-row-2">
+                <div className="form-group">
+                  <label>ชื่อ:</label>
+                  <input
+                    type="text"
+                    maxLength={100}
+                    value={updatedUser.first_name || ""}
+                    onChange={(e) =>
+                      setUpdatedUser({
+                        ...updatedUser,
+                        first_name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label>นามสกุล:</label>
+                  <input
+                    type="text"
+                    maxLength={100}
+                    value={updatedUser.last_name || ""}
+                    onChange={(e) =>
+                      setUpdatedUser({
+                        ...updatedUser,
+                        last_name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button
+                  type="submit"
+                  className="save-profile-btn"
+                  disabled={startProcessLoad}
+                >
+                  {startProcessLoad ? "กำลังบันทึก..." : "บันทึกการแก้ไข"}
+                </button>
+                <Link href="/change-password" className="pwd-link-btn">
+                  เปลี่ยนรหัสผ่าน
+                </Link>
+              </div>
+            </form>
+
+            <div className="account-details-section">
+              <h3 className="section-title">ข้อมูลบัญชีผู้ใช้งาน</h3>
+              
+              <div className="details-grid">
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                  <div className="detail-content">
+                    <span className="detail-label">ชื่อผู้ใช้</span>
+                    <span className="detail-value">{currentUser?.user_name}</span>
+                  </div>
+                </div>
+
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                      <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                  </div>
+                  <div className="detail-content">
+                    <span className="detail-label">อีเมล</span>
+                    <span className="detail-value">{currentUser?.email}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -20,6 +20,8 @@ import apiClient from "@/lib/apiClient";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { USER_STATUS, USER_ROLE, FIELD_STATUS } from "@/constants/status";
 
+import FieldHeader from "@/components/field/FieldHeader";
+
 dayjs.extend(relativeTime);
 dayjs.locale("th");
 
@@ -57,6 +59,8 @@ export default function CheckFieldDetail() {
   const [followers, setFollowers] = useState([]);
   const [dataFollowers, setDataFollowers] = useState([]);
   const socket = useSocket();
+  const [sortOrder, setSortOrder] = useState("latest");
+  const [filterDate, setFilterDate] = useState("");
 
   const fetchFollowing = useCallback(async () => {
     if (!user?.user_id || !fieldId) return;
@@ -274,13 +278,38 @@ export default function CheckFieldDetail() {
     window.scrollTo({ top: 900, behavior: "smooth" });
   }, [currentPage]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortOrder, filterDate]);
+
+  const processedPosts = (() => {
+    let result = [...postData];
+
+    // 1. Filter by Date
+    if (filterDate) {
+      result = result.filter((post) => {
+        const postDateStr = dayjs(post.created_at).format("YYYY-MM-DD");
+        return postDateStr === filterDate;
+      });
+    }
+
+    // 2. Sort
+    result.sort((a, b) => {
+      const timeA = new Date(a.created_at).getTime();
+      const timeB = new Date(b.created_at).getTime();
+      return sortOrder === "latest" ? timeB - timeA : timeA - timeB;
+    });
+
+    return result;
+  })();
+
   const postPerPage = 5;
 
   const indexOfLast = currentPage * postPerPage;
   const indexOfFirst = indexOfLast - postPerPage;
-  const currentPostProfile = postData.slice(indexOfFirst, indexOfLast);
+  const currentPostProfile = processedPosts.slice(indexOfFirst, indexOfLast);
 
-  const totalPages = Math.ceil(postData.length / postPerPage);
+  const totalPages = Math.ceil(processedPosts.length / postPerPage);
 
   useEffect(() => {
     const fetchFacilities = async () => {
@@ -539,412 +568,443 @@ export default function CheckFieldDetail() {
         </div>
       )}
 
-      {fieldData?.img_field?.length ? (
-        <div className="image-container-profile">
-          <div className="head-title-profile">
-            <strong> {fieldData?.field_name}</strong>
-          </div>
-          <img
-            src={`${fieldData.img_field}`}
-            alt="รูปสนามกีฬา"
-            className="field-image-profile"
-          />
-
-          {user &&
-            (userFollowing ? (
-              <button
-                disabled={startProcessLoad}
-                style={{ cursor: startProcessLoad ? "not-allowed" : "pointer" }}
-                className="follow-btn-profile"
-                onClick={cancelFollow}
-              >
-                {startProcessLoad ? (
-                  <span className="dot-loading">
-                    <span className="dot one">●</span>
-                    <span className="dot two">●</span>
-                    <span className="dot three">●</span>
-                  </span>
-                ) : (
-                  "ติดตามแล้ว"
-                )}
-              </button>
-            ) : (
-              <button
-                style={{ cursor: startProcessLoad ? "not-allowed" : "pointer" }}
-                disabled={startProcessLoad}
-                className="follow-btn-profile"
-                onClick={handleFollow}
-              >
-                {startProcessLoad ? (
-                  <span className="dot-loading">
-                    <span className="dot one">●</span>
-                    <span className="dot two">●</span>
-                    <span className="dot three">●</span>
-                  </span>
-                ) : (
-                  "ติดตาม"
-                )}
-              </button>
-            ))}
-          <div
-            onClick={() => setShowModalFollower(true)}
-            style={{ cursor: "pointer" }}
-            className="head-subtitle-profile"
-          >
-            <strong>ผู้ติดตาม </strong>
-            <p>{formatPrice(followers)} </p>
-            <strong>คน </strong>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div className="image-container-profile">
-            {dataLoading && <LoadingSpinner mode="inline" />}
-          </div>
-        </div>
-      )}
+      <FieldHeader
+        fieldData={fieldData}
+        followersCount={followers}
+        isFollowing={userFollowing}
+        onFollow={handleFollow}
+        onUnfollow={cancelFollow}
+        onShowFollowers={() => setShowModalFollower(true)}
+        showFollowAction={!!user}
+        startProcessLoad={startProcessLoad}
+        onImageClick={setSelectedImage}
+      />
       <div className="field-detail-container-profile">
-        <div className="undercontainer-proflie">
-          <h1 className="sub-fields-profile">รายละเอียดสนามย่อย</h1>
-          <div className="sub-fields-container-profile">
-            {fieldData?.sub_fields && fieldData.sub_fields.length > 0 ? (
-              fieldData.sub_fields.map((sub) => (
-                <div
-                  key={sub.sub_field_id}
-                  className="sub-field-card-profile"
-                  onClick={() => router.push(`/booking/${sub.sub_field_id}`)}
-                >
-                  <p>
-                    <strong>ชื่อสนาม:</strong> {sub.sub_field_name}
-                  </p>
-                  <p>
-                    <strong>ราคา:</strong> {formatPrice(sub.price)} บาท
-                  </p>
-                  <p>
-                    <strong>กีฬา:</strong> {sub.sport_name}
-                  </p>
-                  <p>
-                    <strong>จำนวนคนต่อทีม:</strong> {sub.players_per_team}
-                  </p>
-                  <p>
-                    <strong>ความกว้างของสนาม:</strong> {sub.wid_field} เมตร
-                  </p>
-                  <p>
-                    <strong>ความยาวของสนาม:</strong> {sub.length_field} เมตร
-                  </p>
-                  <p>
-                    <strong>ประเภทของพื้นสนาม</strong> {sub.field_surface}
-                  </p>
-
-                  {sub.add_ons && sub.add_ons.length > 0 ? (
-                    <div className="add-ons-container-profile">
-                      <h3>ราคาสำหรับจัดกิจกรรมพิเศษ</h3>
-                      {sub.add_ons.map((addon) => (
-                        <p key={addon.add_on_id}>
-                          {addon.content} - {formatPrice(addon.price)} บาท
-                        </p>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-addon-profile">
-                      ไม่มีราคาสำหรับกิจกรรมพิเศษ
-                    </p>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="sub-fields-container-profile">
-                {" "}
-                {dataLoading && (
-                  <div className="loading-data">
-                    <div className="loading-data-spinner"></div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <div className="profile-btn">
-            <button onClick={scrollToBookingSection}>เลือกสนาม</button>
-          </div>
-          <div className="reviwe-title-profile"></div>
-          <h1>รีวิวสนามกีฬา</h1>
-          <select
-            id="review-score"
-            className="filter-profile"
-            onChange={handleFilterChange}
-            value={selectedRating}
-          >
-            <option value="ทั้งหมด">ทั้งหมด</option>
-            <option value="5">★★★★★</option>
-            <option value="4">★★★★☆</option>
-            <option value="3">★★★☆☆</option>
-            <option value="2">★★☆☆☆</option>
-            <option value="1">★☆☆☆☆</option>
-          </select>
-
-          <div className="reviwe-container-profile">
-            {filteredReviews.length > 0 ? (
-              filteredReviews.map((review, index) => (
-                <div
-                  className="reviwe-content-profile"
-                  key={review.review_id || index}
-                >
-                  <div className="review-box-profile">
-                    <div className="user-profile-name-profile">
-                      <img
-                        className="user-profile-review-profile"
-                        src={
-                          review?.user_profile
-                            ? review.user_profile
-                            : "https://res.cloudinary.com/dlwfuul9o/image/upload/v1755157542/qlementine-icons--user-24_zre8k9.png"
-                        }
-                      />
-                      <strong className="review-name-profile">
-                        {review.first_name} {review.last_name}
-                      </strong>
-                    </div>
-                    <div className="review-stars-profile">
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <span
-                          key={num}
-                          className={`star-profile ${
-                            num <= review.rating ? "active" : ""
-                          }`}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="detail-reviwe-profile">
-                    <p className="review-label">ความคิดเห็น</p>
-                    <p className="review-comment">{review.comment}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="no-reviwe-content-profile">
-                <div className="no-review-text">ยังไม่มีคะแนนการรีวิว</div>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="post-profile">
-          <h1>โพสต์</h1>
-          {dataLoading && (
-            <div className="loading-data">
-              <div className="loading-data-spinner"></div>
-            </div>
-          )}
-          {canPost && (
-            <Post
-              setCurrentPage={setCurrentPage}
-              fieldId={fieldId}
-              onPostSuccess={(newPost) => {
-                console.log("โพสใหม่ถูกสร้างแล้ว Socket จะจัดการให้:", newPost);
+        <div className="profile-main-content">
+          {/* แนะนำสนาม */}
+          <div className="description-profile-box">
+            <h1>แนะนำสนาม</h1>
+            <div
+              className="detail-profile-content"
+              dangerouslySetInnerHTML={{
+                __html: fieldData?.field_description || "ไม่มีข้อมูลคำแนะนำสนาม",
               }}
             />
-          )}
-          {currentPostProfile.map((post) =>
-            editingPostId === post.post_id ? (
-              <PostCard key={post.post_id} post={post} mode="profile">
-                <form
-                  onSubmit={(e) => handleEditSubmit(e, post.post_id)}
-                  className="edit-form-post"
-                >
-                  <div className="form-group-profile">
-                    <label>หัวข้อ</label>
-                    <input
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                      required
-                      maxLength={50}
-                    />
-                  </div>
-                  <div className="form-group-profile">
-                    <label>เนื้อหา</label>
-                    <textarea
-                      value={editContent}
-                      onChange={(e) => setEditContent(e.target.value)}
-                      required
-                      maxLength={255}
-                    />
-                  </div>
-                  <div className="form-group-profile">
-                    <label className="file-label-profile">
-                      <input
-                        multiple
-                        type="file"
-                        onChange={handleImageChange}
-                        accept="image/*"
-                        className="file-input-hidden-profile"
-                      />
-                      เลือกรูปภาพ
-                    </label>
-                  </div>
-                  <div className="preview-gallery-profile">
-                    {previewImages.map((src, index) => (
-                      <img
-                        key={index}
-                        src={src}
-                        alt={`Preview ${index}`}
-                        className="preview-image-profile"
-                      />
-                    ))}
-                  </div>
-                  <button
-                    className="savebtn-edit-post-profile"
-                    type="submit"
-                    style={{
-                      cursor: startProcessLoad ? "not-allowed" : "pointer",
-                    }}
-                    disabled={startProcessLoad}
-                  >
-                    {startProcessLoad ? (
-                      <span className="dot-loading">
-                        <span className="dot one">●</span>
-                        <span className="dot two">●</span>
-                        <span className="dot three">●</span>
-                      </span>
-                    ) : (
-                      "บันทึก"
-                    )}
-                  </button>
-                  <button
-                    style={{
-                      cursor: startProcessLoad ? "not-allowed" : "pointer",
-                    }}
-                    disabled={startProcessLoad}
-                    className="canbtn-post"
-                    type="button"
-                    onClick={() => {
-                      setEditingPostId(null);
-                      setPreviewImages([]);
-                    }}
-                  >
-                    ยกเลิก
-                  </button>
-                </form>
-              </PostCard>
-            ) : (
-              <PostCard
-                key={post.post_id}
-                post={post}
-                mode="profile"
-                canPost={canPost}
-                onEditPost={handleEdit}
-                onDeletePost={confirmDelete}
-                setSelectedImage={setSelectedImage}
-              />
-            ),
-          )}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            containerClassName="pagination-container-profile"
-            activeClassName="active-page-profile"
-            dotsClassName="pagination-dots-profile"
-          />
-        </div>
+          </div>
 
-        <aside className="aside">
-          <div className="field-info-profile">
-            <div
-              onClick={() => setShowModalDescription(true)}
-              className="description-profile"
-            >
-              <strong>แนะนำสนาม</strong>
-              <div
-                className="detail-profile"
-                dangerouslySetInnerHTML={{
-                  __html: fieldData?.field_description || "ไม่มีข้อมูล",
-                }}
-              />
+          {/* รายละเอียดสนามย่อย */}
+          <div className="undercontainer-proflie">
+            <h1 className="sub-fields-profile">รายละเอียดสนามย่อย</h1>
+            <div className="sub-fields-container-profile">
+              {fieldData?.sub_fields && fieldData.sub_fields.length > 0 ? (
+                fieldData.sub_fields.map((sub) => (
+                  <div
+                    key={sub.sub_field_id}
+                    className="sub-field-card-profile"
+                    onClick={() => router.push(`/booking/${sub.sub_field_id}`)}
+                  >
+                    <p>
+                      <strong>ชื่อสนาม:</strong> {sub.sub_field_name}
+                    </p>
+                    <p>
+                      <strong>ราคา:</strong> {formatPrice(sub.price)} บาท
+                    </p>
+                    <p>
+                      <strong>กีฬา:</strong> {sub.sport_name}
+                    </p>
+                    <p>
+                      <strong>จำนวนคนต่อทีม:</strong> {sub.players_per_team}
+                    </p>
+                    <p>
+                      <strong>ความกว้างของสนาม:</strong> {sub.wid_field} เมตร
+                    </p>
+                    <p>
+                      <strong>ความยาวของสนาม:</strong> {sub.length_field} เมตร
+                    </p>
+                    <p>
+                      <strong>ประเภทของพื้นสนาม</strong> {sub.field_surface}
+                    </p>
+
+                    {sub.add_ons && sub.add_ons.length > 0 ? (
+                      <div className="add-ons-container-profile">
+                        <h3>ราคาสำหรับจัดกิจกรรมพิเศษ</h3>
+                        {sub.add_ons.map((addon) => (
+                          <p key={addon.add_on_id}>
+                            {addon.content} - {formatPrice(addon.price)} บาท
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-addon-profile">
+                        ไม่มีราคาสำหรับกิจกรรมพิเศษ
+                      </p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="sub-fields-container-profile">
+                  {" "}
+                  {dataLoading && (
+                    <div className="loading-data">
+                      <div className="loading-data-spinner"></div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
+            <div className="profile-btn">
+              <button onClick={scrollToBookingSection}>เลือกสนาม</button>
+            </div>
+          </div>
+
+          {/* โพสต์ล่าสุดจากสนาม */}
+          <div className="post-profile">
+            <h1>โพสต์และประกาศ</h1>
+            {postData.length > 0 && (
+              <div className="post-filter-bar">
+                <div className="post-filter-item">
+                  <label htmlFor="post-sort">เรียงลำดับ:</label>
+                  <select
+                    id="post-sort"
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    className="post-filter-select"
+                  >
+                    <option value="latest">ล่าสุด</option>
+                    <option value="oldest">เก่าสุด</option>
+                  </select>
+                </div>
+
+                <div className="post-filter-item">
+                  <label htmlFor="post-date">วันที่โพสต์:</label>
+                  <div className="post-date-input-wrapper">
+                    <input
+                      type="date"
+                      id="post-date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      className="post-filter-date"
+                    />
+                    {filterDate && (
+                      <button
+                        type="button"
+                        onClick={() => setFilterDate("")}
+                        className="clear-date-btn"
+                        title="ล้างตัวกรองวันที่"
+                      >
+                        ล้าง
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             {dataLoading && (
               <div className="loading-data">
                 <div className="loading-data-spinner"></div>
               </div>
             )}
-            <div className="location-section-profile">
-              <h1>ตำแหน่งสนาม</h1>
-              <p>
-                <strong>ที่อยู่:</strong> {fieldData?.address}
-              </p>
-
-              {fieldData?.gps_location ? (
-                <div style={{ marginTop: "20px" }}>
-                  <LongdoMapPicker
-                    initialLocation={coordinates}
-                    readOnly={true}
-                  />
-                  <a
-                    href={getGoogleMapsLink(fieldData.gps_location)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "flex",
-                      width: "160px",
-                      marginTop: "30px",
-                      marginLeft: "auto",
-                      marginRight: "auto",
-                      marginBottom: "30px",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "6px 12px",
-                      backgroundColor: "#e0f2fe",
-                      color: "#03045e",
-                      borderRadius: "999px",
-                      fontSize: "14px",
-                      textDecoration: "none",
-                      fontWeight: "bold",
-                    }}
+            {canPost && (
+              <Post
+                setCurrentPage={setCurrentPage}
+                fieldId={fieldId}
+                onPostSuccess={(newPost) => {
+                  console.log("โพสใหม่ถูกสร้างแล้ว Socket จะจัดการให้:", newPost);
+                }}
+              />
+            )}
+            {!dataLoading && postData.length === 0 && (
+              <div className="no-posts-message">
+                ยังไม่มีโพสต์หรือประกาศข่าวสารในขณะนี้
+              </div>
+            )}
+            {!dataLoading && postData.length > 0 && processedPosts.length === 0 && (
+              <div className="no-posts-message">
+                ไม่พบโพสต์ประกาศตามตัวเลือกที่เลือก
+              </div>
+            )}
+            {currentPostProfile.map((post) =>
+              editingPostId === post.post_id ? (
+                <PostCard key={post.post_id} post={post} mode="profile">
+                  <form
+                    onSubmit={(e) => handleEditSubmit(e, post.post_id)}
+                    className="edit-form-post"
                   >
-                    เปิดใน GOOGLE MAP
-                  </a>
-                </div>
+                    <div className="form-group-profile">
+                      <label>หัวข้อ</label>
+                      <input
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        required
+                        maxLength={50}
+                      />
+                    </div>
+                    <div className="form-group-profile">
+                      <label>เนื้อหา</label>
+                      <textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        required
+                        maxLength={255}
+                      />
+                    </div>
+                    <div className="form-group-profile">
+                      <label className="file-label-profile">
+                        <input
+                          multiple
+                          type="file"
+                          onChange={handleImageChange}
+                          accept="image/*"
+                          className="file-input-hidden-profile"
+                        />
+                        เลือกรูปภาพ
+                      </label>
+                    </div>
+                    <div className="preview-gallery-profile">
+                      {previewImages.map((src, index) => (
+                        <img
+                          key={index}
+                          src={src}
+                          alt={`Preview ${index}`}
+                          className="preview-image-profile"
+                        />
+                      ))}
+                    </div>
+                    <button
+                      className="savebtn-edit-post-profile"
+                      type="submit"
+                      style={{
+                        cursor: startProcessLoad ? "not-allowed" : "pointer",
+                      }}
+                      disabled={startProcessLoad}
+                    >
+                      {startProcessLoad ? (
+                        <span className="dot-loading">
+                          <span className="dot one">●</span>
+                          <span className="dot two">●</span>
+                          <span className="dot three">●</span>
+                        </span>
+                      ) : (
+                        "บันทึก"
+                      )}
+                    </button>
+                    <button
+                      style={{
+                        cursor: startProcessLoad ? "not-allowed" : "pointer",
+                      }}
+                      disabled={startProcessLoad}
+                      className="canbtn-post"
+                      type="button"
+                      onClick={() => {
+                        setEditingPostId(null);
+                        setPreviewImages([]);
+                      }}
+                    >
+                      ยกเลิก
+                    </button>
+                  </form>
+                </PostCard>
               ) : (
-                <p style={{ color: "gray" }}>ไม่มีพิกัด GPS</p>
+                <PostCard
+                  key={post.post_id}
+                  post={post}
+                  mode="profile"
+                  canPost={canPost}
+                  onEditPost={handleEdit}
+                  onDeletePost={confirmDelete}
+                  setSelectedImage={setSelectedImage}
+                />
+              ),
+            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              containerClassName="pagination-container-profile"
+              activeClassName="active-page-profile"
+              dotsClassName="pagination-dots-profile"
+            />
+          </div>
+
+          {/* รีวิวสนามกีฬา */}
+          <div className="reviews-section-profile">
+            <div className="reviews-header-profile">
+              <h1>รีวิวสนามกีฬา</h1>
+              <div className="reviews-filter-wrapper">
+                <label htmlFor="review-score">คะแนน:</label>
+                <select
+                  id="review-score"
+                  className="filter-profile"
+                  onChange={handleFilterChange}
+                  value={selectedRating}
+                >
+                  <option value="ทั้งหมด">ทั้งหมด</option>
+                  <option value="5">★★★★★</option>
+                  <option value="4">★★★★☆</option>
+                  <option value="3">★★★☆☆</option>
+                  <option value="2">★★☆☆☆</option>
+                  <option value="1">★☆☆☆☆</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="reviwe-container-profile">
+              {filteredReviews.length > 0 ? (
+                filteredReviews.map((review, index) => (
+                  <div
+                    className="reviwe-content-profile"
+                    key={review.review_id || index}
+                  >
+                    <div className="review-box-profile">
+                      <div className="user-profile-name-profile">
+                        <img
+                          className="user-profile-review-profile"
+                          src={
+                            review?.user_profile
+                              ? review.user_profile
+                              : "https://res.cloudinary.com/dlwfuul9o/image/upload/v1755157542/qlementine-icons--user-24_zre8k9.png"
+                          }
+                          alt="รีวิว"
+                        />
+                        <strong className="review-name-profile">
+                          {review.first_name} {review.last_name}
+                        </strong>
+                      </div>
+                      <div className="review-stars-profile">
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <span
+                            key={num}
+                            className={`star-profile ${
+                              num <= review.rating ? "active" : ""
+                            }`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="detail-reviwe-profile">
+                      <p className="review-label">ความคิดเห็น</p>
+                      <p className="review-comment">{review.comment}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-reviwe-content-profile">
+                  <div className="no-review-text">ยังไม่มีคะแนนการรีวิว</div>
+                </div>
               )}
             </div>
-            <div className="detail-field">
-              <h1>รายละเอียดสนาม</h1>
-              <p>
-                <strong>วันที่เปิดสนาม</strong>
-              </p>
-              {fieldData?.open_days?.length > 0 ? (
-                fieldData.open_days.map((day, index) => (
+          </div>
+        </div>
+
+        <aside className="profile-sidebar">
+          {/* ตำแหน่งสนาม */}
+          <div className="location-section-profile">
+            <h1>ตำแหน่งสนาม</h1>
+            <p>
+              <strong>ที่อยู่:</strong> {fieldData?.address}
+            </p>
+
+            {fieldData?.gps_location ? (
+              <div style={{ marginTop: "20px" }}>
+                <LongdoMapPicker
+                  initialLocation={coordinates}
+                  readOnly={true}
+                />
+                <a
+                  href={getGoogleMapsLink(fieldData.gps_location)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "flex",
+                    width: "160px",
+                    marginTop: "30px",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    marginBottom: "30px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "6px 12px",
+                    backgroundColor: "#e0f2fe",
+                    color: "#03045e",
+                    borderRadius: "999px",
+                    fontSize: "14px",
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                  }}
+                >
+                  เปิดใน GOOGLE MAP
+                </a>
+              </div>
+            ) : (
+              <p style={{ color: "gray" }}>ไม่มีพิกัด GPS</p>
+            )}
+          </div>
+
+          {/* รายละเอียดสนาม */}
+          <div className="detail-field">
+            <h1>รายละเอียดสนาม</h1>
+            <p>
+              <strong>วันที่เปิดสนาม</strong>
+            </p>
+            {fieldData?.open_days?.length > 0 ? (
+              [...fieldData.open_days]
+                .sort(
+                  (a, b) =>
+                    [
+                      "Mon",
+                      "Tue",
+                      "Wed",
+                      "Thu",
+                      "Fri",
+                      "Sat",
+                      "Sun",
+                    ].indexOf(a) -
+                    [
+                      "Mon",
+                      "Tue",
+                      "Wed",
+                      "Thu",
+                      "Fri",
+                      "Sat",
+                      "Sun",
+                    ].indexOf(b)
+                )
+                .map((day, index) => (
                   <div className="opendays" key={index}>
                     {daysInThai[day] || day}
                   </div>
                 ))
-              ) : (
-                <div>ไม่มีข้อมูลวันเปิดสนาม</div>
-              )}
+            ) : (
+              <div>ไม่มีข้อมูลวันเปิดสนาม</div>
+            )}
 
-              <p>
-                <strong>เวลาเปิด-ปิด:</strong> {fieldData?.open_hours} -{" "}
-                {fieldData?.close_hours}
-              </p>
-              <p>
-                <strong>ยกเลิกการจองได้ก่อน: </strong>
-                {fieldData?.cancel_hours} ชม.
-              </p>
-              <p>
-                <strong>ค่ามัดจำ:</strong>{" "}
-                {formatPrice(fieldData?.price_deposit)} บาท
-              </p>
-              <p>
-                <strong>ธนาคาร:</strong> {fieldData?.name_bank}
-              </p>
-              <p>
-                <strong>ชื่อเจ้าของบัญชี:</strong> {fieldData?.account_holder}
-              </p>
-              <p>
-                <strong>เลขบัญชีธนาคาร:</strong> {fieldData?.number_bank}
-              </p>
-            </div>
+            <p>
+              <strong>เวลาเปิด-ปิด:</strong> {fieldData?.open_hours} -{" "}
+              {fieldData?.close_hours}
+            </p>
+            <p>
+              <strong>ยกเลิกการจองได้ก่อน: </strong>
+              {fieldData?.cancel_hours} ชม.
+            </p>
+            <p>
+              <strong>ค่ามัดจำ:</strong>{" "}
+              {formatPrice(fieldData?.price_deposit)} บาท
+            </p>
+            <p>
+              <strong>ธนาคาร:</strong> {fieldData?.name_bank}
+            </p>
+            <p>
+              <strong>ชื่อเจ้าของบัญชี:</strong> {fieldData?.account_holder}
+            </p>
+            <p>
+              <strong>เลขบัญชีธนาคาร:</strong> {fieldData?.number_bank}
+            </p>
+          </div>
+
+          {/* สิ่งอำนวยความสะดวก */}
+          <div className="facilities-section-profile">
             <h1 className="fac-profile">สิ่งอำนวยความสะดวก</h1>
             {dataLoading && (
               <div className="loading-data">
@@ -954,7 +1014,7 @@ export default function CheckFieldDetail() {
             <div className="field-facilities-profile">
               {Array.isArray(facilities) ? (
                 facilities.length === 0 ? (
-                  <p>ยังไม่มีสิ่งอำนวยความสะดวกสำหรับสนามนี้</p>
+                  <p className="no-facilities">ยังไม่มีสิ่งอำนวยความสะดวกสำหรับสนามนี้</p>
                 ) : (
                   <div className="facilities-carousel-container-profile">
                     <div className="facilities-carousel-profile">
@@ -993,7 +1053,7 @@ export default function CheckFieldDetail() {
                               ราคา: {formatPrice(facility.fac_price)} บาท
                             </p>
                             <p className="facility-quantity-profile-vertical">
-                              จำนวนทั้งหมด: {facility.quantity_total}
+                              จำนวนทั้งหมด: {facility.quantity_total} ชิ้น
                             </p>
                             <p className="facility-quantity-profile-vertical">
                               รายละเอียด: {facility.description}

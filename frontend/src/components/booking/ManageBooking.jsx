@@ -7,6 +7,8 @@ import "@/app/css/my-order.css";
 import { formatDateToThai } from "@/app/utils/format";
 import Pagination from "@/components/ui/Pagination";
 import BookingCard from "@/components/booking/BookingCard";
+import DateRangeFilter from "@/components/ui/DateRangeFilter";
+import BookingStatsSummary from "@/components/ui/BookingStatsSummary";
 import apiClient from "@/lib/apiClient";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { USER_STATUS, BOOKING_STATUS } from "@/constants/status";
@@ -46,14 +48,14 @@ export default function Mybooking() {
       if (filters.status) queryParams.append("status", filters.status);
 
       const data = await apiClient.get(
-        `/booking/my-bookings/${user.user_id}?${queryParams.toString()}`
+        `/booking/my-bookings/${user.user_id}?${queryParams.toString()}`,
       );
 
       setMybooking(data.data);
       setUserFirstUserName(data.user?.first_name || "");
       setUserLastUserName(data.user?.last_name || "");
       setUserInfo(
-        `${data.user?.first_name || ""} ${data.user?.last_name || ""}`
+        `${data.user?.first_name || ""} ${data.user?.last_name || ""}`,
       );
       console.log("Booking Data:", data.data);
     } catch (error) {
@@ -107,17 +109,30 @@ export default function Mybooking() {
     setCurrentPage(1);
   };
 
-  const formatDate = (isoString) => formatDateToThai(isoString);
-
-
-
-  const getFacilityNetPrice = (item) => {
-    const totalFac = (item.facilities || []).reduce(
-      (sum, fac) => sum + (parseFloat(fac.fac_price) || 0),
-      0
-    );
-    return Math.abs(totalFac - (parseFloat(item.total_remaining) || 0));
+  const calculateStats = () => {
+    return {
+      total: booking.length,
+      pending: booking.filter((item) => item.status === BOOKING_STATUS.PENDING)
+        .length,
+      approved: booking.filter(
+        (item) => item.status === BOOKING_STATUS.APPROVED,
+      ).length,
+      rejected: booking.filter(
+        (item) => item.status === BOOKING_STATUS.REJECTED,
+      ).length,
+      cancelled: booking.filter(
+        (item) => item.status === BOOKING_STATUS.CANCELLED,
+      ).length,
+      complete: booking.filter(
+        (item) => item.status === BOOKING_STATUS.COMPLETE,
+      ).length,
+      verified: booking.filter(
+        (item) => item.status === BOOKING_STATUS.VERIFIED,
+      ).length,
+    };
   };
+
+  const stats = calculateStats();
   const bookingPerPage = 8;
 
   const filteredBookings = booking.filter((item) => {
@@ -129,9 +144,8 @@ export default function Mybooking() {
   const indexOfFirstBooking = indexOfLastBooking - bookingPerPage;
   const currentBookings = filteredBookings.slice(
     indexOfFirstBooking,
-    indexOfLastBooking
+    indexOfLastBooking,
   );
-
 
   useEffect(() => {
     if (dataLoading) return;
@@ -150,49 +164,21 @@ export default function Mybooking() {
   return (
     <>
       <div className="myorder-container">
-        <h1 className="head-title-my-order">
+        <h1>
           การจองสนามของคุณ {userFirstName} {userLastName}
         </h1>
 
-        <div className="filters-order">
-          <label>
-            วันที่:
-            <input
-              type="date"
-              name="date"
-              value={filters.date}
-              onChange={handleFilterChange}
-            />
-          </label>
+        <DateRangeFilter
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          clearFilters={() => {
+            setFilters({ date: "", status: "" });
+            setCurrentPage(1);
+          }}
+          customerMode={true}
+        />
 
-          <label>
-            สถานะ:
-            <select
-              name="status"
-              value={filters.status}
-              onChange={handleFilterChange}
-            >
-              <option value="">ทั้งหมด</option>
-              <option value={BOOKING_STATUS.PENDING}>รอตรวจสอบ</option>
-              <option value={BOOKING_STATUS.APPROVED}>อนุมัติแล้ว</option>
-              <option value={BOOKING_STATUS.REJECTED}>ไม่อนุมัติ</option>
-              <option value={BOOKING_STATUS.CANCELLED}>ยกเลิกแล้ว</option>
-              <option value={BOOKING_STATUS.COMPLETE}>การจองสำเร็จ</option>
-              <option value={BOOKING_STATUS.VERIFIED}>ตรวจสอบสลิปมัดจำแล้ว</option>
-            </select>
-          </label>
-          <div className="button-clear-order">
-            <button
-              className="clear-filters-btn-date"
-              onClick={() => {
-                setFilters({ date: "", status: "" });
-                setCurrentPage(1);
-              }}
-            >
-              ล้างตัวกรอง
-            </button>
-          </div>
-        </div>
+        {booking.length > 0 && <BookingStatsSummary stats={stats} />}
         {dataLoading ? (
           <ul className="booking-list skeleton-list" aria-hidden="true">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -212,11 +198,7 @@ export default function Mybooking() {
           <>
             <ul className="booking-list">
               {currentBookings.map((item, index) => (
-                <BookingCard
-                  key={index}
-                  booking={item}
-                  userName={userInfo}
-                />
+                <BookingCard key={index} booking={item} userName={userInfo} />
               ))}
             </ul>
             <Pagination

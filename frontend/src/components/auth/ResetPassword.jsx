@@ -105,28 +105,74 @@ export default function ResetPassword() {
   return (
     <div>
       <div className="reset_password_container">
-        <div className="head-titel">
-          <h1>ลืมรหัสผ่าน</h1>
+        <div className="reset-password-header">
+          <div className="header-icon-wrapper">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              <circle cx="12" cy="16" r="1" />
+            </svg>
+          </div>
+          <h1 className="reset-password-title">ลืมรหัสผ่าน</h1>
+          <p className="reset-password-subtitle">
+            {!canEnterOTP
+              ? "กรุณาระบุอีเมลที่ใช้สมัครบัญชี เพื่อรับรหัสผ่าน OTP ในการรีเซ็ตรหัสผ่านใหม่"
+              : "ระบบได้ส่งรหัส OTP ไปยังอีเมลของท่านแล้ว กรุณากรอกรหัสเพื่อดำเนินการต่อ"}
+          </p>
         </div>
-        {canRead && (
-          <form onSubmit={onSubmit}>
-            <div className="input-foget-password">
+
+        <form onSubmit={canEnterOTP ? verifyOTP : onSubmit} className="reset-password-form">
+          {canRead ? (
+            <div className="form-group">
+              <label>อีเมลของคุณ</label>
               <input
                 maxLength={100}
                 required
                 type="email"
-                placeholder="ใส่ Email ของคุณ"
+                placeholder="กรอกอีเมลของคุณ เช่น example@mail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            {sentEmail && (
-              <div className="btn-submit-reset-password">
+          ) : (
+            <div className="form-group">
+              <label>อีเมลที่ต้องการรีเซ็ต</label>
+              <input readOnly required value={email} className="email-readonly" />
+            </div>
+          )}
+
+          {canEnterOTP && (
+            <div className="form-group animate-fade-in">
+              <label>รหัสผ่าน OTP 6 หลัก</label>
+              <input
+                required
+                type="text"
+                minLength={6}
+                maxLength={6}
+                placeholder="กรอกรหัส OTP"
+                value={otp}
+                onChange={(e) => setOTP(e.target.value)}
+                className="otp-input"
+              />
+            </div>
+          )}
+
+          <div className="form-actions-reset">
+            {!canEnterOTP ? (
+              sentEmail && (
                 <button
                   type="submit"
-                  style={{
-                    cursor: startProcessLoad ? "not-allowed" : "pointer",
-                  }}
+                  className="submit-reset-btn"
                   disabled={startProcessLoad}
                 >
                   {startProcessLoad ? (
@@ -136,75 +182,84 @@ export default function ResetPassword() {
                       <span className="dot three">●</span>
                     </span>
                   ) : (
-                    "ยืนยัน "
+                    "ขอรับรหัส OTP"
                   )}
                 </button>
-              </div>
+              )
+            ) : (
+              <button
+                type="submit"
+                className="submit-reset-btn"
+                disabled={startProcessLoad}
+              >
+                {startProcessLoad ? (
+                  <span className="dot-loading">
+                    <span className="dot one">●</span>
+                    <span className="dot two">●</span>
+                    <span className="dot three">●</span>
+                  </span>
+                ) : (
+                  "ยืนยันรหัส OTP"
+                )}
+              </button>
             )}
-          </form>
-        )}
-        {!canRead && (
-          <div className="input-foget-password">
-            <input readOnly required value={email} />
           </div>
-        )}
-        {canEnterOTP && (
-          <div className="input-foget-password">
-            <input
-              required
-              type="text"
-              minLength={6}
-              maxLength={6}
-              placeholder="ใส่ OTP"
-              value={otp}
-              onChange={(e) => setOTP(e.target.value)}
-            />
-          </div>
-        )}
 
-        {canEnterOTP && (
-          <div className="btn-submit-reset-password">
-            <button
-              type="button"
-              style={{
-                cursor: startProcessLoad ? "not-allowed" : "pointer",
-              }}
-              disabled={startProcessLoad}
-              onClick={verifyOTP}
-            >
-              {startProcessLoad ? (
-                <span className="dot-loading">
-                  <span className="dot one">●</span>
-                  <span className="dot two">●</span>
-                  <span className="dot three">●</span>
-                </span>
-              ) : (
-                "ยืนยัน OTP"
+          {canEnterOTP && (
+            <div className="resend-otp-section">
+              <button
+                className="resend-otp-btn"
+                disabled={!canRequestOTP || startProcessLoad}
+                type="button"
+                onClick={reSentOTP}
+              >
+                ขอรหัส OTP อีกครั้ง
+              </button>
+              
+              {!canRequestOTP && (
+                <div className="rate-limit-warning">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ marginRight: "6px" }}
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <span>กรุณารอ {timer} วินาทีก่อนขอ OTP ใหม่</span>
+                </div>
               )}
-            </button>
-          </div>
-        )}
-        {canEnterOTP && (
-          <div className="btn-resend">
-            <button
-              style={{
-                cursor:
-                  !canRequestOTP || startProcessLoad
-                    ? "not-allowed"
-                    : "pointer",
-              }}
-              disabled={!canRequestOTP}
-              type="button"
-              onClick={reSentOTP}
+            </div>
+          )}
+        </form>
+
+        <div className="back-to-login-wrapper">
+          <Link href="/login" className="login-reset-password">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ marginRight: "8px" }}
             >
-              ขอ OTP ใหม่
-            </button>
-          </div>
-        )}
-        {!canRequestOTP && <p>กรุณารอ {timer} วินาทีก่อนขอ OTP ใหม่</p>}
-        <Link href="/login" className="login-reset-password">
-          กลับหน้า Login
-        </Link>
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <span>กลับหน้าเข้าสู่ระบบ</span>
+          </Link>
+        </div>
       </div>
     </div>
   );
