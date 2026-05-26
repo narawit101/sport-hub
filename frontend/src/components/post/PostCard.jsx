@@ -25,6 +25,31 @@ export default function PostCard({
   const isHome = mode === "home";
   const images = post.images || [];
 
+  const renderTextWithLinks = (text) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/gi;
+    const parts = text.split(urlRegex);
+    return parts.map((part, index) => {
+      if (part.match(urlRegex)) {
+        const url = part.startsWith("http") ? part : `https://${part}`;
+        return (
+          <a
+            key={index}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="post-link"
+            style={{ color: "#3b82f6", textDecoration: "underline" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   useEffect(() => {
     if (!isHome || images.length <= 1) return;
 
@@ -64,7 +89,10 @@ export default function PostCard({
   }
 
   return (
-    <div className={isHome ? "post-card-home" : "post-card-profile"} id={`post-${post.post_id}`}>
+    <div
+      className={isHome ? "post-card-home" : "post-card-profile"}
+      id={`post-${post.post_id}`}
+    >
       {isHome && (
         <div className="inline-name-field">
           <img
@@ -78,25 +106,33 @@ export default function PostCard({
           />
           <div className="field-name-created-at-home">
             <h2 className="post-field-name-home">{post.field_name}</h2>
-            <div className="time-home">
-              {dayjs(post.created_at).fromNow()}
-            </div>
+            <div className="time-home">{dayjs(post.created_at).fromNow()}</div>
           </div>
         </div>
       )}
 
       {!isHome ? (
         <>
-          <h2 className="post-title">{post.content}</h2>
+          <h2 className="post-title">{renderTextWithLinks(post.title)}</h2>
           <div className="time">{dayjs(post.created_at).fromNow()}</div>
         </>
       ) : (
-        <h2 className="post-title-home">{post.content}</h2>
+        <h2 className="post-title-home">{renderTextWithLinks(post.title)}</h2>
       )}
 
       {images.length > 0 && (
-        <div className={isHome ? "ig-carousel-container-home" : "ig-carousel-container"}>
-          <div className={isHome ? "ig-carousel-track-wrapper-home" : "ig-carousel-track-wrapper"}>
+        <div
+          className={
+            isHome ? "ig-carousel-container-home" : "ig-carousel-container"
+          }
+        >
+          <div
+            className={
+              isHome
+                ? "ig-carousel-track-wrapper-home"
+                : "ig-carousel-track-wrapper"
+            }
+          >
             {isHome ? (
               <div className="ig-carousel-track-home">
                 <img
@@ -144,7 +180,9 @@ export default function PostCard({
                   ❮
                 </button>
                 <button
-                  className={isHome ? "arrow-btn right-home" : "arrow-btn right"}
+                  className={
+                    isHome ? "arrow-btn right-home" : "arrow-btn right"
+                  }
                   onClick={handleNext}
                 >
                   ❯
@@ -174,9 +212,13 @@ export default function PostCard({
         </div>
       )}
 
-      {post.title.length > 100 ? (
+      {post.content.length > 100 ? (
         <p className={isHome ? "post-text-home" : "post-text"}>
-          {expanded ? post.title : `${post.title.substring(0, 100).trim()}... `}
+          {renderTextWithLinks(
+            expanded
+              ? post.content
+              : `${post.content.substring(0, 100).trim()}... `,
+          )}
           <span
             onClick={() => setExpanded(!expanded)}
             className={isHome ? "see-more-button-home" : "see-more-button-post"}
@@ -185,7 +227,9 @@ export default function PostCard({
           </span>
         </p>
       ) : (
-        <p className={isHome ? "post-text-home" : "post-text"}>{post.title}</p>
+        <p className={isHome ? "post-text-home" : "post-text"}>
+          {renderTextWithLinks(post.content)}
+        </p>
       )}
 
       {isHome && onViewPost && (
@@ -200,10 +244,7 @@ export default function PostCard({
 
       {!isHome && canPost && (
         <div className="post-actions-profile">
-          <button
-            onClick={() => onEditPost?.(post)}
-            className="btn-profile"
-          >
+          <button onClick={() => onEditPost?.(post)} className="btn-profile">
             แก้ไขโพส
           </button>
           <button

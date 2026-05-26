@@ -128,7 +128,7 @@ export default function HomePage() {
       <div className="homepage">
         <div className="news-section">
           <div className="title-notice">
-            <h1>ประกาศ</h1>
+            <h1>ประกาศจากสนามกีฬา</h1>
           </div>
           {dataLoading && (
             <div className="news-skeleton-wrapper" aria-hidden="true">

@@ -685,6 +685,8 @@
   font-weight: 600;
   color: var(--text-color);
   margin-bottom: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .time {
@@ -699,6 +701,8 @@
   line-height: 1.6;
   overflow: hidden;
   display: -webkit-box;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .see-more-button-post {

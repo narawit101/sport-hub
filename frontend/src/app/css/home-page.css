@@ -110,7 +110,7 @@
   width: 100%;
   max-width: 1400px;
   margin: 20px auto;
-  background: #ffffff7a;
+  background: #ffffff83;
   border-radius: 16px;
   padding: 30px 20px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
@@ -343,9 +343,9 @@
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  padding: 24px;
+  padding: 20px;
   margin: 20px auto;
-  max-width: 100%;
+  max-width: 900px;
   width: 100%;
   text-align: left;
   display: flex;
@@ -360,36 +360,36 @@
 }
 
 .post-title-home {
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--text-color);
   margin-bottom: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .post-text-home {
-  font-size: 22px;
+  font-size: 16px;
   color: #444;
-  line-height: 1.6;
+  line-height: 1.5;
   overflow: hidden;
   display: -webkit-box;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .see-more-button-home {
   color: #562c75;
   font-weight: 500;
-  font-size: 18px;
+  font-size: 14px;
   cursor: pointer;
   margin-left: 4px;
   text-decoration: underline;
 }
 
 .time-home {
-  font-size: 18px;
-  color: #999;
-}
-
-.post-card-home {
-  position: relative;
+  font-size: 14px;
+  color: #718096;
 }
 
 .ig-carousel-container-home {
@@ -503,12 +503,12 @@
 
 .view-post-btn-home {
   align-self: flex-end;
-  padding: 10px 20px;
+  padding: 8px 16px;
   background-color: #2f2a2a9a;
   color: #fff;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -548,8 +548,8 @@
 }
 
 .post-img-field-home {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   max-width: 100%;
   border-radius: 50%;
   display: flex;
@@ -561,7 +561,9 @@
 }
 
 .post-field-name-home {
-  font-size: 22px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
 }
 
 .news-skeleton-wrapper {
@@ -587,8 +589,8 @@
 }
 
 .skeleton-avatar {
-  width: 68px;
-  height: 68px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: #e2e8f0;
   flex-shrink: 0;
