@@ -1,22 +1,26 @@
 import React from "react";
 import { formatPrice } from "@/app/utils/format";
 
-export default function BookingInfo({ booking, formatDate, calTotalHours, getCancelDeadlineTime }) {
-  const fieldPrice = Number(booking.total_price || 0) -
+export default function BookingInfo({
+  booking,
+  formatDate,
+  calTotalHours,
+  getCancelDeadlineTime,
+}) {
+  const fieldPrice =
+    Number(booking.total_price || 0) -
     Number(booking.price_deposit || 0) -
     (booking.facilities?.reduce(
       (sum, f) => sum + Number(f.fac_price || 0),
-      0
+      0,
     ) || 0);
 
-  const totalFacilitiesPrice = booking.facilities?.reduce(
-    (sum, f) => sum + Number(f.fac_price || 0),
-    0
-  ) || 0;
+  const totalFacilitiesPrice =
+    booking.facilities?.reduce((sum, f) => sum + Number(f.fac_price || 0), 0) ||
+    0;
 
   return (
     <>
-
       <div className="hours-detail-box">
         <div className="line-item-hours-detail">
           <span>เวลาที่จอง:</span>
@@ -37,7 +41,7 @@ export default function BookingInfo({ booking, formatDate, calTotalHours, getCan
             {getCancelDeadlineTime(
               booking.start_date,
               booking.start_time,
-              booking.cancel_hours
+              booking.cancel_hours,
             )}{" "}
             น.
           </span>
@@ -58,16 +62,13 @@ export default function BookingInfo({ booking, formatDate, calTotalHours, getCan
         {Array.isArray(booking.facilities) && booking.facilities.length > 0 && (
           <>
             <div className="line-item-detail">
-              <span className="all-price-detail">
-                สิ่งอำนวยความสะดวก:
-              </span>
+              <span className="all-price-detail">สิ่งอำนวยความสะดวก:</span>
               <span></span>
             </div>
             <ul className="facility-list-detail">
               {booking.facilities.map((fac, index) => (
                 <li key={index}>
-                  {fac.fac_name}{" "}
-                  <span>{formatPrice(fac.fac_price)} บาท</span>
+                  {fac.fac_name} <span>{formatPrice(fac.fac_price)} บาท</span>
                 </li>
               ))}
             </ul>
@@ -76,7 +77,8 @@ export default function BookingInfo({ booking, formatDate, calTotalHours, getCan
                 รวมราคาสิ่งอำนวยความสะดวก:
               </span>
               <span className="all-price-detail">
-                {new Intl.NumberFormat("th-TH").format(totalFacilitiesPrice)} บาท
+                {new Intl.NumberFormat("th-TH").format(totalFacilitiesPrice)}{" "}
+                บาท
               </span>
             </div>
           </>

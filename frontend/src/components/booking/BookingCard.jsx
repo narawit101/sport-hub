@@ -1,7 +1,12 @@
 "use client";
 
 import React from "react";
-import { formatPrice, formatDateToThai, getCancelDeadlineTime, getBookingStatusDisplay } from "@/app/utils/format";
+import {
+  formatPrice,
+  formatDateToThai,
+  getCancelDeadlineTime,
+  getBookingStatusDisplay,
+} from "@/app/utils/format";
 import { BOOKING_STATUS } from "@/constants/status";
 
 export default function BookingCard({
@@ -55,7 +60,7 @@ export default function BookingCard({
                 {getCancelDeadlineTime(
                   booking.start_date,
                   booking.start_time,
-                  booking.cancel_hours
+                  booking.cancel_hours,
                 )}{" "}
                 น. **
               </p>
@@ -77,8 +82,8 @@ export default function BookingCard({
                   booking.price_deposit -
                   (booking.facilities?.reduce(
                     (sum, f) => sum + f.fac_price,
-                    0
-                  ) || 0)
+                    0,
+                  ) || 0),
               )}{" "}
               บาท
             </span>
@@ -90,10 +95,7 @@ export default function BookingCard({
                 <span>ราคาสิ่งอำนวยความสะดวก:</span>
                 <span>
                   {formatPrice(
-                    booking.facilities.reduce(
-                      (sum, f) => sum + f.fac_price,
-                      0
-                    )
+                    booking.facilities.reduce((sum, f) => sum + f.fac_price, 0),
                   )}{" "}
                   บาท
                 </span>
@@ -124,20 +126,23 @@ export default function BookingCard({
 
         <p>
           <strong>สถานะ:</strong>{" "}
-          <span className={`status-text-detail ${booking.status?.toLowerCase()}`}>
+          <span
+            className={`status-text-detail ${booking.status?.toLowerCase()}`}
+          >
             {booking.status?.toLowerCase() === BOOKING_STATUS.PENDING
               ? "รอตรวจสอบ"
               : booking.status?.toLowerCase() === BOOKING_STATUS.APPROVED
-              ? "อนุมัติแล้ว"
-              : booking.status?.toLowerCase() === BOOKING_STATUS.REJECTED
-              ? "ไม่อนุมัติ"
-              : booking.status?.toLowerCase() === BOOKING_STATUS.COMPLETE
-              ? "การจองสำเร็จ"
-              : booking.status?.toLowerCase() === BOOKING_STATUS.VERIFIED
-              ? "ตรวจสอบสลิปมัดจำแล้ว"
-              : booking.status?.toLowerCase() === BOOKING_STATUS.CANCELLED
-              ? "ยกเลิกแล้ว"
-              : "ไม่ทราบสถานะ"}
+                ? "อนุมัติแล้ว"
+                : booking.status?.toLowerCase() === BOOKING_STATUS.REJECTED
+                  ? "ไม่อนุมัติ"
+                  : booking.status?.toLowerCase() === BOOKING_STATUS.COMPLETE
+                    ? "การจองสำเร็จ"
+                    : booking.status?.toLowerCase() === BOOKING_STATUS.VERIFIED
+                      ? "ตรวจสอบสลิปมัดจำแล้ว"
+                      : booking.status?.toLowerCase() ===
+                          BOOKING_STATUS.CANCELLED
+                        ? "ยกเลิกแล้ว"
+                        : "ไม่ทราบสถานะ"}
           </span>
         </p>
       </div>

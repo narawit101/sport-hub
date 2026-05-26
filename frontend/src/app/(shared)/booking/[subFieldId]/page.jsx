@@ -423,22 +423,29 @@ export default function Booking() {
                                     onClick={() =>
                                       handleFacilityQuantityChange(
                                         fac.field_fac_id,
-                                        selectedFacilities[fac.field_fac_id].quantity - 1
+                                        selectedFacilities[fac.field_fac_id]
+                                          .quantity - 1,
                                       )
                                     }
-                                    disabled={selectedFacilities[fac.field_fac_id].quantity <= 1}
+                                    disabled={
+                                      selectedFacilities[fac.field_fac_id]
+                                        .quantity <= 1
+                                    }
                                   >
                                     -
                                   </button>
                                   <input
                                     type="number"
                                     className="quantity-input"
-                                    value={selectedFacilities[fac.field_fac_id].quantity}
+                                    value={
+                                      selectedFacilities[fac.field_fac_id]
+                                        .quantity
+                                    }
                                     onChange={(e) => {
                                       const val = parseInt(e.target.value) || 1;
                                       handleFacilityQuantityChange(
                                         fac.field_fac_id,
-                                        Math.min(Math.max(1, val), available)
+                                        Math.min(Math.max(1, val), available),
                                       );
                                     }}
                                     min="1"
@@ -450,10 +457,14 @@ export default function Booking() {
                                     onClick={() =>
                                       handleFacilityQuantityChange(
                                         fac.field_fac_id,
-                                        selectedFacilities[fac.field_fac_id].quantity + 1
+                                        selectedFacilities[fac.field_fac_id]
+                                          .quantity + 1,
                                       )
                                     }
-                                    disabled={selectedFacilities[fac.field_fac_id].quantity >= available}
+                                    disabled={
+                                      selectedFacilities[fac.field_fac_id]
+                                        .quantity >= available
+                                    }
                                   >
                                     +
                                   </button>
@@ -469,11 +480,16 @@ export default function Booking() {
                     <div className="selected-facilities-summary">
                       <h5>สิ่งอำนวยความสะดวกที่เลือก:</h5>
                       {Object.values(selectedFacilities).map((item) => (
-                        <div key={item.field_fac_id} className="selected-facility-item">
+                        <div
+                          key={item.field_fac_id}
+                          className="selected-facility-item"
+                        >
                           <span>
                             {item.fac_name} ({item.quantity} ชิ้น)
                           </span>
-                          <span>{formatPrice(item.price * item.quantity)} บาท</span>
+                          <span>
+                            {formatPrice(item.price * item.quantity)} บาท
+                          </span>
                         </div>
                       ))}
                     </div>
