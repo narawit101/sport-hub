@@ -1,6 +1,4 @@
-/**
- * Status and Role Constants for Sport Hub (Backend)
- */
+
 
 const USER_STATUS = {
   VERIFIED: "ตรวจสอบแล้ว",

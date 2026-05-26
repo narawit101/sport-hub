@@ -33,9 +33,7 @@ function baseLayout(content) {
 </div>`;
 }
 
-/**
- * ปุ่ม CTA กลาง
- */
+
 function ctaButton(label, url) {
   return `
   <div style="margin: 20px 0;">

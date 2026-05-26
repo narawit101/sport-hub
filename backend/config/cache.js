@@ -19,10 +19,6 @@ function disableRedis(reason) {
   redis = null;
 }
 
-/**
- * Initialize Redis connection (Upstash compatible)
- * Falls back gracefully if Redis is unavailable
- */
 function initRedis() {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {

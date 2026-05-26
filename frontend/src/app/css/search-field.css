@@ -24,8 +24,6 @@
   border-radius: 20px;
 }
 
-/* grid-search removed in favor of shared FieldGrid */
-
 
 .card-search {
   display: flex;

@@ -1,9 +1,3 @@
-/**
- * Status and Role Constants for Sport Hub
- * Use these constants instead of hardcoded strings to avoid "magic strings"
- * and make the codebase easier to maintain.
- */
-
 export const USER_STATUS = {
   VERIFIED: "ตรวจสอบแล้ว",
   PENDING: "รอยืนยัน",

@@ -9,6 +9,7 @@
   --success-color: #28a745;
   --danger-color: #dc3545;
 }
+
 .nav {
   z-index: 20;
   position: fixed;
@@ -38,6 +39,7 @@
 .ullist {
   flex: 0 0 auto;
 }
+
 .user {
   flex: 0 0 auto;
 }
@@ -57,6 +59,7 @@
   cursor: pointer;
   padding: 8px;
 }
+
 .hamburger .bar {
   width: 20px;
   height: 2px;
@@ -90,9 +93,11 @@
   border-radius: 10px;
   transition: background 0.2s, transform 0.05s;
 }
+
 .icon-btn:hover {
   background: #f5f5f7;
 }
+
 .icon-btn:active {
   transform: scale(0.98);
 }
@@ -115,6 +120,7 @@
 .search-container {
   position: relative;
 }
+
 .search-button img {
   display: block;
 }
@@ -136,6 +142,7 @@
   transition: transform 0.15s, opacity 0.15s, visibility 0.15s;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
+
 .search-box.active {
   opacity: 1;
   visibility: visible;
@@ -173,6 +180,7 @@
   transition: transform 0.15s, opacity 0.15s, visibility 0.15s;
   z-index: 110;
 }
+
 .user-profile.active .dropdown {
   opacity: 1;
   visibility: visible;
@@ -258,6 +266,7 @@
   z-index: 120;
   backdrop-filter: blur(0px);
 }
+
 .side-overlay.show,
 .menu-overlay.show {
   opacity: 1;
@@ -280,6 +289,7 @@
   flex-direction: column;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
+
 .side-menu.open {
   transform: translateX(0);
 }
@@ -313,6 +323,7 @@
   margin: 8px 0 0;
   padding: 8px 0;
 }
+
 .side-list li a {
   display: flex;
   align-items: center;
@@ -330,25 +341,26 @@
   height: 20px;
   flex-shrink: 0;
   transition: filter 0.15s;
-  filter: brightness(0) saturate(100%) invert(27%) sepia(11%) saturate(1015%)
-    hue-rotate(182deg) brightness(94%) contrast(87%);
+  filter: brightness(0) saturate(100%) invert(27%) sepia(11%) saturate(1015%) hue-rotate(182deg) brightness(94%) contrast(87%);
 }
+
 .side-list li a:hover {
   background: #e0f2fe;
   color: var(--text-color);
 }
+
 .side-list li a:hover img {
-  filter: brightness(0) saturate(100%) invert(8%) sepia(96%) saturate(4959%)
-    hue-rotate(217deg) brightness(91%) contrast(118%);
+  filter: brightness(0) saturate(100%) invert(8%) sepia(96%) saturate(4959%) hue-rotate(217deg) brightness(91%) contrast(118%);
 }
+
 .side-list li a.active {
   background: var(--text-color);
   color: #ffffff;
   font-weight: 500;
 }
+
 .side-list li a.active img {
-  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%)
-    hue-rotate(0deg) brightness(100%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
 }
 
 .notify {
@@ -423,15 +435,17 @@
   transition: background 0.15s;
   color: #1e293b;
 }
+
 .notification-item:hover {
   background: #f1f5f9;
 }
+
 .notification-item.unread {
   background: #f0f8ff;
   font-weight: 500;
-  /* border-left: 3px solid #007bff; */
   padding-left: 19px;
 }
+
 .notification-item.unread::before {
   content: "";
   position: absolute;
@@ -442,9 +456,11 @@
   top: 8px;
   left: 5px;
 }
+
 .notification-item:last-child {
   border-bottom: none;
 }
+
 .notification-item.empty {
   text-align: center;
   color: #64748b;
@@ -466,14 +482,17 @@
 .notif-approved {
   color: #15803d;
 }
+
 .notif-rejected {
   color: #b91c1c;
 }
+
 .notif-rejected-reson {
   color: #b91c1c;
   font-size: 0.9rem;
   font-weight: 500;
 }
+
 .notif-hint {
   color: #008bdb;
 }
@@ -491,6 +510,7 @@
   border-radius: 0 0 12px 12px;
   transition: background 0.15s, color 0.15s;
 }
+
 .notify-view-all:hover {
   background: #e0f2fe;
   color: #0c4a6e;
@@ -518,13 +538,15 @@
   color: #6b7280;
   margin-top: 2px;
 }
+
 .caret-icon {
   margin-left: 4px;
   margin-top: 3px;
   background: "#cbcbcbff";
   border-radius: 50%;
 }
-.contact-field-lasted{
+
+.contact-field-lasted {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -536,6 +558,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-6px);
   }
+
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -546,24 +569,28 @@
   .nav {
     padding: 0 20px;
   }
+
   .side-menu {
     width: 230px;
   }
 }
+
 @media (max-width: 640px) {
   .nav {
     padding: 0 20px;
   }
 }
+
 @media (max-width: 430px) {
   .search-box {
     right: -190%;
   }
 }
+
 @media (max-width: 350px) {
   .search-box {
     max-width: 200px;
   }
 }
-@media (max-width: 300px) {
-}
+
+@media (max-width: 300px) {}

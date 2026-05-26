@@ -115,7 +115,7 @@
   color: #333;
 }
 
-/* New Facilities Carousel Styles for Profile */
+
 .facilities-carousel-container-profile {
   margin: 1rem 0;
   display: flex;
@@ -166,7 +166,6 @@
 }
 
 .facility-card-profile:hover {
-  /* transform: translateY(-2px); */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -223,7 +222,6 @@
   font-weight: 500;
 }
 
-/* Responsive Design for Facilities */
 @media (max-width: 768px) {
   .facilities-carousel-profile {
     gap: 0.8rem;
@@ -265,7 +263,7 @@
   }
 }
 
-/* Vertical Facilities Layout */
+
 .facility-card-profile-vertical {
   flex: none;
   width: 100%;
@@ -398,6 +396,7 @@
   cursor: pointer;
   font-size: 16px;
 }
+
 .savebtn-edit-post-profile:hover {
   background-color: var(--hover-success-color);
 }
@@ -426,6 +425,7 @@
   font-size: 18px;
   color: var(--text-color);
 }
+
 .field-info-profile ul h1 {
   text-align: center;
   margin-top: 0px;
@@ -473,6 +473,7 @@
   max-height: 600px;
   overflow-y: auto;
 }
+
 .sub-fields-container-profile-overlay {
   overflow-y: auto;
 }
@@ -803,6 +804,7 @@
   from {
     opacity: 0.5;
   }
+
   to {
     opacity: 1;
   }
@@ -813,6 +815,7 @@
   flex-direction: column;
   margin-bottom: 15px;
 }
+
 .edit-form-post {
   min-height: 55vh;
   display: flex;
@@ -831,6 +834,7 @@
   max-width: 100%;
   box-sizing: border-box;
 }
+
 .edit-form-post textarea {
   height: 200px;
   resize: none;
@@ -899,6 +903,7 @@
   font-size: 16px;
   background-color: var(--success-color);
 }
+
 .edit-form-post-button:hover {
   background-color: var(--hover-success-color);
 }
@@ -927,6 +932,7 @@
   background-color: #2f2a2a9a;
   color: #fff;
 }
+
 .post-actions-profile .btn-profiles:first-child:hover {
   background-color: #4c4444;
 }
@@ -935,6 +941,7 @@
   background-color: #dc3545;
   color: white;
 }
+
 .post-actions-profile .btn-profile:last-child:hover {
   background-color: #c82333;
 }
@@ -1022,6 +1029,7 @@
   background-color: var(--success-color);
   color: white;
 }
+
 .modal-actions-post .delbtn-post {
   background-color: var(--hover-success-color);
 }
@@ -1320,11 +1328,13 @@
 .btn-cancel-subfield-profile:hover {
   background-color: #c82333;
 }
+
 .user-profile-name-profile {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
 .user-profile-review-profile {
   width: 40px;
   height: 40px;
@@ -1384,6 +1394,7 @@
   padding: 5px 20px 20px 20px;
   font-size: 16px;
 }
+
 .facilities-carousel-container-profile {
   overflow: hidden;
   margin: 1rem 0;
@@ -1492,7 +1503,6 @@
   font-weight: 500;
 }
 
-/* Responsive Design for Facilities Profile */
 @media (max-width: 768px) {
   .facilities-carousel-profile {
     gap: 0.8rem;
@@ -1538,12 +1548,14 @@
   .post-profile {
     margin-top: 40px;
   }
+
   .field-detail-container-profile {
     align-items: center;
     max-width: 800px;
     display: flex;
     flex-direction: column;
   }
+
   .undercontainer-proflie {
     margin-top: 20px;
     max-width: 500px;
@@ -1555,12 +1567,15 @@
     max-width: 500px;
     width: 100%;
   }
+
   .field-info-profile h1 {
     text-align: center;
   }
+
   .sub-fields-container-profile h1 {
     text-align: center;
   }
+
   .post-profile h1 {
     text-align: center;
   }
@@ -1570,12 +1585,14 @@
   .field-detail-container-profile {
     max-width: 600px;
   }
+
   .field-info-profile h1,
   .post-profile h1,
   .field-info-profile h1 {
     font-size: 25px;
   }
 }
+
 @media screen and (max-width: 700px) {
   .field-detail-container-profile {
     max-width: 550px;
@@ -1607,6 +1624,7 @@
   font-size: 20px;
   font-weight: 100;
 }
+
 .head-subtitle-profile p {
   font-weight: 600;
 }

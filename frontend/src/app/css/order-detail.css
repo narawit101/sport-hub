@@ -662,7 +662,6 @@
 }
 
 .create-qr-slip-again {
-  /* background-color: var(--success-color); */
   margin-top: 0px;
   margin-bottom: 0px;
   text-align: center;
@@ -938,7 +937,6 @@
   }
 }
 
-/* Premium Payment Section Redesign */
 .premium-payment-section {
   background: #ffffff;
   border-radius: 16px;
@@ -958,7 +956,7 @@
   padding-bottom: 12px;
 }
 
-/* 1. Payment Summary Card */
+
 .payment-summary-card {
   background: #f8fafc;
   border-radius: 12px;
@@ -1022,7 +1020,7 @@
   color: #03045e;
 }
 
-/* Cash payment card */
+
 .cash-payment-info {
   display: flex;
   align-items: flex-start;
@@ -1039,7 +1037,6 @@
   font-size: 1.5rem;
 }
 
-/* 2. Premium Bank Card */
 .premium-bank-card {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   color: #1e293b;
@@ -1131,7 +1128,7 @@
   color: #1e293b;
 }
 
-/* 3. Premium QR Card */
+
 .premium-qr-card {
   background: #ffffff;
   border: 2px solid #004685;
@@ -1199,7 +1196,7 @@
   font-weight: 800;
 }
 
-/* 4. Modern File Upload Zone */
+
 .file-upload-zone-premium {
   display: block;
   border: 2px dashed #cbd5e1;
@@ -1252,7 +1249,6 @@
   color: #94a3b8;
 }
 
-/* 5. Slips Gallery */
 .uploaded-slips-gallery-premium {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1329,14 +1325,14 @@
   color: #0f172a;
 }
 
-/* Lightbox Modal for Slips zoom */
+
 .premium-lightbox-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(23, 31, 49, 0.571);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1350,7 +1346,6 @@
   max-height: 90%;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   animation: scaleUp 0.2s ease-out;
 }
 
@@ -1381,7 +1376,7 @@
   }
 }
 
-/* Buttons and States */
+
 .premium-action-btn {
   background: var(--text-color, #03045e);
   color: #ffffff;
@@ -1495,7 +1490,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Status Colors for Premium Badge */
 .status-badge-premium.pending {
   background: #fef3c7;
   color: #92400e;
