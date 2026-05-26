@@ -274,6 +274,15 @@ export function useBookingFlow(subFieldId, user, notify) {
     });
   };
 
+  const handleFacilityQuantityChange = (facId, quantity) => {
+    setSelectedFacilities(prev => {
+      if (!prev[facId]) return prev;
+      const copy = { ...prev };
+      copy[facId] = { ...copy[facId], quantity: Math.max(1, quantity) };
+      return copy;
+    });
+  };
+
   const resetSelection = () => {
     setStartDate(""); setEndDate(""); setCanBook(false); setSelectedSlots([]); setSelectedSlotsArr([]); setPayMethod("");
     setSelectedFacilities({}); setTimeStart(""); setTimeEnd(""); setTotalHours(0);
@@ -329,7 +338,7 @@ export function useBookingFlow(subFieldId, user, notify) {
     selectedFacilities, priceDeposit, sumFac, totalPrice, totalRemaining, payMethod, setPayMethod,
     bookingDate, setBookingDate, openDays, isBooked, subFieldData, fieldId, fieldName,
     showSummary, setShowSummary, bookTimeArr, dataLoading, startProcessLoad, facilityAvailability,
-    serverTime, handlePriceOnChange, handleFacilitySelect, resetSelection, handleSubmit, toggleSelectSlot,
+    serverTime, handlePriceOnChange, handleFacilitySelect, handleFacilityQuantityChange, resetSelection, handleSubmit, toggleSelectSlot,
     bookingDateFormatted, summaryRef, handleShowSummary
   };
 }

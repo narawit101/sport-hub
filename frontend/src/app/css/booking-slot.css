@@ -19,6 +19,7 @@
   color: var(--text-color);
   padding: 5px 24px;
 }
+
 .select-date-book {
   text-align: left;
   font-size: 1.5rem;
@@ -130,6 +131,7 @@
   color: #ffffff;
   pointer-events: none;
 }
+
 .slot-box-book.complete-slot {
   background-color: #b31e1e;
   color: #ffffff;
@@ -234,6 +236,7 @@
 .sub-field-error {
   color: #757575;
 }
+
 .payment-book {
   color: var(--text-color);
   margin: 0px auto;
@@ -351,6 +354,7 @@
   transition: all 0.4s ease;
   pointer-events: none;
 }
+
 .total-box.show {
   opacity: 1;
   transform: translateY(0);
@@ -362,10 +366,11 @@
   display: block;
   margin: 10px 0;
   font-size: 20px;
+  color: var(--success-color);
 }
 
 .price-deposit {
-  text-align:center;
+  text-align: center;
   font-size: 18px;
   font-weight: 700;
   color: #d32f2f;
@@ -379,6 +384,7 @@
   color: #333;
   margin-top: 10px;
 }
+
 .total-remaining {
   font-size: 18px;
   font-weight: 700;
@@ -571,6 +577,7 @@
   font-weight: bold;
   color: red;
 }
+
 .confirm-header-book {
   margin: 0 auto 10px auto;
   display: flex;
@@ -671,10 +678,12 @@
   color: #999;
   cursor: not-allowed;
 }
+
 .date-select-label h2 {
   font-size: 30px;
   color: var(--text-color);
 }
+
 .date-select-label {
   margin-right: 10px;
 }
@@ -685,18 +694,22 @@
     flex-direction: column;
     width: 100%;
   }
+
   .date-select-label h2 {
     font-size: 20px;
   }
+
   .book-content {
     width: 100%;
     margin-bottom: 10px;
   }
+
   .book-sider {
     margin-top: 0;
     text-align: center;
     width: 100%;
   }
+
   .time-info {
     align-items: center;
     justify-content: center;
@@ -716,20 +729,25 @@
     justify-content: center;
   }
 }
+
 @media screen and (max-width: 450px) {
   .confirm-header-book {
     margin-top: 20px;
   }
+
   .date-select-label h2 {
     font-size: 16px;
   }
+
   .countdown-timer-book {
     width: 40%;
   }
+
   .sum-status-box-book {
     font-size: 1rem;
     gap: 20px;
   }
+
   .status-box-book-1 {
     height: 40px;
     background-color: #22c55e;
@@ -747,6 +765,7 @@
     width: 50px;
   }
 }
+
 @media screen and (max-width: 380px) {
   .slot-box-book {
     height: 60px;
@@ -766,7 +785,8 @@
 }
 
 .booking-summary-container {
-  margin: 0px 30px;
+  margin: 0px auto;
+  max-width: 900px;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -780,6 +800,7 @@
     opacity: 0;
     transform: translateY(0px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1035,24 +1056,76 @@
 .quantity-control {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.4rem;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  width: 100%;
 }
 
-.quantity-control label {
-  font-size: 0.85rem;
-  color: #333;
-  font-weight: 500;
+.quantity-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid #e5e7eb;
+  background-color: #ffffff;
+  color: var(--text-color);
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  user-select: none;
+}
+
+.quantity-btn:hover:not(:disabled) {
+  background-color: var(--success-color);
+  color: #ffffff;
+  border-color: var(--success-color);
+  transform: scale(1.05);
+}
+
+.quantity-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.quantity-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
 }
 
 .quantity-input {
-  width: 50px;
-  padding: 0.4rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
+  width: 55px;
+  height: 32px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
   text-align: center;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  background-color: #ffffff;
+  transition: border-color 0.2s ease;
+}
+
+.quantity-input:focus {
+  outline: none;
+  border-color: var(--success-color);
+}
+
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+.quantity-input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .selected-facilities-summary {
@@ -1160,7 +1233,7 @@
   background: #f8f9fa;
 }
 
-.payment-option input[type="radio"]:checked + span {
+.payment-option input[type="radio"]:checked+span {
   color: var(--text-color);
   font-weight: 600;
 }
@@ -1218,6 +1291,7 @@
   .booking-summary-container {
     margin: 5px;
   }
+
   .container-bookings {
     flex-direction: column !important;
     gap: 1rem;
@@ -1315,12 +1389,15 @@
   .booking-summary-section {
     padding: 0 0.25rem;
   }
+
   .container-bookings {
     padding: 0;
   }
+
   .book-sum-box {
     padding: 10px;
   }
+
   .booking-summary-container {
     margin: 0 0 10px 0;
     border-radius: 8px;

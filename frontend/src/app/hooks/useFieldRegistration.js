@@ -103,7 +103,7 @@ export function useFieldRegistration(user, notify) {
         addOns: [], wid_field: "", length_field: "", players_per_team: "", field_surface: ""
       }]);
     }
-  }, [user]);
+  }, [user, subFields.length]);
 
   const handleFieldChange = (e) => {
     setFieldData({ ...fieldData, [e.target.name]: e.target.value });
