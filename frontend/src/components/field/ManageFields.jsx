@@ -65,7 +65,7 @@ export default function MyFieldPage() {
         setFilteredFields(myFields);
       } else {
         setFilteredFields(
-          myFields.filter((field) => field.status === statusFilter)
+          myFields.filter((field) => field.status === statusFilter),
         );
         setCurrentPage(1);
       }
@@ -91,10 +91,10 @@ export default function MyFieldPage() {
       await apiClient.delete(`/field/delete/field/${fieldIdToDelete}`);
 
       setMyFields(
-        myFields.filter((field) => field.field_id !== fieldIdToDelete)
+        myFields.filter((field) => field.field_id !== fieldIdToDelete),
       );
       setFilteredFields(
-        filteredFields.filter((field) => field.field_id !== fieldIdToDelete)
+        filteredFields.filter((field) => field.field_id !== fieldIdToDelete),
       );
       setShowDeleteModal(false);
       notify("ลบสนามเรียบร้อยแล้ว", "success");
@@ -133,9 +133,13 @@ export default function MyFieldPage() {
             className="sport-select-myfield"
           >
             <option value="ทั้งหมด">ทั้งหมด</option>
-            <option value={FIELD_STATUS.VERIFIED}>{FIELD_STATUS.VERIFIED}</option>
+            <option value={FIELD_STATUS.VERIFIED}>
+              {FIELD_STATUS.VERIFIED}
+            </option>
             <option value={FIELD_STATUS.PENDING}>{FIELD_STATUS.PENDING}</option>
-            <option value={FIELD_STATUS.REJECTED}>{FIELD_STATUS.REJECTED}</option>
+            <option value={FIELD_STATUS.REJECTED}>
+              {FIELD_STATUS.REJECTED}
+            </option>
           </select>
         </div>
         <FieldGrid
@@ -180,11 +184,6 @@ export default function MyFieldPage() {
                   onChange={(e) => setConfirmInput(e.target.value)}
                   className="confirm-delete-input"
                 />
-                {/* {fieldNameToDelete &&
-                  confirmInput &&
-                  confirmInput.trim() !== fieldNameToDelete && (
-                    <div className="confirm-delete-error">ชื่อสนามไม่ตรง</div>
-                  )} */}
               </div>
               <div className="modal-actions-myfield">
                 <button
@@ -240,7 +239,7 @@ export default function MyFieldPage() {
             >
               {i + 1}
             </button>
-          )
+          ),
         )}
       </div>
     </>

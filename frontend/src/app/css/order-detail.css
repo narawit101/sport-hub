@@ -37,9 +37,15 @@
   display: flex;
 }
 
+.order-detail ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
 .booking-card-order-detail {
   list-style-type: none;
-  padding: 0px 35px;
+  padding: 0;
   border-radius: 12px;
 }
 
@@ -1356,13 +1362,23 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
-  from { transform: scale(0.95); }
-  to { transform: scale(1); }
+  from {
+    transform: scale(0.95);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
 /* Buttons and States */
@@ -1436,7 +1452,6 @@
   border: 1px dashed #cbd5e1;
 }
 
-/* 6. Premium Header Redesign */
 .order-detail-header-premium {
   background: #ffffff;
   border-radius: 20px;
@@ -1481,13 +1496,47 @@
 }
 
 /* Status Colors for Premium Badge */
-.status-badge-premium.pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-.status-badge-premium.unpaid { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
-.status-badge-premium.approved { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-.status-badge-premium.complete { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-.status-badge-premium.verified { background: #ecfdf5; color: #065f46; border: 1px solid #d1fae5; }
-.status-badge-premium.rejected { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-.status-badge-premium.cancelled { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+.status-badge-premium.pending {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.status-badge-premium.unpaid {
+  background: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+}
+
+.status-badge-premium.approved {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-badge-premium.complete {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-badge-premium.verified {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #d1fae5;
+}
+
+.status-badge-premium.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.status-badge-premium.cancelled {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
 
 .field-info-main {
   margin: 15px 0;
@@ -1534,16 +1583,16 @@
   .order-detail-header-premium {
     padding: 20px;
   }
-  
+
   .header-top-row {
     justify-content: center;
     flex-direction: column;
   }
-  
+
   .field-name-premium {
     font-size: 1.5rem;
   }
-  
+
   .sub-field-name-premium {
     font-size: 1.1rem;
   }

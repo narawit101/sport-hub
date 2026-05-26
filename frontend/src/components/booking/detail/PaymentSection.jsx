@@ -1,6 +1,10 @@
 import React from "react";
 import { formatPrice } from "@/app/utils/format";
-import { BOOKING_STATUS, PAYMENT_METHOD, ACCOUNT_TYPE } from "@/constants/status";
+import {
+  BOOKING_STATUS,
+  PAYMENT_METHOD,
+  ACCOUNT_TYPE,
+} from "@/constants/status";
 
 export default function PaymentSection({
   booking,
@@ -89,16 +93,14 @@ export default function PaymentSection({
             disabled={startProcessLoad}
             style={{ marginTop: "10px" }}
           >
-            {startProcessLoad ? "กำลังสร้าง QR..." : `สร้าง QR Code ยอด ${formatPrice(amount)} บาท`}
+            {startProcessLoad
+              ? "กำลังสร้าง QR..."
+              : `สร้าง QR Code ยอด ${formatPrice(amount)} บาท`}
           </button>
         ) : (
           <>
             <div className="qr-body-code">
-              <img
-                src={qrCode}
-                alt="QR Code"
-                className="qr-image-display"
-              />
+              <img src={qrCode} alt="QR Code" className="qr-image-display" />
             </div>
             <div className="qr-footer-info">
               <span>สแกนชำระเงินผ่านแอปพลิเคชันธนาคาร</span>
@@ -110,7 +112,11 @@ export default function PaymentSection({
     );
   };
 
-  const renderUploadZone = (onChange, labelText, hintText = "รองรับไฟล์ภาพ JPG, PNG ขนาดไม่เกิน 5MB") => (
+  const renderUploadZone = (
+    onChange,
+    labelText,
+    hintText = "รองรับไฟล์ภาพ JPG, PNG ขนาดไม่เกิน 5MB",
+  ) => (
     <label className="file-upload-zone-premium">
       <input
         type="file"
@@ -119,11 +125,37 @@ export default function PaymentSection({
         className="hidden-file-input-premium"
       />
       <div className="upload-zone-content">
-        <svg className="upload-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: "36px", height: "36px", color: "#64748b", marginBottom: "4px" }}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        <svg
+          className="upload-icon-svg"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          style={{
+            width: "36px",
+            height: "36px",
+            color: "#64748b",
+            marginBottom: "4px",
+          }}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+          />
         </svg>
-        <span className="upload-label-main" style={{ fontSize: "0.95rem", fontWeight: "700", color: "#334155" }}>{labelText}</span>
-        <span className="upload-label-sub" style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{hintText}</span>
+        <span
+          className="upload-label-main"
+          style={{ fontSize: "0.95rem", fontWeight: "700", color: "#334155" }}
+        >
+          {labelText}
+        </span>
+        <span
+          className="upload-label-sub"
+          style={{ fontSize: "0.75rem", color: "#94a3b8" }}
+        >
+          {hintText}
+        </span>
       </div>
     </label>
   );
@@ -131,20 +163,25 @@ export default function PaymentSection({
   return (
     <div className="deposit-slip-container-order-detail">
       <div className="payment-title-premium">ข้อมูลการชำระเงิน</div>
-      
+
       <div className="premium-payment-section">
         {isCash ? (
-          <p className="no-slip-message">ไม่ต้องจ่ายค่ามัดจำ (ชำระเงินสดที่สนาม)</p>
+          <p className="no-slip-message">
+            ไม่ต้องจ่ายค่ามัดจำ (ชำระเงินสดที่สนาม)
+          </p>
         ) : (
-          /* Transfer Payment Mode */
           <>
-            {/* View Mode Slips */}
             {(hasDepositSlip || hasTotalSlip) && !editSlip && (
               <div className="uploaded-slips-gallery-premium">
                 {hasDepositSlip && (
                   <div className="slip-item-card">
-                    <div className="slip-card-header">สลิปมัดจำ (คลิกเพื่อขยาย)</div>
-                    <div className="slip-image-wrapper" onClick={() => setLightboxImage(booking.deposit_slip)}>
+                    <div className="slip-card-header">
+                      สลิปมัดจำ (คลิกเพื่อขยาย)
+                    </div>
+                    <div
+                      className="slip-image-wrapper"
+                      onClick={() => setLightboxImage(booking.deposit_slip)}
+                    >
                       <img
                         src={`${booking.deposit_slip}`}
                         alt="สลิปมัดจำ"
@@ -164,8 +201,13 @@ export default function PaymentSection({
                 )}
                 {hasTotalSlip && (
                   <div className="slip-item-card">
-                    <div className="slip-card-header">สลิปยอดคงเหลือ (คลิกเพื่อขยาย)</div>
-                    <div className="slip-image-wrapper" onClick={() => setLightboxImage(booking.total_slip)}>
+                    <div className="slip-card-header">
+                      สลิปยอดคงเหลือ (คลิกเพื่อขยาย)
+                    </div>
+                    <div
+                      className="slip-image-wrapper"
+                      onClick={() => setLightboxImage(booking.total_slip)}
+                    >
                       <img
                         src={`${booking.total_slip}`}
                         alt="สลิปยอดคงเหลือ"
@@ -177,50 +219,102 @@ export default function PaymentSection({
               </div>
             )}
 
-            {/* Booker Uploading Total Slip */}
-            {hasDepositSlip && !hasTotalSlip && isBooker && canUploadTotalSlip && !editSlip && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                <h4 className="payment-subtitle-premium" style={{ margin: 0, fontSize: "1.05rem", fontWeight: "600", color: "#475569" }}>อัปโหลดสลิปยอดคงเหลือ</h4>
-                {renderBankAccountInfo()}
-                {renderQRSection(booking.total_remaining)}
-                {renderUploadZone(handleTotalSlip, "เลือกสลิปยอดคงเหลือ")}
-
-                {imgPreviewTotal && (
-                  <div className="slip-item-card" style={{ maxWidth: "280px", margin: "0 auto" }}>
-                    <div className="slip-card-header">ตัวอย่างสลิปยอดคงเหลือ</div>
-                    <div className="slip-image-wrapper" onClick={() => setLightboxImage(imgPreviewTotal)}>
-                      <img
-                        src={imgPreviewTotal}
-                        alt="preview total slip"
-                        className="slip-img-display"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  className="premium-action-btn"
-                  onClick={uploadTotalSlip}
-                  disabled={startProcessLoad}
+            {hasDepositSlip &&
+              !hasTotalSlip &&
+              isBooker &&
+              canUploadTotalSlip &&
+              !editSlip && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "20px",
+                  }}
                 >
-                  {startProcessLoad ? "กำลังอัปโหลด..." : "อัปโหลดสลิปยอดคงเหลือ"}
-                </button>
-              </div>
-            )}
+                  <h4
+                    className="payment-subtitle-premium"
+                    style={{
+                      margin: 0,
+                      fontSize: "1.05rem",
+                      fontWeight: "600",
+                      color: "#475569",
+                    }}
+                  >
+                    อัปโหลดสลิปยอดคงเหลือ
+                  </h4>
+                  {renderBankAccountInfo()}
+                  {renderQRSection(booking.total_remaining)}
+                  {renderUploadZone(handleTotalSlip, "เลือกสลิปยอดคงเหลือ")}
 
-            {/* Edit Mode for Deposit Slip */}
+                  {imgPreviewTotal && (
+                    <div
+                      className="slip-item-card"
+                      style={{ maxWidth: "280px", margin: "0 auto" }}
+                    >
+                      <div className="slip-card-header">
+                        ตัวอย่างสลิปยอดคงเหลือ
+                      </div>
+                      <div
+                        className="slip-image-wrapper"
+                        onClick={() => setLightboxImage(imgPreviewTotal)}
+                      >
+                        <img
+                          src={imgPreviewTotal}
+                          alt="preview total slip"
+                          className="slip-img-display"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    className="premium-action-btn"
+                    onClick={uploadTotalSlip}
+                    disabled={startProcessLoad}
+                  >
+                    {startProcessLoad
+                      ? "กำลังอัปโหลด..."
+                      : "อัปโหลดสลิปยอดคงเหลือ"}
+                  </button>
+                </div>
+              )}
+
             {editSlip && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                <h4 className="payment-subtitle-premium" style={{ margin: 0, fontSize: "1.05rem", fontWeight: "600", color: "#475569" }}>แก้ไขสลิปมัดจำ</h4>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                }}
+              >
+                <h4
+                  className="payment-subtitle-premium"
+                  style={{
+                    margin: 0,
+                    fontSize: "1.05rem",
+                    fontWeight: "600",
+                    color: "#475569",
+                  }}
+                >
+                  แก้ไขสลิปมัดจำ
+                </h4>
                 {renderBankAccountInfo()}
                 {renderQRSection(booking.price_deposit)}
                 {renderUploadZone(handleDepositSlip, "เลือกสลิปมัดจำใหม่")}
 
                 {imgPreviewDeposit && (
-                  <div className="slip-item-card" style={{ maxWidth: "280px", margin: "0 auto" }}>
-                    <div className="slip-card-header">ตัวอย่างสลิปมัดจำใหม่</div>
-                    <div className="slip-image-wrapper" onClick={() => setLightboxImage(imgPreviewDeposit)}>
+                  <div
+                    className="slip-item-card"
+                    style={{ maxWidth: "280px", margin: "0 auto" }}
+                  >
+                    <div className="slip-card-header">
+                      ตัวอย่างสลิปมัดจำใหม่
+                    </div>
+                    <div
+                      className="slip-image-wrapper"
+                      onClick={() => setLightboxImage(imgPreviewDeposit)}
+                    >
                       <img
                         src={imgPreviewDeposit}
                         alt="preview deposit slip"
@@ -237,7 +331,9 @@ export default function PaymentSection({
                     onClick={uploadSlip}
                     disabled={!depositSlip || startProcessLoad}
                   >
-                    {startProcessLoad ? "กำลังอัปโหลด..." : "บันทึกและอัปโหลดใหม่"}
+                    {startProcessLoad
+                      ? "กำลังอัปโหลด..."
+                      : "บันทึกและอัปโหลดใหม่"}
                   </button>
                   <button
                     type="button"
@@ -255,21 +351,43 @@ export default function PaymentSection({
                 </div>
               </div>
             )}
-
-            {/* Case: No Deposit Slip (and needs deposit) */}
             {!hasDepositSlip && needsDeposit && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                }}
+              >
                 {isBooker ? (
                   <>
-                    <h4 className="payment-subtitle-premium" style={{ margin: 0, fontSize: "1.05rem", fontWeight: "600", color: "#475569" }}>ชำระเงินมัดจำสนาม</h4>
+                    <h4
+                      className="payment-subtitle-premium"
+                      style={{
+                        margin: 0,
+                        fontSize: "1.05rem",
+                        fontWeight: "600",
+                        color: "#475569",
+                      }}
+                    >
+                      ชำระเงินมัดจำสนาม
+                    </h4>
                     {renderBankAccountInfo()}
                     {renderQRSection(booking.price_deposit)}
                     {renderUploadZone(handleDepositSlip, "อัปโหลดสลิปมัดจำ")}
 
                     {imgPreviewDeposit && (
-                      <div className="slip-item-card" style={{ maxWidth: "280px", margin: "0 auto" }}>
-                        <div className="slip-card-header">ตัวอย่างสลิปมัดจำ</div>
-                        <div className="slip-image-wrapper" onClick={() => setLightboxImage(imgPreviewDeposit)}>
+                      <div
+                        className="slip-item-card"
+                        style={{ maxWidth: "280px", margin: "0 auto" }}
+                      >
+                        <div className="slip-card-header">
+                          ตัวอย่างสลิปมัดจำ
+                        </div>
+                        <div
+                          className="slip-image-wrapper"
+                          onClick={() => setLightboxImage(imgPreviewDeposit)}
+                        >
                           <img
                             src={imgPreviewDeposit}
                             alt="preview deposit"
@@ -291,25 +409,50 @@ export default function PaymentSection({
                     )}
                   </>
                 ) : (
-                  <div className="empty-state-slip">ยังไม่ได้อัปโหลดสลิปมัดจำ</div>
+                  <div className="empty-state-slip">
+                    ยังไม่ได้อัปโหลดสลิปมัดจำ
+                  </div>
                 )}
               </div>
             )}
 
-            {/* Case: No Deposit Slip, price_deposit === 0, needs total price transfer */}
             {!hasDepositSlip && !needsDeposit && booking.total_price > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                }}
+              >
                 {isBooker ? (
                   <>
-                    <h4 className="payment-subtitle-premium" style={{ margin: 0, fontSize: "1.05rem", fontWeight: "600", color: "#475569" }}>ชำระเงินค่าเช่าสนาม</h4>
+                    <h4
+                      className="payment-subtitle-premium"
+                      style={{
+                        margin: 0,
+                        fontSize: "1.05rem",
+                        fontWeight: "600",
+                        color: "#475569",
+                      }}
+                    >
+                      ชำระเงินค่าเช่าสนาม
+                    </h4>
                     {renderBankAccountInfo()}
                     {renderQRSection(booking.total_remaining)}
                     {renderUploadZone(handleTotalSlip, "อัปโหลดสลิปยอดคงเหลือ")}
 
                     {imgPreviewTotal && (
-                      <div className="slip-item-card" style={{ maxWidth: "280px", margin: "0 auto" }}>
-                        <div className="slip-card-header">ตัวอย่างสลิปโอนเงิน</div>
-                        <div className="slip-image-wrapper" onClick={() => setLightboxImage(imgPreviewTotal)}>
+                      <div
+                        className="slip-item-card"
+                        style={{ maxWidth: "280px", margin: "0 auto" }}
+                      >
+                        <div className="slip-card-header">
+                          ตัวอย่างสลิปโอนเงิน
+                        </div>
+                        <div
+                          className="slip-image-wrapper"
+                          onClick={() => setLightboxImage(imgPreviewTotal)}
+                        >
                           <img
                             src={imgPreviewTotal}
                             alt="preview total"
@@ -334,7 +477,6 @@ export default function PaymentSection({
               </div>
             )}
 
-            {/* Case: No Deposit Slip, price_deposit === 0, total_price === 0 */}
             {!hasDepositSlip && !needsDeposit && booking.total_price <= 0 && (
               <div className="empty-state-slip">ไม่มีสลิปการชำระเงิน</div>
             )}
@@ -342,20 +484,16 @@ export default function PaymentSection({
         )}
       </div>
 
-      {/* Lightbox Modal for Zooming Slips */}
       {lightboxImage && (
-        <div 
-          className="premium-lightbox-overlay" 
+        <div
+          className="premium-lightbox-overlay"
           onClick={() => setLightboxImage(null)}
         >
-          <div 
+          <div
             className="premium-lightbox-content"
             onClick={(e) => e.stopPropagation()}
           >
-            <img 
-              src={lightboxImage} 
-              alt="หลักฐานการชำระเงิน" 
-            />
+            <img src={lightboxImage} alt="หลักฐานการชำระเงิน" />
           </div>
         </div>
       )}

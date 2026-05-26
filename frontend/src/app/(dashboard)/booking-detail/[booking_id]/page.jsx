@@ -7,7 +7,11 @@ import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 
 import "@/app/css/order-detail.css";
 import { useSocket } from "@/app/contexts/SocketContext";
-import { formatPrice, formatDateToThai, getBookingStatusDisplay } from "@/app/utils/format";
+import {
+  formatPrice,
+  formatDateToThai,
+  getBookingStatusDisplay,
+} from "@/app/utils/format";
 import apiClient from "@/lib/apiClient";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { USER_STATUS, BOOKING_STATUS } from "@/constants/status";
@@ -385,7 +389,6 @@ export default function BookingDetail() {
 
   return (
     <div className="order-detail">
-      {/* Premium Header Section */}
       <div className="order-detail-header-premium">
         <div className="header-top-row">
           <div className="booking-id-badge">

@@ -26,8 +26,8 @@ const StatusChangeModal = ({
             newStatus === FIELD_STATUS.VERIFIED
               ? "status-approve"
               : newStatus === FIELD_STATUS.REJECTED
-              ? "status-reject"
-              : "status-pending"
+                ? "status-reject"
+                : "status-pending"
           }`}
         >
           {newStatus} ?
@@ -106,7 +106,10 @@ export default function CheckFieldDetail() {
       router.push("/verification");
     }
 
-    if (user?.role !== USER_ROLE.ADMIN && user?.role !== USER_ROLE.FIELD_OWNER) {
+    if (
+      user?.role !== USER_ROLE.ADMIN &&
+      user?.role !== USER_ROLE.FIELD_OWNER
+    ) {
       router.push("/");
     }
   }, [user, isLoading, router]);
@@ -115,13 +118,15 @@ export default function CheckFieldDetail() {
     const readNotifications = async () => {
       if (!fieldId) return;
       try {
-        await apiClient.put("/notification/read-notification", { key_id: Number(fieldId) });
+        await apiClient.put("/notification/read-notification", {
+          key_id: Number(fieldId),
+        });
 
         console.log("Notifications marked as read for booking:", fieldId);
         window.dispatchEvent(
           new CustomEvent("notifications-marked-read", {
             detail: { key_id: Number(fieldId) },
-          })
+          }),
         );
       } catch (error) {
         console.error("Error marking notifications as read:", error);
@@ -197,10 +202,16 @@ export default function CheckFieldDetail() {
     }
     SetstartProcessLoad(true);
     try {
-      await apiClient.put(`/field/update-status/${fieldId}`, { status: newStatus, reasoning: reasoning });
+      await apiClient.put(`/field/update-status/${fieldId}`, {
+        status: newStatus,
+        reasoning: reasoning,
+      });
 
       setFieldData({ ...fieldData, status: newStatus });
-      notify(`อัพเดทสถานะเป็น: ${newStatus}`, newStatus === FIELD_STATUS.VERIFIED ? "success" : "error");
+      notify(
+        `อัพเดทสถานะเป็น: ${newStatus}`,
+        newStatus === FIELD_STATUS.VERIFIED ? "success" : "error",
+      );
       console.log("สถานะสนามกีฬาอัพเดทสำเร็จ:", reasoning);
       closeConfirmModal();
     } catch (error) {
@@ -246,10 +257,10 @@ export default function CheckFieldDetail() {
                     fieldData?.status === FIELD_STATUS.VERIFIED
                       ? "status-text-approved"
                       : fieldData?.status === FIELD_STATUS.REJECTED
-                      ? "status-text-rejected"
-                      : fieldData?.status === FIELD_STATUS.PENDING
-                      ? "status-text-pending"
-                      : ""
+                        ? "status-text-rejected"
+                        : fieldData?.status === FIELD_STATUS.PENDING
+                          ? "status-text-pending"
+                          : ""
                   }
                 >
                   {fieldData?.status || "ไม่มีข้อมูล"}
@@ -333,8 +344,8 @@ export default function CheckFieldDetail() {
                   ? Number(fieldData.slot_duration) === 30
                     ? "30 นาที"
                     : Number(fieldData.slot_duration) === 60
-                    ? "1 ชั่วโมง"
-                    : `${Number(fieldData.slot_duration)} นาที`
+                      ? "1 ชั่วโมง"
+                      : `${Number(fieldData.slot_duration)} นาที`
                   : "ไม่มีข้อมูล"}
               </div>
             </div>
@@ -400,8 +411,6 @@ export default function CheckFieldDetail() {
             </div>
           </div>
         </div>
-
-        {/* เอกสารแยกออกมาแสดงเต็มความกว้าง */}
         <div className="documents-section-full">
           <h2>เอกสารประกอบการสมัคร</h2>
           {fieldData?.documents ? (
@@ -477,13 +486,13 @@ export default function CheckFieldDetail() {
                             fileExt === "pdf"
                               ? "pdf-type"
                               : fileExt === "jpg" ||
-                                fileExt === "jpeg" ||
-                                fileExt === "png" ||
-                                fileExt === "gif"
-                              ? "image-type"
-                              : fileExt === "doc" || fileExt === "docx"
-                              ? "doc-type"
-                              : "file-type"
+                                  fileExt === "jpeg" ||
+                                  fileExt === "png" ||
+                                  fileExt === "gif"
+                                ? "image-type"
+                                : fileExt === "doc" || fileExt === "docx"
+                                  ? "doc-type"
+                                  : "file-type"
                           }`}
                         >
                           {fileExt === "pdf" && "PDF"}
@@ -611,7 +620,7 @@ export default function CheckFieldDetail() {
                       <span className="info-value">
                         {sub?.wid_field && sub?.length_field
                           ? `${formatPrice(sub.wid_field)} × ${formatPrice(
-                              sub.length_field
+                              sub.length_field,
                             )} เมตร`
                           : "ไม่มีข้อมูล"}
                       </span>

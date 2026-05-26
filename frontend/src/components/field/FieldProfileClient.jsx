@@ -862,7 +862,6 @@ export default function CheckFieldDetail() {
                 }}
               />
             </div>
-            {/* <hr className="divider-hours-profile" /> */}
             {dataLoading && (
               <div className="loading-data">
                 <div className="loading-data-spinner"></div>
@@ -1160,9 +1159,7 @@ export default function CheckFieldDetail() {
               </button>
             </div>
 
-            <div className="field-info-section">
-              {/* <h1 className="field-name-modal">{fieldData?.field_name}</h1> */}
-            </div>
+            <div className="field-info-section"></div>
 
             <div className="field-description-content">
               <div
