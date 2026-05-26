@@ -248,7 +248,7 @@ export default function Booking() {
 
             {addOns.length > 0 && (
               <div className="addon-options-book">
-                <div className="addon-title">เลือกประเภทกีฬา</div>
+                <div className="addon-title">ประเภทราคา/แพ็กเกจ</div>
                 <div className="addon-grid-book">
                   <div
                     className={`addon-card ${selectPrice === "subFieldPrice" ? "selected" : ""}`}
