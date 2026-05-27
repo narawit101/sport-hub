@@ -242,7 +242,7 @@ router.patch(
     const client = await pool.connect();
     try {
       const { post_id } = req.params;
-      const { title, content } = req.body;
+      const { title, content, deleted_images } = req.body;
       const user_id = req.user.user_id;
 
       const result = await client.query(
@@ -261,6 +261,23 @@ router.patch(
         `UPDATE posts SET title = $1, content = $2 WHERE post_id = $3`,
         [title, content, post_id]
       );
+
+      // Handle deleted images
+      if (deleted_images) {
+        const toDelete = Array.isArray(deleted_images) 
+          ? deleted_images 
+          : JSON.parse(deleted_images);
+          
+        if (toDelete.length > 0) {
+          for (const url of toDelete) {
+            await deleteCloudinaryFile(url);
+            await client.query(
+              `DELETE FROM post_images WHERE post_id = $1 AND image_url = $2`,
+              [post_id, url]
+            );
+          }
+        }
+      }
 
       if (req.files && req.files.length > 0) {
         for (const img of req.files) {
@@ -283,7 +300,7 @@ router.patch(
         p.created_at,
         COALESCE(
           json_agg(
-            json_build_object('image_url', pi.image_url)
+            json_build_object('image_id', pi.image_id, 'image_url', pi.image_url)
           ) FILTER (WHERE pi.image_url IS NOT NULL), '[]'
         ) AS images
       FROM posts p

@@ -14,6 +14,7 @@ import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 import { formatPrice, daysInThai } from "@/app/utils/format";
 import Pagination from "@/components/ui/Pagination";
 import PostCard from "@/components/post/PostCard";
+import PostModal from "@/components/post/PostModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import LongdoMapPicker from "@/components/shared/LongdoMapPicker";
 import apiClient from "@/lib/apiClient";
@@ -35,11 +36,11 @@ export default function CheckFieldDetail() {
   const [canPost, setCanPost] = useState(false);
   const [facilities, setFacilities] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [editingPostId, setEditingPostId] = useState(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editContent, setEditContent] = useState("");
-  const [newImages, setNewImages] = useState([]);
-  const [previewImages, setPreviewImages] = useState([]);
+
+  // Edit Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingPostData, setEditingPostData] = useState(null);
+
   const [showModal, setShowModal] = useState(false);
   const [showModalFollower, setShowModalFollower] = useState(false);
   const [showModalDescription, setShowModalDescription] = useState(false);
@@ -346,70 +347,16 @@ export default function CheckFieldDetail() {
   };
 
   const handleEdit = (post) => {
-    setEditingPostId(post.post_id);
-    setEditTitle(post.title);
-    setEditContent(post.content);
-    setNewImages([]);
+    setEditingPostData(post);
+    setIsEditModalOpen(true);
   };
 
-  const MAX_FILE_SIZE = 8 * 1024 * 1024;
-  const MAX_IMG = 10;
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setPreviewImages(previews);
-
-    for (const file of files) {
-      if (!file.type.startsWith("image/")) {
-        notify(` ${file.name} ไม่ใช่ไฟล์รูปภาพ`, "error");
-        e.target.value = null;
-        return;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        notify(`${file.name} มีขนาดใหญ่เกินไป (สูงสุด 8MB)`, "error");
-        e.target.value = null;
-        return;
-      }
-    }
-
-    const currentPost = postData.find((p) => p.post_id === editingPostId);
-    const existingImageCount = currentPost?.images?.length || 0;
-    const newImageCount = files.length;
-
-    if (existingImageCount + newImageCount > MAX_IMG) {
-      notify("รวมรูปทั้งหมดต้องไม่เกิน 10 รูป (รวมรูปเดิมและรูปใหม่)", "error");
-      return;
-    }
-
-    setNewImages(files);
+  const handleEditSuccess = (updatedPost) => {
+    setPostData((prev) =>
+      prev.map((post) => (post.post_id === updatedPost.post_id ? updatedPost : post)),
+    );
   };
 
-  const handleEditSubmit = async (e, postId) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("title", editTitle);
-    formData.append("content", editContent);
-    newImages.forEach((img) => formData.append("img_url", img));
-    SetstartProcessLoad(true);
-    try {
-      const updated = await apiClient.patchForm(
-        `/posts/update/${postId}`,
-        formData,
-      );
-      setPostData((prev) =>
-        prev.map((post) => (post.post_id === postId ? updated : post)),
-      );
-      setEditingPostId(null);
-      notify("แก้ไขโพสต์สำเร็จ", "success");
-      setPreviewImages([]);
-    } catch (err) {
-      notify(err.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
-    } finally {
-      SetstartProcessLoad(false);
-    }
-  };
   const confirmDelete = (postId) => {
     setPostToDelete(postId);
     setShowModal(true);
@@ -714,108 +661,76 @@ export default function CheckFieldDetail() {
               />
             )}
             {!dataLoading && postData.length === 0 && (
-              <div className="no-posts-message">
-                ยังไม่มีโพสต์หรือประกาศข่าวสารในขณะนี้
+              <div className="empty-post-container">
+                <div className="empty-post-icon-wrapper">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                  </svg>
+                </div>
+                <h3 className="empty-post-title">ยังไม่มีโพสต์หรือประกาศ</h3>
+                <p className="empty-post-description">
+                  สนามยังไม่มีการเคลื่อนไหวหรือประกาศข่าวสารในขณะนี้
+                </p>
               </div>
             )}
             {!dataLoading && postData.length > 0 && processedPosts.length === 0 && (
-              <div className="no-posts-message">
-                ไม่พบโพสต์ประกาศตามตัวเลือกที่เลือก
+              <div className="empty-post-container">
+                <div className="empty-post-icon-wrapper">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </div>
+                <h3 className="empty-post-title">ไม่พบโพสต์ที่คุณค้นหา</h3>
+                <p className="empty-post-description">
+                  ไม่พบประกาศตามตัวเลือกที่เลือก ลองล้างตัวกรองเพื่อดูโพสต์ทั้งหมด
+                </p>
+                {filterDate && (
+                  <button
+                    type="button"
+                    className="empty-post-action-btn"
+                    onClick={() => setFilterDate("")}
+                  >
+                    ล้างตัวกรองวันที่
+                  </button>
+                )}
               </div>
             )}
-            {currentPostProfile.map((post) =>
-              editingPostId === post.post_id ? (
-                <PostCard key={post.post_id} post={post} mode="profile">
-                  <form
-                    onSubmit={(e) => handleEditSubmit(e, post.post_id)}
-                    className="edit-form-post"
-                  >
-                    <div className="form-group-profile">
-                      <label>หัวข้อ</label>
-                      <input
-                        value={editTitle}
-                        onChange={(e) => setEditTitle(e.target.value)}
-                        required
-                        maxLength={50}
-                      />
-                    </div>
-                    <div className="form-group-profile">
-                      <label>เนื้อหา</label>
-                      <textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        required
-                        maxLength={255}
-                      />
-                    </div>
-                    <div className="form-group-profile">
-                      <label className="file-label-profile">
-                        <input
-                          multiple
-                          type="file"
-                          onChange={handleImageChange}
-                          accept="image/*"
-                          className="file-input-hidden-profile"
-                        />
-                        เลือกรูปภาพ
-                      </label>
-                    </div>
-                    <div className="preview-gallery-profile">
-                      {previewImages.map((src, index) => (
-                        <img
-                          key={index}
-                          src={src}
-                          alt={`Preview ${index}`}
-                          className="preview-image-profile"
-                        />
-                      ))}
-                    </div>
-                    <button
-                      className="savebtn-edit-post-profile"
-                      type="submit"
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                    >
-                      {startProcessLoad ? (
-                        <span className="dot-loading">
-                          <span className="dot one">●</span>
-                          <span className="dot two">●</span>
-                          <span className="dot three">●</span>
-                        </span>
-                      ) : (
-                        "บันทึก"
-                      )}
-                    </button>
-                    <button
-                      style={{
-                        cursor: startProcessLoad ? "not-allowed" : "pointer",
-                      }}
-                      disabled={startProcessLoad}
-                      className="canbtn-post"
-                      type="button"
-                      onClick={() => {
-                        setEditingPostId(null);
-                        setPreviewImages([]);
-                      }}
-                    >
-                      ยกเลิก
-                    </button>
-                  </form>
-                </PostCard>
-              ) : (
-                <PostCard
-                  key={post.post_id}
-                  post={post}
-                  mode="profile"
-                  canPost={canPost}
-                  onEditPost={handleEdit}
-                  onDeletePost={confirmDelete}
-                  setSelectedImage={setSelectedImage}
-                />
-              ),
-            )}
+            {currentPostProfile.map((post) => (
+              <PostCard
+                key={post.post_id}
+                post={post}
+                mode="profile"
+                canPost={canPost}
+                onEditPost={handleEdit}
+                onDeletePost={confirmDelete}
+                setSelectedImage={setSelectedImage}
+              />
+            ))}
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -1231,6 +1146,16 @@ export default function CheckFieldDetail() {
           </div>
         </div>
       )}
+
+      {/* Edit Post Modal */}
+      <PostModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        mode="edit"
+        fieldId={fieldId}
+        postData={editingPostData}
+        onSuccess={handleEditSuccess}
+      />
     </>
   );
 }

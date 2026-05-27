@@ -2025,3 +2025,74 @@
 .open-google-maps-btn svg {
   flex-shrink: 0;
 }
+
+/* Empty State Card Pattern for Posts */
+.empty-post-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 40px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px -10px rgba(3, 4, 94, 0.08), 0 1px 3px rgba(3, 4, 94, 0.02);
+  max-width: 600px;
+  margin: 30px auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.empty-post-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px -10px rgba(3, 4, 94, 0.1), 0 2px 5px rgba(3, 4, 94, 0.02);
+}
+
+.empty-post-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(3, 4, 94, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: #03045e;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.empty-post-container:hover .empty-post-icon-wrapper {
+  transform: scale(1.08) rotate(5deg);
+  background: rgba(3, 4, 94, 0.08);
+}
+
+.empty-post-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #03045e;
+  margin: 0 0 10px 0;
+}
+
+.empty-post-description {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.empty-post-action-btn {
+  background: #03045e;
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.empty-post-action-btn:hover {
+  background: #020438;
+  transform: translateY(-1px);
+}
