@@ -189,19 +189,21 @@
 
 .book-sider {
   width: 26%;
-  background-color: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px -10px rgba(3, 4, 94, 0.12);
-  border: 1px solid #f1f5f9;
   position: sticky;
   top: 110px;
   align-self: flex-start;
   height: auto;
   overflow: visible;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
-.book-sum-box {
+.sidebar-card-premium {
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px -10px rgba(3, 4, 94, 0.12);
+  border: 1px solid #f1f5f9;
   padding: 24px;
 }
 

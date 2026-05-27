@@ -182,79 +182,122 @@ export default function Booking() {
         ) : (
           <div className="book-content">
             <div className="calendar-btn-select-date">
-              <div className="date-picker-container">
-                <button
-                  className="calendar-toggle-btn"
-                  onClick={() => setShowCalendar(!showCalendar)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    className="calendar-btn-icon"
+              <div
+                className="date-picker-container"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "15px",
+                }}
+              >
+                <div style={{ position: "relative" }}>
+                  <button
+                    className="calendar-toggle-btn"
+                    onClick={() => setShowCalendar(!showCalendar)}
                   >
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                  <span>
-                    {bookingDate
-                      ? formatDateToThai(bookingDate)
-                      : "เลือกวันที่"}
-                  </span>
-                </button>
-                {showCalendar && (
-                  <div
-                    className="calendar-popup-overlay"
-                    onClick={() => setShowCalendar(false)}
-                  >
-                    <div
-                      className="calendar-popup"
-                      onClick={(e) => e.stopPropagation()}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      className="calendar-btn-icon"
                     >
-                      <button
-                        className="btn-close-calendar-premium"
-                        onClick={() => setShowCalendar(false)}
-                        aria-label="ปิดปฏิทิน"
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span>
+                      {bookingDate
+                        ? formatDateToThai(bookingDate)
+                        : "เลือกวันที่"}
+                    </span>
+                  </button>
+                  {showCalendar && (
+                    <div
+                      className="calendar-popup-overlay"
+                      onClick={() => setShowCalendar(false)}
+                    >
+                      <div
+                        className="calendar-popup"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                        <button
+                          className="btn-close-calendar-premium"
+                          onClick={() => setShowCalendar(false)}
+                          aria-label="ปิดปฏิทิน"
                         >
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      </button>
-                      <Calendar
-                        locale="th-TH"
-                        onChange={(date) => {
-                          if (isTileDisabled({ date, view: "month" })) return;
-                          setBookingDate(date);
-                          setShowCalendar(false);
-                          resetSelection();
-                        }}
-                        value={bookingDate}
-                        showNeighboringMonth={false}
-                        minDate={startOfToday}
-                        maxDate={maxDate}
-                        tileClassName={tileClassName}
-                        tileDisabled={isTileDisabled}
-                      />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                        <Calendar
+                          locale="th-TH"
+                          onChange={(date) => {
+                            if (isTileDisabled({ date, view: "month" })) return;
+                            setBookingDate(date);
+                            setShowCalendar(false);
+                            resetSelection();
+                          }}
+                          value={bookingDate}
+                          showNeighboringMonth={false}
+                          minDate={startOfToday}
+                          maxDate={maxDate}
+                          tileClassName={tileClassName}
+                          tileDisabled={isTileDisabled}
+                        />
+                      </div>
                     </div>
+                  )}
+                </div>
+
+                {/* <div
+                  className="server-time-reference-premium"
+                  style={{ margin: "0" }}
+                >
+                  <div className="time-icon-wrapper">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
                   </div>
-                )}
+                  <div className="server-time-content">
+                    <span className="server-time-label">
+                      เวลามาตรฐาน (GMT+7)
+                    </span>
+                    <span className="server-time-value">
+                      {serverTime
+                        ? `${serverTime.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.`
+                        : "--:--"}
+                    </span>
+                  </div>
+                </div> */}
               </div>
             </div>
 
@@ -302,66 +345,13 @@ export default function Booking() {
 
         <div className="book-sider">
           <div className="book-sum-box">
-            <div className="server-time-reference-premium">
-              <div className="time-icon-wrapper">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-              </div>
-              <div className="server-time-content">
-                <span className="server-time-label">
-                  เวลามาตรฐานประเทศไทย (GMT+7)
-                </span>
-                <span className="server-time-value">
-                  {serverTime
-                    ? `${serverTime.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.`
-                    : "--:--"}
-                </span>
-              </div>
-            </div>
-
-            <h1 className="field-title-book">{fieldName}</h1>
-            <h2 className="sub-field-title">
-              สนาม: {subFieldData.sub_field_name}
-            </h2>
-
-            <div className="booking-info-list-premium">
-              <div className="info-item-premium">
-                <span className="info-label">วันที่:</span>
-                <span className="info-value">
-                  {bookingDate
-                    ? formatDateToThai(bookingDate)
-                    : "ยังไม่ได้เลือกวันที่"}
-                </span>
-              </div>
-              <div className="info-item-premium">
-                <span className="info-label">เปิดบริการ:</span>
-                <span className="info-value">
-                  {openHours} - {closeHours} น.
-                </span>
-              </div>
-            </div>
-
-            <div className="divider-premium" />
-
-            {addOns.length > 0 && (
-              <div className="package-selector-premium">
-                <div className="package-title-premium">
+            <div className="sidebar-card-premium">
+              <div className="server-time-reference-premium">
+                <div className="time-icon-wrapper">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -369,54 +359,75 @@ export default function Booking() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-                    <line x1="7" y1="7" x2="7.01" y2="7" />
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
                   </svg>
-                  <span>เลือกประเภทแพ็กเกจ</span>
                 </div>
-                <div className="package-grid-premium">
-                  <div
-                    className={`package-card-premium ${selectPrice === "subFieldPrice" ? "selected" : ""}`}
-                    onClick={() => handlePriceOnChange("subFieldPrice")}
-                  >
-                    <div className="package-info-premium">
-                      <span className="package-name-premium">
-                        ราคาปกติ ({subFieldData.sport_name})
-                      </span>
-                      <span className="package-price-premium">
-                        {formatPrice(price)} บาท/ชม.
-                      </span>
-                    </div>
-                    <div className="package-check-icon">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
+                <div className="server-time-content">
+                  <span className="server-time-label">
+                    เวลามาตรฐานประเทศไทย (GMT+7)
+                  </span>
+                  <span className="server-time-value">
+                    {serverTime
+                      ? `${serverTime.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.`
+                      : "--:--"}
+                  </span>
+                </div>
+              </div>
+              <h1 className="field-title-book">{fieldName}</h1>
+              <h2 className="sub-field-title">
+                สนาม: {subFieldData.sub_field_name}
+              </h2>
+
+              <div className="booking-info-list-premium">
+                <div className="info-item-premium">
+                  <span className="info-label">วันที่:</span>
+                  <span className="info-value">
+                    {bookingDate
+                      ? formatDateToThai(bookingDate)
+                      : "ยังไม่ได้เลือกวันที่"}
+                  </span>
+                </div>
+                <div className="info-item-premium">
+                  <span className="info-label">เปิดบริการ:</span>
+                  <span className="info-value">
+                    {openHours} - {closeHours} น.
+                  </span>
+                </div>
+              </div>
+
+              <div className="divider-premium" />
+
+              {addOns.length > 0 && (
+                <div className="package-selector-premium">
+                  <div className="package-title-premium">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                      <line x1="7" y1="7" x2="7.01" y2="7" />
+                    </svg>
+                    <span>เลือกประเภทแพ็กเกจ</span>
                   </div>
-                  {addOns.map((addon) => (
+                  <div className="package-grid-premium">
                     <div
-                      key={addon.add_on_id}
-                      className={`package-card-premium ${selectPrice === addon.add_on_id.toString() ? "selected" : ""}`}
-                      onClick={() =>
-                        handlePriceOnChange(addon.add_on_id.toString())
-                      }
+                      className={`package-card-premium ${selectPrice === "subFieldPrice" ? "selected" : ""}`}
+                      onClick={() => handlePriceOnChange("subFieldPrice")}
                     >
                       <div className="package-info-premium">
                         <span className="package-name-premium">
-                          {addon.content}
+                          ราคาปกติ ({subFieldData.sport_name})
                         </span>
                         <span className="package-price-premium">
-                          {formatPrice(addon.price)} บาท/ชม.
+                          {formatPrice(price)} บาท/ชม.
                         </span>
                       </div>
                       <div className="package-check-icon">
@@ -435,57 +446,118 @@ export default function Booking() {
                         </svg>
                       </div>
                     </div>
-                  ))}
+                    {addOns.map((addon) => (
+                      <div
+                        key={addon.add_on_id}
+                        className={`package-card-premium ${selectPrice === addon.add_on_id.toString() ? "selected" : ""}`}
+                        onClick={() =>
+                          handlePriceOnChange(addon.add_on_id.toString())
+                        }
+                      >
+                        <div className="package-info-premium">
+                          <span className="package-name-premium">
+                            {addon.content}
+                          </span>
+                          <span className="package-price-premium">
+                            {formatPrice(addon.price)} บาท/ชม.
+                          </span>
+                        </div>
+                        <div className="package-check-icon">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    className="divider-premium"
+                    style={{ marginTop: "20px" }}
+                  />
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="time-selection-summary-premium">
-              <div className="time-row-premium">
-                <div className="time-col-premium">
-                  <span className="time-label">เวลาเริ่ม</span>
-                  <span className="time-value">{timeStart || "--:--"}</span>
+              <div className="time-summary-section">
+                <div className="package-title-premium">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect
+                      x="3"
+                      y="4"
+                      width="18"
+                      height="18"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span>เวลาที่เลือก</span>
                 </div>
-                <div className="time-col-premium">
-                  <span className="time-label">เวลาสิ้นสุด</span>
-                  <span className="time-value">{timeEnd || "--:--"}</span>
+                <div className="time-selection-summary-premium">
+                  <div className="time-row-premium">
+                    <div className="time-col-premium">
+                      <span className="time-label">เวลาเริ่ม</span>
+                      <span className="time-value">{timeStart || "--:--"}</span>
+                    </div>
+                    <div className="time-col-premium">
+                      <span className="time-label">เวลาสิ้นสุด</span>
+                      <span className="time-value">{timeEnd || "--:--"}</span>
+                    </div>
+                  </div>
+                  <div className="total-duration-premium">
+                    <span>รวมเวลาทั้งหมด:</span>
+                    <strong>
+                      {totalHours ? formatTotalHours(totalHours) : "-"}
+                    </strong>
+                  </div>
                 </div>
               </div>
-              <div className="total-duration-premium">
-                <span>รวมเวลาทั้งหมด:</span>
-                <strong>
-                  {totalHours ? formatTotalHours(totalHours) : "-"}
-                </strong>
-              </div>
+
+              {canBook && bookingDate && (
+                <div className="price-summary-box-premium">
+                  <div className="price-row-premium total">
+                    <span>ราคารวมทั้งสิ้น:</span>
+                    <strong>{formatPrice(totalPrice)} บาท</strong>
+                  </div>
+
+                  <div className="action-buttons-premium">
+                    <button
+                      onClick={() => setShowSummary(true)}
+                      className="btn-submit-premium"
+                    >
+                      สรุปการจอง
+                    </button>
+                    <button
+                      className="btn-reset-premium"
+                      onClick={resetSelection}
+                    >
+                      รีเซ็ตการเลือก
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-
-            {canBook && bookingDate && (
-              <div className="price-summary-box-premium">
-                <div className="price-row-premium total">
-                  <span>ราคารวมทั้งสิ้น:</span>
-                  <strong>{formatPrice(totalPrice)} บาท</strong>
-                </div>
-                {/* <div className="price-row-premium deposit">
-                  <span>ค่ามัดจำ:</span>
-                  <strong>{formatPrice(priceDeposit)} บาท</strong>
-                </div> */}
-
-                <div className="action-buttons-premium">
-                  <button
-                    onClick={() => setShowSummary(true)}
-                    className="btn-submit-premium"
-                  >
-                    สรุปการจอง
-                  </button>
-                  <button
-                    className="btn-reset-premium"
-                    onClick={resetSelection}
-                  >
-                    รีเซ็ตการเลือก
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -533,7 +605,17 @@ export default function Booking() {
               </div>
 
               <div className="section-title-compact">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                   <line x1="16" y1="2" x2="16" y2="6"></line>
                   <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -565,7 +647,17 @@ export default function Booking() {
               {facilities.length > 0 && (
                 <div className="facilities-compact-section">
                   <h4 className="section-title-compact">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
                     <span>สิ่งอำนวยความสะดวกเพิ่มเติม</span>
