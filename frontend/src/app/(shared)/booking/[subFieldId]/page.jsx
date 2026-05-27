@@ -323,58 +323,102 @@ export default function Booking() {
 
         <div className="book-sider">
           <div className="book-sum-box">
+            <div className="server-time-reference-premium">
+              <div className="time-icon-wrapper">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              <div className="server-time-content">
+                <span className="server-time-label">เวลาอ้างอิงสนาม (ICT)</span>
+                <span className="server-time-value">
+                  {serverTime
+                    ? `${serverTime.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.`
+                    : "--:--"}
+                </span>
+              </div>
+            </div>
+
             <h1 className="field-title-book">{fieldName}</h1>
             <h2 className="sub-field-title">
               สนาม: {subFieldData.sub_field_name}
             </h2>
-            <div className="time-info">
-              <p>
-                วันที่:{" "}
-                {bookingDate
-                  ? formatDateToThai(bookingDate)
-                  : "ยังไม่ได้เลือกวันที่"}
-              </p>
-            </div>
-            <div className="time-info">
-              <p>
-                เปิด: {openHours} - {closeHours} น
-              </p>
-            </div>
-            <div className="time-info server-time-info">
-              <p>
-                เวลาอ้างอิงสนาม (ICT):{" "}
-                <span>
-                  {serverTime
-                    ? `${serverTime.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.`
-                    : "กำลังโหลด..."}
+
+            <div className="booking-info-list-premium">
+              <div className="info-item-premium">
+                <span className="info-label">วันที่:</span>
+                <span className="info-value">
+                  {bookingDate
+                    ? formatDateToThai(bookingDate)
+                    : "ยังไม่ได้เลือกวันที่"}
                 </span>
-              </p>
+              </div>
+              <div className="info-item-premium">
+                <span className="info-label">เปิดบริการ:</span>
+                <span className="info-value">
+                  {openHours} - {closeHours} น.
+                </span>
+              </div>
             </div>
-            <div className="time-info-book">
-              <strong>เวลาเริ่ม: {timeStart || "-"}</strong>
-              <strong>เวลาสิ้นสุด: {timeEnd || "-"}</strong>
-              <strong>
-                รวมเวลา: {totalHours ? formatTotalHours(totalHours) : "-"}
-              </strong>
-            </div>
-            {canBook && bookingDate && (
-              <>
-                <div className={`total-box ${canBook ? "show" : ""}`}>
-                  <strong>ราคารวม: {formatPrice(totalPrice)} บาท</strong>
-                  <span className="price-deposit">
-                    มัดจำ: {formatPrice(priceDeposit)} บาท
-                  </span>
+
+            <div className="divider-premium" />
+
+            <div className="time-selection-summary-premium">
+              <div className="time-row-premium">
+                <div className="time-col-premium">
+                  <span className="time-label">เวลาเริ่ม</span>
+                  <span className="time-value">{timeStart || "--:--"}</span>
                 </div>
-                <button
-                  onClick={() => setShowSummary(true)}
-                  className="btn-submit-book"
-                >
-                  จอง
-                </button>
-                <button className="btn-reset" onClick={resetSelection}>
-                  รีเซ็ต
-                </button>
-              </>
+                <div className="time-col-premium">
+                  <span className="time-label">เวลาสิ้นสุด</span>
+                  <span className="time-value">{timeEnd || "--:--"}</span>
+                </div>
+              </div>
+              <div className="total-duration-premium">
+                <span>รวมเวลาทั้งหมด:</span>
+                <strong>
+                  {totalHours ? formatTotalHours(totalHours) : "-"}
+                </strong>
+              </div>
+            </div>
+
+            {canBook && bookingDate && (
+              <div className="price-summary-box-premium">
+                <div className="price-row-premium total">
+                  <span>ราคารวมทั้งสิ้น:</span>
+                  <strong>{formatPrice(totalPrice)} บาท</strong>
+                </div>
+                <div className="price-row-premium deposit">
+                  <span>ค่ามัดจำ:</span>
+                  <strong>{formatPrice(priceDeposit)} บาท</strong>
+                </div>
+
+                <div className="action-buttons-premium">
+                  <button
+                    onClick={() => setShowSummary(true)}
+                    className="btn-submit-premium"
+                  >
+                    จองสนามเลย
+                  </button>
+                  <button
+                    className="btn-reset-premium"
+                    onClick={resetSelection}
+                  >
+                    รีเซ็ตการเลือก
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -582,40 +626,40 @@ export default function Booking() {
                     <strong>มัดจำที่ต้องชำระ:</strong>
                     <span>{formatPrice(priceDeposit)} บาท</span>
                   </div>
-                  <div className="deposit-helper-note">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      className="helper-icon"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="16" x2="12" y2="12" />
-                      <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </svg>
-                    <span>
-                      คุณสามารถชำระเงินและแนบหลักฐานการโอนได้ภายหลังที่หน้า
-                      <a
-                        target="_blank"
-                        href="/my-booking"
-                        className="font-medium hover:underline"
-                      >
-                        {" "}
-                        รายการจองของฉัน{" "}
-                      </a>
-                    </span>
-                  </div>
+
                   <div className="price-row remaining-row">
                     <strong>คงเหลือ (จ่ายที่สนาม):</strong>
                     <span>{formatPrice(totalRemaining)} บาท</span>
                   </div>
                 </div>
               </div>
-
+              <div className="deposit-helper-note">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  className="helper-icon"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <span>
+                  คุณสามารถชำระเงินและแนบหลักฐานการโอนได้ภายหลังที่หน้า
+                  <a
+                    target="_blank"
+                    href="/my-booking"
+                    className="font-medium hover:underline"
+                  >
+                    {" "}
+                    รายการจองของฉัน{" "}
+                  </a>
+                </span>
+              </div>
               <div className="payment-method-section">
                 <h5>เลือกช่องทางการชำระเงิน</h5>
                 <div className="payment-options">
