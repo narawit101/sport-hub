@@ -2216,12 +2216,17 @@
   align-items: center;
   text-align: center;
   margin: 10px auto;
-  background: var(--success-color);
+  background: var(--text-color);
   color: white;
+  transition: all 0.2s ease;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 12px 24px;
 }
 
 .editbtn-editfield:hover {
-  background: var(--hover-success-color);
+  background: #020340;
+  transform: translateY(-1px);
 }
 
 .editbtn-editfield-center {
@@ -2333,7 +2338,6 @@
   font-size: 1.15rem;
   line-height: 1.6;
   color: #334155;
-  margin-bottom: 2rem;
 }
 
 .modal-actions-editfield {

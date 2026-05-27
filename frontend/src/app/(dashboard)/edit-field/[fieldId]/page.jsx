@@ -108,6 +108,8 @@ export default function EditFieldDetail() {
     facility_image: null,
   });
 
+  const [showAppealModal, setShowAppealModal] = useState(false);
+
   const handleEditFacility = (facility) => {
     setEditingFacility(facility.field_fac_id);
     setEditFacilityData({
@@ -1160,15 +1162,43 @@ export default function EditFieldDetail() {
           selectedFiles={selectedFile}
         />
 
-      {field?.status == FIELD_STATUS.REJECTED && (
+      {field?.status == FIELD_STATUS.REJECTED && user?.user_id === field?.user_id && (
         <div className="editbtn-editfield-request">
           <button
-            onClick={upDateStatus}
+            onClick={() => setShowAppealModal(true)}
             disabled={startProcessLoad}
             className="editbtn-editfield"
           >
             {startProcessLoad ? "กำลังส่ง..." : "ส่งคำขอลงทะเบียนสนามอีกครั้ง"}
           </button>
+        </div>
+      )}
+
+      {showAppealModal && (
+        <div className="modal-overlay-editfield">
+          <div className="modal-editfield">
+            <h2>ส่งคำขอลงทะเบียนสนามอีกครั้ง</h2>
+            <p>คุณได้แก้ไขข้อมูลสนามตามที่แนะนำแล้วใช่หรือไม่?</p>
+            <div className="modal-actions-editfield">
+              <button
+                disabled={startProcessLoad}
+                className="savebtn-editfield"
+                onClick={async () => {
+                  await upDateStatus();
+                  setShowAppealModal(false);
+                }}
+              >
+                {startProcessLoad ? "กำลังส่ง..." : "ยืนยัน"}
+              </button>
+              <button
+                disabled={startProcessLoad}
+                className="canbtn-editfield"
+                onClick={() => setShowAppealModal(false)}
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

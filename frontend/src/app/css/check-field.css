@@ -776,3 +776,163 @@ h2 .edit-btn-inline {
     grid-template-columns: 1fr;
   }
 }
+
+/* Confirmation Modal Styles */
+.confirm-modal-check-field {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(75, 75, 75, 0.496);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: fadeInOverlay 0.2s ease-out forwards;
+}
+
+.modal-content-check-field {
+  background: #ffffff;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  position: relative;
+  box-sizing: border-box;
+  animation: slideInContent 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.newstatus {
+  margin-bottom: 1.5rem;
+  color: #475569;
+  font-size: 1.15rem;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.newstatus-text {
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.newstatus-text.status-approve {
+  color: #065f46;
+  background: #ecfdf5;
+  padding: 6px 18px;
+  border-radius: 30px;
+  border: 1px solid #a7f3d0;
+}
+
+.newstatus-text.status-reject {
+  color: #b91c1c;
+  background: #fef2f2;
+  padding: 6px 18px;
+  border-radius: 30px;
+  border: 1px solid #fca5a5;
+}
+
+.resoning-check-field {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.resoning-check-field textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 16px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  resize: vertical;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+
+.resoning-check-field textarea:focus {
+  outline: none;
+  border-color: #03045e;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(3, 4, 94, 0.12);
+}
+
+.modal-actions-check-field {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-actions-check-field button {
+  flex: 1;
+  max-width: 180px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+}
+
+.modal-actions-check-field .confirmbtn {
+  background: #03045e;
+  color: white;
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.15);
+}
+
+.modal-actions-check-field .confirmbtn:hover:not(:disabled) {
+  background: #020340;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px rgba(3, 4, 94, 0.25);
+}
+
+.modal-actions-check-field .cancelbtn {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.modal-actions-check-field .cancelbtn:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.modal-actions-check-field button:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInContent {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
