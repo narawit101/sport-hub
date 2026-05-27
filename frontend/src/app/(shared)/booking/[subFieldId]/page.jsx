@@ -571,13 +571,16 @@ export default function Booking() {
                           className={`facility-row-compact ${isSelected ? "active" : ""}`}
                         >
                           <div
-                            className={`fac-visual-compact ${fac.fac_image ? "clickable" : ""}`}
-                            onClick={() => fac.fac_image && setFacLightboxImage(fac.fac_image)}
-                            title={fac.fac_image ? "คลิกเพื่อดูรูปขยาย" : ""}
+                            className={`fac-visual-compact ${fac.image_path ? "clickable" : ""}`}
+                            onClick={() =>
+                              fac.image_path &&
+                              setFacLightboxImage(fac.image_path)
+                            }
+                            title={fac.image_path ? "คลิกเพื่อดูรูปขยาย" : ""}
                           >
-                            {fac.fac_image ? (
+                            {fac.image_path ? (
                               <img
-                                src={fac.fac_image}
+                                src={fac.image_path}
                                 alt={fac.fac_name}
                                 className="fac-thumb-premium"
                               />
@@ -601,7 +604,9 @@ export default function Booking() {
                                     y2="12"
                                   ></line>
                                 </svg>
-                                <span style={{ fontSize: "10px", marginTop: "2px" }}>
+                                <span
+                                  style={{ fontSize: "10px", marginTop: "2px" }}
+                                >
                                   ไม่มีรูป
                                 </span>
                               </div>
@@ -653,7 +658,7 @@ export default function Booking() {
                                   className="fac-quantity-input-compact"
                                   value={
                                     selectedFacilities[fac.field_fac_id]
-                                      .quantity
+                                      ?.quantity || 1
                                   }
                                   onChange={(e) => {
                                     const val = parseInt(e.target.value) || 1;
@@ -669,13 +674,13 @@ export default function Booking() {
                                   onClick={() =>
                                     handleFacilityQuantityChange(
                                       fac.field_fac_id,
-                                      selectedFacilities[fac.field_fac_id]
-                                        .quantity + 1,
+                                      (selectedFacilities[fac.field_fac_id]
+                                        ?.quantity || 1) + 1,
                                     )
                                   }
                                   disabled={
-                                    selectedFacilities[fac.field_fac_id]
-                                      .quantity >= available
+                                    (selectedFacilities[fac.field_fac_id]
+                                      ?.quantity || 1) >= available
                                   }
                                 >
                                   +

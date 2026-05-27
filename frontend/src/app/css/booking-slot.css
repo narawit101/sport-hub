@@ -2308,12 +2308,14 @@
 .fac-quantity-input-compact::-webkit-outer-spin-button,
 .fac-quantity-input-compact::-webkit-inner-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
 /* Hide arrows for Firefox */
 .fac-quantity-input-compact[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .fac-remove-btn {
