@@ -188,9 +188,6 @@ export default function Booking() {
           <div className="book-content">
             <div className="calendar-btn-select-date">
               <div className="date-picker-container">
-                <div className="date-select-label">
-                  <h2>เลือกวันที่: </h2>
-                </div>
                 <button
                   className="calendar-toggle-btn"
                   onClick={() => setShowCalendar(!showCalendar)}
@@ -409,7 +406,7 @@ export default function Booking() {
                     onClick={() => setShowSummary(true)}
                     className="btn-submit-premium"
                   >
-                    จองสนามเลย
+                    สรุปการจอง
                   </button>
                   <button
                     className="btn-reset-premium"
@@ -427,7 +424,7 @@ export default function Booking() {
       {showSummary && (
         <div className="booking-summary-section">
           <div className="booking-summary-container" ref={summaryRef}>
-            <h2 className="summary-header">สรุปการจอง</h2>
+            {/* <h2 className="summary-header">สรุปการจอง</h2> */}
             <div className="summary-details">
               <h3 className="field-title-summary">{fieldName}</h3>
               <p className="sub-field-title-summary">

@@ -164,39 +164,40 @@
 }
 
 .container-bookings {
-  gap: 20px;
+  gap: 24px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 3px 30px 10px 30px;
+  align-items: flex-start; /* Prevent stretching */
+  padding: 0 30px 40px 30px;
   width: 100%;
-  margin: 10px auto 0 auto;
+  max-width: 1320px;
+  margin: 0 auto;
   position: relative;
 }
 
 .book-content {
   background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border: 2px solid #e5e7eb;
-  margin: 5px 0 10px 0;
-  width: 75%;
-  padding: 15px 20px 20px 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f1f5f9;
+  width: 72%;
+  padding: 30px;
   min-height: 500px;
 }
 
 .book-sider {
-  width: 25%;
+  width: 26%;
   background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px -10px rgba(3, 4, 94, 0.12);
+  border: 1px solid #f1f5f9;
   position: sticky;
-  margin-top: 30px;
-  margin-bottom: 20px;
-  top: 30px;
+  top: 110px;
   align-self: flex-start;
-  height: fit-content;
+  height: auto;
   overflow: visible;
+  transition: all 0.3s ease;
 }
 
 .book-sum-box {
