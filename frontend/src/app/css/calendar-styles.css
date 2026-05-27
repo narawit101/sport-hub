@@ -79,7 +79,6 @@
 .btn-close-calendar-premium:hover {
   background: #fee2e2;
   color: #ef4444;
-  transform: rotate(90deg) scale(1.1);
 }
 
 .btn-close-calendar-premium svg {

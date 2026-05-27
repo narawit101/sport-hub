@@ -352,7 +352,7 @@ export default function Booking() {
                 </svg>
               </div>
               <div className="server-time-content">
-                <span className="server-time-label">เวลาอ้างอิงสนาม (ICT)</span>
+                <span className="server-time-label">เวลามาตรฐานประเทศไทย (GMT+7)</span>
                 <span className="server-time-value">
                   {serverTime
                     ? `${serverTime.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.`
