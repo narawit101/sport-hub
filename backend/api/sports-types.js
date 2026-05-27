@@ -154,6 +154,7 @@ router.get("/preview", async (req, res) => {
         field.close_hours,
         field.open_days,
         COALESCE(ROUND(AVG(reviews.rating), 1), 0) AS avg_rating,
+        COUNT(reviews.reviews_id) AS review_count,
         ARRAY_AGG(DISTINCT sports_types.sport_name) AS sport_names
       FROM field
       INNER JOIN sub_field ON field.field_id = sub_field.field_id

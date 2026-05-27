@@ -17,6 +17,8 @@ We transitioned from generic blocky colors and outline borders to harmonized, lo
 | `--success-color` | `#28a745`                                                                | Valid states, submit success actions               |
 | `--hover-success` | `#177c2e`                                                                | Submit success hover state                         |
 | `--danger-color`  | `#dc3545`                                                                | Cancel buttons, clear filters, warning text        |
+| `--overlay-bg`    | `rgba(75, 75, 75, 0.496)`                                                | Modal overlay backdrop, gray opacity               |
+| `--lightbox-bg`   | `rgba(148, 163, 184, 0.7)`                                               | Lightbox overlay backdrop, semi-transparent gray   |
 | `--border-radius` | `16px`                                                                   | Main container cards                               |
 | `--input-radius`  | `8px`                                                                    | Form fields, select pickers, action buttons        |
 | `--pill-radius`   | `30px`                                                                   | Role pills, status badges, verification indicators |
@@ -382,5 +384,45 @@ For lists or grids that can be empty (such as booking records, search results, o
 .empty-booking-container:hover .empty-booking-icon-wrapper {
   transform: scale(1.08) rotate(5deg);
   background: rgba(3, 4, 94, 0.08);
+}
+```
+
+---
+
+## 9. Modal Overlay & Transition Pattern
+
+Modals and lightboxes should appear with smooth, lightweight CSS keyframe transition animations to feel premium and interactive.
+
+### Guidelines
+1. **Background Overlay**: Use `--overlay-bg` (`rgba(75, 75, 75, 0.496)`) with a blur filter (`backdrop-filter: blur(4px)`) to keep focus on the modal content.
+2. **Mount Transitions**: Trigger a simple fade-in overlay and scale slide-in animation on modal content mounting.
+3. **No Heavy Accents**: Do not use hard blue bar indicators (such as vertical lines) next to section titles; keep headers clean and typography-focused.
+
+### CSS Animation Pattern
+```css
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInContent {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-overlay {
+  background-color: var(--overlay-bg);
+  backdrop-filter: blur(4px);
+  animation: fadeInOverlay 0.2s ease-out forwards;
+}
+
+.modal-content {
+  animation: slideInContent 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 ```

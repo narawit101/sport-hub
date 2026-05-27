@@ -26,6 +26,7 @@ router.get("/", async (req, res) => {
         f.open_days,
         MAX(a.content) AS content,
         COALESCE(ROUND(AVG(r.rating), 1), 0) AS avg_rating,
+        COUNT(r.reviews_id) AS review_count,
         ARRAY_AGG(DISTINCT st.sport_name) AS sport_names
       FROM field f
       INNER JOIN sub_field sf ON f.field_id = sf.field_id
@@ -71,6 +72,7 @@ router.get("/", async (req, res) => {
         f.open_days,
         MAX(a.content) AS content,
         COALESCE(ROUND(AVG(r.rating), 1), 0) AS avg_rating,
+        COUNT(r.reviews_id) AS review_count,
         ARRAY_AGG(DISTINCT st.sport_name) AS sport_names
       FROM field f
       INNER JOIN sub_field sf ON f.field_id = sf.field_id

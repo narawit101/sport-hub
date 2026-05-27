@@ -25,8 +25,8 @@ export default function BookingInfo({
         <div className="line-item-hours-detail">
           <span>เวลาที่จอง:</span>
           <span>
-            {booking.start_time.substring(0, 5)} -{" "}
-            {booking.end_time.substring(0, 5)} น.
+            {booking?.start_time ? booking.start_time.substring(0, 5) : "--:--"} -{" "}
+            {booking?.end_time ? booking.end_time.substring(0, 5) : "--:--"} น.
           </span>
         </div>
         <div className="line-item-hours-detail">

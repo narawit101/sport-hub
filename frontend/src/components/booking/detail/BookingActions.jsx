@@ -33,25 +33,23 @@ export default function BookingActions({
           {status === BOOKING_STATUS.PENDING && (
             <>
               <button
-                className="approve-btn-order-detail"
+                className={`${isTransfer && needsDeposit && booking.deposit_slip ? "btn-secondary-premium" : "btn-primary-premium"} approve-btn-order-detail`}
                 onClick={() => openConfirmModal(BOOKING_STATUS.APPROVED)}
                 disabled={isApproveDisabled}
-                style={{ cursor: isApproveDisabled ? "not-allowed" : "pointer", background: isApproveDisabled ? "#94a3b8" : "" }}
               >
                 อนุมัติการจอง
               </button>
               {isTransfer && needsDeposit && booking.deposit_slip && (
                 <button
-                  className="complete-deposit-btn-order-detail"
+                  className="btn-primary-premium"
                   onClick={() => openConfirmModal(BOOKING_STATUS.VERIFIED)}
                   disabled={startProcessLoad}
-                  style={{ background: "#0369a1" }}
                 >
                   อนุมัติและยืนยันสลิป
                 </button>
               )}
               <button
-                className="reject-btn-order-detail"
+                className="btn-danger-premium reject-btn-order-detail"
                 onClick={() => openConfirmModal(BOOKING_STATUS.REJECTED)}
                 disabled={startProcessLoad}
               >
@@ -62,7 +60,7 @@ export default function BookingActions({
 
           {status === BOOKING_STATUS.APPROVED && Number(booking.price_deposit) > 0 && (
             <button
-              className="complete-deposit-btn-order-detail"
+              className="btn-primary-premium complete-deposit-btn-order-detail"
               onClick={() => openConfirmModal(BOOKING_STATUS.VERIFIED)}
               disabled={startProcessLoad}
             >
@@ -72,10 +70,9 @@ export default function BookingActions({
 
           {(status === BOOKING_STATUS.VERIFIED || (status === BOOKING_STATUS.APPROVED && Number(booking.price_deposit) === 0)) && (
             <button
-              className="complete-btn-order-detail"
+              className="btn-primary-premium complete-btn-order-detail"
               onClick={() => openConfirmModal(BOOKING_STATUS.COMPLETE)}
               disabled={isCompleteDisabled}
-              style={{ cursor: isCompleteDisabled ? "not-allowed" : "pointer" }}
             >
               การจองสำเร็จ
             </button>
@@ -83,7 +80,7 @@ export default function BookingActions({
 
           {(status === BOOKING_STATUS.APPROVED || status === BOOKING_STATUS.PENDING || status === BOOKING_STATUS.VERIFIED) && (
             <button
-              className="cancel-booking-btn-order-detail"
+              className="btn-danger-premium cancel-booking-btn-order-detail"
               onClick={() => setShowCancelModal(true)}
               disabled={startProcessLoad}
             >
@@ -97,7 +94,7 @@ export default function BookingActions({
         <div className="customer-actions">
           {status === BOOKING_STATUS.COMPLETE && reviewData.length === 0 && (
             <button
-              className="btn-review-detail"
+              className="btn-primary-premium btn-review-detail"
               onClick={handleOpenReviewModal}
               disabled={startProcessLoad}
             >
@@ -106,7 +103,7 @@ export default function BookingActions({
           )}
           {(status === BOOKING_STATUS.PENDING || status === BOOKING_STATUS.APPROVED || status === BOOKING_STATUS.VERIFIED) && (
             <button
-              className="cancel-booking-btn-order-detail"
+              className="btn-danger-premium cancel-booking-btn-order-detail"
               onClick={() => setShowCancelModal(true)}
               disabled={startProcessLoad}
             >

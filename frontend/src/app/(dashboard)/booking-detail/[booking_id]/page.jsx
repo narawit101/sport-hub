@@ -278,7 +278,7 @@ export default function BookingDetail() {
   const uploadSlip = async () => {
     if (!depositSlip) {
       notify("กรุณาแนบสลิป", "error");
-      return;
+      return false;
     }
     const formData = new FormData();
     formData.append("deposit_slip", depositSlip);
@@ -293,8 +293,10 @@ export default function BookingDetail() {
       setDepositSlip(null);
       setImgPreviewDeposit("");
       setEditSlip(false);
+      return true;
     } catch (err) {
       notify(err.message || "เกิดข้อผิดพลาดในการอัปโหลด", "error");
+      return false;
     } finally {
       SetstartProcessLoad(false);
     }
@@ -303,7 +305,7 @@ export default function BookingDetail() {
   const uploadTotalSlip = async () => {
     if (!totalSlip) {
       notify("กรุณาแนบสลิป", "error");
-      return;
+      return false;
     }
     const formData = new FormData();
     formData.append("total_slip", totalSlip);
@@ -317,8 +319,10 @@ export default function BookingDetail() {
       fetchData();
       setTotalSlip(null);
       setImgPreviewTotal("");
+      return true;
     } catch (err) {
       notify(err.message || "เกิดข้อผิดพลาดในการอัปโหลด", "error");
+      return false;
     } finally {
       SetstartProcessLoad(false);
     }
@@ -385,12 +389,30 @@ export default function BookingDetail() {
       />
     );
 
+  if (!booking) return null;
+
   const statusDisplay = getBookingStatusDisplay(booking);
 
   return (
     <div className="order-detail">
       <div className="order-detail-header-premium">
-        <div className="header-top-row">
+        <div className="header-main-content">
+          <div className="field-info-main">
+            <h1 className="field-name-premium">{booking.field_name}</h1>
+            <div className="sub-field-name-premium">
+              สนามย่อย: {booking.sub_field_name}
+            </div>
+          </div>
+
+          <div className="booker-info-row">
+            <span className="booker-label">ผู้จอง:</span>
+            <span className="booker-name">
+              {booking.first_name} {booking.last_name}
+            </span>
+          </div>
+        </div>
+
+        <div className="header-status-side">
           <div className="booking-id-badge">
             รหัสการจอง: #{booking.booking_id}
           </div>
@@ -398,24 +420,10 @@ export default function BookingDetail() {
             {statusDisplay.text}
           </div>
         </div>
-
-        <div className="field-info-main">
-          <h1 className="field-name-premium">{booking.field_name}</h1>
-          <div className="sub-field-name-premium">
-            สนามย่อย: {booking.sub_field_name}
-          </div>
-        </div>
-
-        <div className="booker-info-row">
-          <span className="booker-label">ผู้จอง:</span>
-          <span className="booker-name">
-            {booking.first_name} {booking.last_name}
-          </span>
-        </div>
       </div>
 
-      <ul>
-        <li className="booking-card-order-detail">
+      <div className="booking-detail-grid">
+        <div className="booking-info-column">
           <BookingInfo
             booking={booking}
             formatDate={formatDate}
@@ -423,6 +431,28 @@ export default function BookingDetail() {
             getCancelDeadlineTime={getCancelDeadlineTime}
           />
 
+          {reviewData.length > 0 && (
+            <div className="review-result-detail">
+              <strong className="score-detail">
+                คะแนนการจอง:
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <span
+                    key={s}
+                    className={`star-detail ${s <= reviewData[0].rating ? "active" : ""}`}
+                  >
+                    ★
+                  </span>
+                ))}
+              </strong>
+              <strong className="comment-detail">
+                ความคิดเห็น:
+                <p> {reviewData[0].comment}</p>
+              </strong>
+            </div>
+          )}
+        </div>
+
+        <div className="booking-payment-column">
           <PaymentSection
             booking={booking}
             user={user}
@@ -447,38 +477,18 @@ export default function BookingDetail() {
             canUploadslip={canUploadslip}
             setQrCode={setQrCode}
           />
+        </div>
+      </div>
 
-          {reviewData.length > 0 && (
-            <div className="review-result-detail">
-              <strong className="score-detail">
-                คะแนนการจอง:
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <span
-                    key={s}
-                    className={`star-detail ${s <= reviewData[0].rating ? "active" : ""}`}
-                  >
-                    ★
-                  </span>
-                ))}
-              </strong>
-              <strong className="comment-detail">
-                ความคิดเห็น:
-                <p> {reviewData[0].comment}</p>
-              </strong>
-            </div>
-          )}
-
-          <BookingActions
-            booking={booking}
-            user={user}
-            openConfirmModal={openConfirmModal}
-            setShowCancelModal={setShowCancelModal}
-            handleOpenReviewModal={handleOpenReviewModal}
-            reviewData={reviewData}
-            startProcessLoad={startProcessLoad}
-          />
-        </li>
-      </ul>
+      <BookingActions
+        booking={booking}
+        user={user}
+        openConfirmModal={openConfirmModal}
+        setShowCancelModal={setShowCancelModal}
+        handleOpenReviewModal={handleOpenReviewModal}
+        reviewData={reviewData}
+        startProcessLoad={startProcessLoad}
+      />
 
       {showConfirmModal && (
         <StatusChangeModal

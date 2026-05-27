@@ -88,7 +88,7 @@
 .btn-save-location-map-edit {
   min-width: 180px;
   padding: 12px 30px;
-  background-color: var(--success-color);
+  background-color: var(--text-color, #03045e);
   color: white;
   border: none;
   border-radius: var(--border-radius, 12px);
@@ -97,13 +97,13 @@
   font-weight: bold;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: none;
-  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.15);
 }
 
 .btn-save-location-map-edit:hover:not(:disabled) {
-  background-color: var(--hover-success-color);
+  background-color: #020340;
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 15px rgba(23, 124, 46, 0.3);
+  box-shadow: 0 6px 16px rgba(3, 4, 94, 0.25);
 }
 
 .btn-save-location-map-edit:active:not(:disabled) {
@@ -120,22 +120,20 @@
 .btn-cancel-map-edit {
   min-width: 140px;
   padding: 12px 30px;
-  background: var(--danger-color);
-  color: white;
-  border: none;
+  background: rgba(108, 117, 125, 0.1);
+  color: #495057;
+  border: 1px solid rgba(108, 117, 125, 0.15);
   border-radius: var(--border-radius, 12px);
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: none;
-  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
 }
 
 .btn-cancel-map-edit:hover {
-  background: var(--hover-danger-color);
+  background: rgba(108, 117, 125, 0.18);
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 15px rgba(163, 43, 55, 0.3);
 }
 
 .btn-cancel-map-edit:active {

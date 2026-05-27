@@ -125,7 +125,7 @@
 }
 
 .map-current-btn {
-  background: linear-gradient(135deg, #03045e, #0077b6);
+  background: var(--text-color, #03045e);
   color: #fff;
   border: none;
   padding: 0.65rem 1.25rem;
@@ -141,10 +141,11 @@
   position: relative;
   overflow: hidden;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 10px rgba(3, 4, 94, 0.15);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.15);
 }
 
 .map-current-btn:hover:not([disabled]) {
+  background-color: #020340;
   transform: translateY(-1.5px);
   box-shadow: 0 6px 15px rgba(3, 4, 94, 0.25);
 }

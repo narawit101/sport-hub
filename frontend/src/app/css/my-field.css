@@ -272,9 +272,9 @@
   transform: translateY(-1px);
 }
 
-/* รายการจองของสนาม - Primary brand gradient with white icon */
+/* รายการจองของสนาม - Primary brand color */
 .custom-button-view-order-myfield {
-  background: linear-gradient(135deg, #03045e, #055199);
+  background-color: var(--text-color);
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(3, 4, 94, 0.12);
 }
@@ -284,32 +284,26 @@
 }
 
 .custom-button-view-order-myfield:hover {
-  background: linear-gradient(135deg, #055199, #03045e);
+  background-color: #020340;
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(3, 4, 94, 0.2);
 }
 
-/* สถิติการจองสนาม - Secondary green tint button, turns white on hover */
+/* สถิติการจองสนาม - Soft brand tint button (matching view) */
 .custom-button-view-stat-myfield {
-  background-color: rgba(19, 136, 101, 0.06);
-  color: #138865;
-  border: 1px solid rgba(19, 136, 101, 0.18);
+  background-color: rgba(3, 4, 94, 0.05);
+  color: var(--text-color);
+  border: 1px solid rgba(3, 4, 94, 0.1);
 }
 
 .custom-button-view-stat-myfield img {
-  filter: brightness(0) invert(26%) sepia(94%) saturate(634%) hue-rotate(119deg) brightness(93%) contrast(92%);
+  filter: brightness(0) invert(8%) sepia(99%) saturate(4649%) hue-rotate(239deg) brightness(85%) contrast(106%);
 }
 
 .custom-button-view-stat-myfield:hover {
-  background-color: #138865;
-  color: #ffffff;
-  border-color: #138865;
+  background-color: rgba(3, 4, 94, 0.1);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(19, 136, 101, 0.15);
-}
-
-.custom-button-view-stat-myfield:hover img {
-  filter: brightness(0) invert(1);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.08);
 }
 
 .custom-no-fields-message-myfield {

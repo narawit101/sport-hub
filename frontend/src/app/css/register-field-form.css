@@ -738,7 +738,7 @@
 }
 
 .other-facility-confirm-btn {
-  background: var(--rf-success);
+  background: var(--rf-navy);
   color: white;
   border: none;
   padding: 9px 20px;
@@ -750,7 +750,7 @@
 }
 
 .other-facility-confirm-btn:hover {
-  background: var(--rf-success-hover);
+  background: #020340;
 }
 
 /* ══════════════════ FILE UPLOAD ══════════════════ */
@@ -927,13 +927,13 @@
 
 .addbtn-regisfield {
   margin-right: 10px;
-  background: var(--rf-success);
+  background: var(--rf-navy);
   padding: 9px 16px;
   font-size: 0.85rem;
 }
 
 .addbtn-regisfield:hover {
-  background: var(--rf-success-hover);
+  background: #020340;
   transform: translateY(-1px);
 }
 
@@ -959,7 +959,7 @@
 }
 
 .addsubfield-regisfield {
-  background: linear-gradient(135deg, var(--rf-navy) 0%, var(--rf-blue) 100%);
+  background: var(--rf-navy);
   width: 100%;
   padding: 12px;
   font-size: 0.95rem;
@@ -969,44 +969,48 @@
 }
 
 .addsubfield-regisfield:hover {
-  opacity: 0.9;
+  background: #020340;
   transform: translateY(-1px);
 }
 
 .addfac-regisfield {
-  background: var(--rf-success);
+  background: rgba(3, 4, 94, 0.05);
+  color: var(--rf-navy) !important;
+  border: 1px solid rgba(3, 4, 94, 0.1) !important;
   padding: 9px 16px;
   font-size: 0.85rem;
   margin: 8px 0;
 }
 
 .addfac-regisfield:hover {
-  background: var(--rf-success-hover);
+  background: rgba(3, 4, 94, 0.1);
 }
 
 .savebtn-regisfield {
-  background: var(--rf-success);
+  background: var(--rf-navy);
   margin: 10px 0 20px 0;
 }
 
 .savebtn-regisfield:hover {
-  background: var(--rf-success-hover);
+  background: #020340;
 }
 
 .canbtn-regisfield {
-  background: var(--rf-muted);
+  background: rgba(108, 117, 125, 0.1);
+  color: #495057 !important;
+  border: 1px solid rgba(108, 117, 125, 0.15) !important;
   margin: 10px 0 20px 8px;
 }
 
 .canbtn-regisfield:hover {
-  background: #475569;
+  background: rgba(108, 117, 125, 0.18);
 }
 
 /* Preview / Submit button */
 .submitbtn-regisfield {
   width: 100%;
   padding: 16px 32px;
-  background: linear-gradient(135deg, var(--rf-navy) 0%, var(--rf-blue) 100%);
+  background: var(--rf-navy);
   color: white;
   border: none;
   border-radius: 12px;
@@ -1014,15 +1018,16 @@
   font-weight: 700;
   cursor: pointer;
   transition: var(--rf-transition);
-  box-shadow: 0 4px 16px rgba(3, 4, 94, 0.25);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.15);
   margin: 0px 0 0 0;
   justify-content: center;
   letter-spacing: 0.3px;
 }
 
 .submitbtn-regisfield:hover:not(:disabled) {
+  background: #020340;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(3, 4, 94, 0.35);
+  box-shadow: 0 8px 24px rgba(3, 4, 94, 0.25);
 }
 
 .submitbtn-regisfield:disabled {
@@ -1262,8 +1267,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: var(--rf-transition);
-  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.3);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.2);
   font-family: inherit;
+}
+
+.confirm-submit-btn:hover:not(:disabled) {
+  background: #020340;
+  transform: translateY(-1px);
 }
 
 .confirm-submit-btn:disabled {

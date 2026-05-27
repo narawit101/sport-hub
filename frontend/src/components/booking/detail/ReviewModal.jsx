@@ -49,14 +49,20 @@ export default function ReviewModal({
         </div>
         <div className="review-buttons-detail">
           <button
-            className="review-submit-btn"
+            className="btn-primary-premium review-submit-btn"
             onClick={handleSubmitReview}
             disabled={startProcessLoad}
           >
-            {startProcessLoad ? "กำลังบันทึก..." : "ส่งรีวิว"}
+            {startProcessLoad ? (
+              <span className="dot-loading">
+                กำลังบันทึก<span className="dot one">.</span><span className="dot two">.</span><span className="dot three">.</span>
+              </span>
+            ) : (
+              "ส่งรีวิว"
+            )}
           </button>
           <button
-            className="review-cancel-btn"
+            className="btn-secondary-premium review-cancel-btn"
             onClick={handleCloseReviewModal}
           >
             ยกเลิก

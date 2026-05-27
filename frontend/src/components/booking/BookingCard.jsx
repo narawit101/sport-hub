@@ -128,12 +128,12 @@ export default function BookingCard({
             )}
 
           <div className="line-item-order remaining">
-            <span>ยอดจ่ายหน้างาน:</span>
+            <span>ยอดคงเหลือ:</span>
             <span>{formatPrice(booking.total_remaining)} บาท</span>
           </div>
 
           <div className="line-item-order deposit">
-            <span>ชำระมัดจำแล้ว:</span>
+            <span>ค่ามัดจำ:</span>
             <span>{formatPrice(booking.price_deposit)} บาท</span>
           </div>
 

@@ -4,19 +4,19 @@ import { BOOKING_STATUS } from "@/constants/status";
 const getStatusLabel = (status) => {
   switch (status) {
     case BOOKING_STATUS.APPROVED:
-      return { text: "อนุมัติ", className: "status-approved" };
+      return { text: "อนุมัติ", className: "approved" };
     case BOOKING_STATUS.REJECTED:
-      return { text: "ไม่อนุมัติ", className: "status-rejected" };
+      return { text: "ไม่อนุมัติ", className: "rejected" };
     case BOOKING_STATUS.PENDING:
-      return { text: "รอตรวจสอบ", className: "status-pending" };
+      return { text: "รอตรวจสอบ", className: "pending" };
     case BOOKING_STATUS.COMPLETE:
-      return { text: "การจองสำเร็จ", className: "status-complete" };
+      return { text: "การจองสำเร็จ", className: "complete" };
     case BOOKING_STATUS.VERIFIED:
-      return { text: "ตรวจสอบสลิปมัดจำแล้ว", className: "status-complete" };
+      return { text: "ตรวจสอบสลิปมัดจำแล้ว", className: "complete" };
     case BOOKING_STATUS.CANCELLED:
-      return { text: "ยกเลิกแล้ว", className: "status-rejected" };
+      return { text: "ยกเลิกแล้ว", className: "rejected" };
     default:
-      return { text: "ไม่ทราบสถานะ", className: "status-unknown" };
+      return { text: "ไม่ทราบสถานะ", className: "unknown" };
   }
 };
 
@@ -53,18 +53,13 @@ export default function StatusChangeModal({
         </div>
         <div className="modal-actions-order-detail">
           <button
-            style={
-              reasoning.length === 0 && newStatus === BOOKING_STATUS.REJECTED
-                ? { cursor: "not-allowed" }
-                : { cursor: "pointer" }
-            }
             disabled={reasoning.length === 0 && newStatus === BOOKING_STATUS.REJECTED}
-            className="modal-confirm-btn-order-detail"
+            className="btn-primary-premium modal-confirm-btn-order-detail"
             onClick={onConfirm}
           >
             ยืนยัน
           </button>
-          <button className="modal-cancel-btn-order-detail" onClick={onClose}>
+          <button className="btn-secondary-premium modal-cancel-btn-order-detail" onClick={onClose}>
             ยกเลิก
           </button>
         </div>

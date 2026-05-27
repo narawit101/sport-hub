@@ -4,17 +4,13 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faStar as solidStar,
-  faStarHalfAlt,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
 import { convertToThaiDays } from "@/app/utils/format";
 import { FIELD_STATUS } from "@/constants/status";
 
 export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
   const router = useRouter();
-  const isSearch = mode === "search";
   const isMyField = mode === "myfield";
 
   if (isMyField) {
@@ -136,11 +132,12 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
     );
   }
 
+  // Standard Card for Home and Search
+  const isSearch = mode === "search";
   const cardClassName = isSearch ? "card-search" : "card-home";
   const imgClassName = isSearch ? "card-img-search" : "card-img-home";
   const bodyClassName = isSearch ? "card-body-search" : "card-body-home";
   const reviewContainerClassName = isSearch ? "reviwe-container-search" : "reviwe-container-home";
-  const reviewStarClassName = isSearch ? "reviwe-star-search" : "reviwe-star-home";
 
   return (
     <div className={cardClassName} onClick={onClick}>
@@ -156,43 +153,23 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
       <div className={bodyClassName}>
         <h3>{field.field_name}</h3>
         <div className={reviewContainerClassName}>
-          <strong className={reviewStarClassName}>
+          <div className="card-rating-info" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             {field.avg_rating && field.avg_rating > 0 ? (
               <>
-                <span className="rating-score" style={{ marginRight: "4px" }}>{field.avg_rating}</span>
-                <div className="card-rating-stars-row" style={{ display: "flex", gap: "2px", alignItems: "center" }}>
-                  {[1, 2, 3, 4, 5].map((num) => {
-                    const rating = field.avg_rating || 0;
-                    const roundedRating =
-                      Math.floor(rating) + (rating % 1 >= 0.8 ? 1 : 0);
-
-                    const isFull = num <= roundedRating;
-                    const isHalf =
-                      !isFull && num - 0.5 <= rating && rating % 1 < 0.8;
-
-                    return (
-                      <FontAwesomeIcon
-                        key={num}
-                        icon={
-                          isFull
-                            ? solidStar
-                            : isHalf
-                            ? faStarHalfAlt
-                            : regularStar
-                        }
-                        style={{
-                          color: "#facc15",
-                          fontSize: "14px",
-                        }}
-                      />
-                    );
-                  })}
-                </div>
+                <span className="star-icon" style={{ color: "#facc15", fontSize: "16px" }}>★</span>
+                <span className="rating-score" style={{ fontWeight: 700, color: "#1e293b", fontSize: "14px" }}>
+                  {field.avg_rating}
+                </span>
+                <span className="review-count" style={{ color: "#64748b", fontSize: "13px", fontWeight: 500 }}>
+                  ({field.review_count || 0} รีวิว)
+                </span>
               </>
             ) : (
-              <span className="no-rating-text" style={{ color: "#6b7280", fontWeight: 500, fontSize: "13px" }}>ยังไม่มีรีวิว</span>
+              <span className="no-rating-text" style={{ color: "#94a3b8", fontWeight: 500, fontSize: "12.5px", background: "#f8fafc", padding: "2px 8px", borderRadius: "6px" }}>
+                ยังไม่มีรีวิว
+              </span>
             )}
-          </strong>
+          </div>
         </div>
 
         <div className="card-info-details-list">

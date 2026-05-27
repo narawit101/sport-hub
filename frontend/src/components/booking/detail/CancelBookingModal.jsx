@@ -25,16 +25,13 @@ export default function CancelBookingModal({
         </div>
         <div className="modal-actions-order-detail">
           <button
-            className="modal-confirm-btn-order-detail"
-            style={{
-              cursor: reasoningCancel.length === 0 ? "not-allowed" : "pointer",
-            }}
+            className="btn-danger-premium modal-confirm-btn-order-detail"
             disabled={reasoningCancel.length === 0}
             onClick={onConfirm}
           >
             ยืนยัน
           </button>
-          <button className="modal-cancel-btn-order-detail" onClick={onClose}>
+          <button className="btn-secondary-premium modal-cancel-btn-order-detail" onClick={onClose}>
             ยกเลิก
           </button>
         </div>
