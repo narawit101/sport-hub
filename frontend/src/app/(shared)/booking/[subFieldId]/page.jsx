@@ -214,13 +214,27 @@ export default function Booking() {
                   </span>
                 </button>
                 {showCalendar && (
-                  <div className="calendar-popup-overlay">
-                    <div className="calendar-popup">
+                  <div className="calendar-popup-overlay" onClick={() => setShowCalendar(false)}>
+                    <div className="calendar-popup" onClick={(e) => e.stopPropagation()}>
                       <button
-                        className="btn-cancel-select-date"
+                        className="btn-close-calendar-premium"
                         onClick={() => setShowCalendar(false)}
+                        aria-label="ปิดปฏิทิน"
                       >
-                        ปิด
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
                       </button>
                       <Calendar
                         locale="th-TH"
