@@ -2310,17 +2310,18 @@
 }
 
 .modal-overlay-editfield {
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(75, 75, 75, 0.496);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeInOverlay 0.2s ease-out forwards;
 }
 
 .modal-editfield {
@@ -2332,6 +2333,23 @@
   text-align: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color);
+  animation: slideInContent 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInContent {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-editfield p {
