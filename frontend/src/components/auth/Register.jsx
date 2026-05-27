@@ -34,110 +34,95 @@ export default function Register() {
     role: USER_ROLE.CUSTOMER,
   });
 
-  const [errors, setErrors] = useState({
-    user_name: "",
-    first_name: "",
-    last_name: "",
-    email: "",
-    passwordMatch: "",
-    passwordLength: "",
-    password: "",
-  });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (value.trim() !== "") {
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-    }
-
-    if (name === "password" || name === "confirmPassword") {
-      const updatedPassword = name === "password" ? value : formData.password;
-      const updatedConfirmPassword =
-        name === "confirmPassword" ? value : formData.confirmPassword;
-
-      if (updatedPassword.length < 10) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          passwordLength: "*รหัสผ่านต้องมีอย่างน้อย 10 ตัวอักษร",
-        }));
-      } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          passwordLength: "",
-        }));
-      }
-
-      if (updatedPassword !== updatedConfirmPassword) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          passwordMatch: "*รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน",
-        }));
-      } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          passwordMatch: "",
-        }));
-      }
-    }
+  const validateField = (name, value, currentFormData) => {
     const allowDomain = ["@gmail.com", "@hotmail.com", "@rmuti.ac.th"];
-    if (name === "email" && value.length > 0) {
-      if (!allowDomain.some((domain) => value.endsWith(domain))) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          email:
-            "*โดเมนที่ใช้ได้ ได้แก่ @gmail.com, @hotmail.com, @rmuti.ac.th",
-        }));
-      } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          email: "",
-        }));
-      }
-    }
-
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-    if (name === "password" && value.length > 0) {
-      if (!passwordRegex.test(formData.password)) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          password:
-            "*รหัสผ่านต้องประกอบด้วยตัวอักษรพิมพ์ใหญ่[A-Z], พิมพ์เล็ก[a-z], ตัวเลข[0-9] และอักขระพิเศษ[!@#$%^&*] ความยาว 10 ตัวอักษร",
-        }));
-      } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          password: "",
-        }));
-      }
+    const userNameRegex = /^[a-zA-Z0-9_]+$/;
+
+    switch (name) {
+      case "user_name":
+        if (!value.trim()) return "*กรุณากรอกชื่อผู้ใช้";
+        if (!userNameRegex.test(value)) {
+          return "*ชื่อผู้ใช้สามารถมีได้เฉพาะภาษาอังกฤษ, ตัวเลข และขีดล่าง(_)";
+        }
+        return "";
+      case "first_name":
+        if (!value.trim()) return "*กรุณากรอกชื่อจริง";
+        return "";
+      case "last_name":
+        if (!value.trim()) return "*กรุณากรอกนามสกุล";
+        return "";
+      case "email":
+        if (!value.trim()) return "*กรุณากรอกอีเมล";
+        if (!allowDomain.some((domain) => value.endsWith(domain))) {
+          return "*โดเมนที่ใช้ได้ ได้แก่ @gmail.com, @hotmail.com, @rmuti.ac.th";
+        }
+        return "";
+      case "password":
+        if (!value) return "*กรุณากรอกรหัสผ่าน";
+        if (value.length < 10) return "*รหัสผ่านต้องมีอย่างน้อย 10 ตัวอักษร";
+        if (!passwordRegex.test(value)) {
+          return "*รหัสผ่านต้องประกอบด้วยตัวอักษรพิมพ์ใหญ่[A-Z], พิมพ์เล็ก[a-z], ตัวเลข[0-9] และอักขระพิเศษ[!@#$%^&*]";
+        }
+        return "";
+      case "confirmPassword":
+        if (!value) return "*กรุณายืนยันรหัสผ่าน";
+        const pwd = currentFormData
+          ? currentFormData.password
+          : formData.password;
+        if (value !== pwd) return "*รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน";
+        return "";
+      default:
+        return "";
     }
-    if (name === "user_name" && value.length > 0) {
-      const userNameRegex = /^[a-zA-Z0-9_]+$/;
-      if (!userNameRegex.test(value)) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          user_name:
-            "*ชื่อผู้ใช้สามารถมีได้เฉพาะภาษาอังกฤษ, ตัวเลข และขีดล่าง(_)",
-        }));
-      }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const updatedFormData = { ...formData, [name]: value };
+    setFormData(updatedFormData);
+
+    // Reward early: If field has been touched or has an error, validate on the fly to remove error
+    if (errors[name] || touched[name]) {
+      const errorMsg = validateField(name, value, updatedFormData);
+      setErrors((prev) => ({ ...prev, [name]: errorMsg }));
     }
+
+    // Recalculate confirm password error if password changes
+    if (
+      name === "password" &&
+      (errors.confirmPassword || touched.confirmPassword)
+    ) {
+      const confirmErrorMsg = validateField(
+        "confirmPassword",
+        formData.confirmPassword,
+        updatedFormData,
+      );
+      setErrors((prev) => ({ ...prev, confirmPassword: confirmErrorMsg }));
+    }
+
+    // Debounced Duplicates checking
     if (name === "user_name" || name === "email") {
       clearTimeout(window.checkDuplicateTimeout);
+
+      const formatError = validateField(name, value, updatedFormData);
+      if (formatError) return; // Do not hit db if format validation is already failing
+
       window.checkDuplicateTimeout = setTimeout(async () => {
         try {
           const data = await apiClient.get(
-            `/register/check-duplicate?field=${name}&value=${value}`
+            `/register/check-duplicate?field=${name}&value=${value}`,
           );
           if (data.isDuplicate) {
             setErrors((prevErrors) => ({
               ...prevErrors,
-              [name]: `${
-                name === "user_name" ? "*ชื่อผู้ใช้" : "*อีเมล"
-              } นี้ถูกใช้แล้ว`,
+              [name]: `${name === "user_name" ? "*ชื่อผู้ใช้" : "*อีเมล"}นี้ถูกใช้แล้ว`,
             }));
           } else {
             setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
@@ -149,56 +134,76 @@ export default function Register() {
     }
   };
 
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+
+    const errorMsg = validateField(name, value, formData);
+    setErrors((prev) => ({ ...prev, [name]: errorMsg }));
+
+    // Run duplicate check instantly on blur if format is correct
+    if ((name === "user_name" || name === "email") && !errorMsg) {
+      clearTimeout(window.checkDuplicateTimeout);
+      (async () => {
+        try {
+          const data = await apiClient.get(
+            `/register/check-duplicate?field=${name}&value=${value}`,
+          );
+          if (data.isDuplicate) {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              [name]: `${name === "user_name" ? "*ชื่อผู้ใช้" : "*อีเมล"}นี้ถูกใช้แล้ว`,
+            }));
+          }
+        } catch (error) {
+          console.error("Error checking duplicates:", error);
+        }
+      })();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let newErrors = {};
 
+    // Mark all fields as touched
+    setTouched({
+      user_name: true,
+      first_name: true,
+      last_name: true,
+      email: true,
+      password: true,
+      confirmPassword: true,
+    });
+
+    let newErrors = {};
     Object.keys(formData).forEach((field) => {
-      if (formData[field].trim() === "") {
-        newErrors[field] = "*กรุณากรอกข้อมูลในช่องนี้";
+      if (field !== "role") {
+        const errorMsg = validateField(field, formData[field], formData);
+        if (errorMsg) {
+          newErrors[field] = errorMsg;
+        }
       }
     });
-    if (formData.user_name && !/^[a-zA-Z0-9_]+$/.test(formData.user_name)) {
-      newErrors.user_name =
-        "*ชื่อผู้ใช้สามารถมีได้เฉพาะภาษาอังกฤษ, ตัวเลข และขีดล่าง(_)";
-    }
 
-    if (formData.password.length < 10) {
-      newErrors.passwordLength = "*รหัสผ่านต้องมีอย่างน้อย 10 ตัวอักษร";
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.passwordMatch = "*รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน";
-    }
-
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-
-    if (!passwordRegex.test(formData.password)) {
-      newErrors.password =
-        "*รหัสผ่านต้องประกอบด้วยตัวอักษรพิมพ์ใหญ่[A-Z], พิมพ์เล็ก[a-z], ตัวเลข[0-9] และอักขระพิเศษ[!@#$%^&*] ความยาว 10 ตัวอักษร";
-    }
-
-    const allowDomain = ["@gmail.com", "@hotmail.com", "@rmuti.ac.th"];
-    if (!allowDomain.some((domain) => formData.email.endsWith(domain))) {
-      newErrors.email =
-        "*โดเมนที่ใช้ได้ ได้แก่ @gmail.com, @hotmail.com, @rmuti.ac.th";
-    }
-
+    // Check duplicates synchronously on submit
     if (!newErrors.user_name && !newErrors.email) {
       SetstartProcessLoad(true);
       try {
         const [userNameData, emailData] = await Promise.all([
-          apiClient.get(`/register/check-duplicate?field=user_name&value=${formData.user_name}`),
-          apiClient.get(`/register/check-duplicate?field=email&value=${formData.email}`),
+          apiClient.get(
+            `/register/check-duplicate?field=user_name&value=${formData.user_name}`,
+          ),
+          apiClient.get(
+            `/register/check-duplicate?field=email&value=${formData.email}`,
+          ),
         ]);
 
         if (userNameData.isDuplicate) {
-          newErrors.user_name = "*ชื่อผู้ใช้ซ้ำ";
+          newErrors.user_name = "*ชื่อผู้ใช้ นี้ถูกใช้แล้ว";
         }
 
         if (emailData.isDuplicate) {
-          newErrors.email = "*อีเมลซ้ำ";
+          newErrors.email = "*อีเมล นี้ถูกใช้แล้ว";
         }
       } catch (error) {
         console.error("Error checking duplicates:", error);
@@ -213,6 +218,7 @@ export default function Register() {
     if (Object.keys(newErrors).length > 0) {
       return;
     }
+
     SetstartProcessLoad(true);
     try {
       await apiClient.post("/register", formData);
@@ -231,14 +237,8 @@ export default function Register() {
         confirmPassword: "",
         role: USER_ROLE.CUSTOMER,
       });
-      setErrors({
-        user_name: "",
-        first_name: "",
-        last_name: "",
-        email: "",
-        passwordMatch: "",
-        passwordLength: "",
-      });
+      setErrors({});
+      setTouched({});
     } catch (error) {
       notify(error.message || "เกิดข้อผิดพลาดระหว่างการลงทะเบียน", "error");
     } finally {
@@ -246,140 +246,239 @@ export default function Register() {
     }
   };
 
+  const renderError = (errorMsg) => {
+    if (!errorMsg) return null;
+    return (
+      <p className="error-message">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ marginRight: "5px", flexShrink: 0 }}
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <span>{errorMsg}</span>
+      </p>
+    );
+  };
+
   return (
     <div className="register-container">
-      <h2 className="register-head">ลงทะเบียน</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="input-group-register">
-          <label>ชื่อผู้ใช้:</label>
+      <div className="register-header">
+        <div className="header-icon-wrapper">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="8.5" cy="7" r="4" />
+            <line x1="20" y1="8" x2="20" y2="14" />
+            <line x1="23" y1="11" x2="17" y2="11" />
+          </svg>
+        </div>
+        <h2 className="register-title">ลงทะเบียน</h2>
+        <p className="register-subtitle">
+          สร้างบัญชีผู้ใช้งานใหม่เพื่อเข้าใช้บริการ
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="register-form">
+        <div className="form-group">
+          <label>ชื่อผู้ใช้</label>
           <input
             maxLength={20}
             type="text"
             name="user_name"
+            placeholder="กรอกชื่อผู้ใช้สำหรับเข้าสู่ระบบ"
             value={formData.user_name}
             onChange={handleChange}
+            onBlur={handleBlur}
             className={errors.user_name ? "errors" : ""}
+            required
           />
-          {errors.user_name && (
-            <p className="error-message">
-              <i className="fas fa-exclamation-circle"></i> {errors.user_name}
-            </p>
-          )}
+          {renderError(errors.user_name)}
         </div>
 
-        <div className="input-group-register">
-          <label>อีเมล:</label>
+        <div className="form-group">
+          <label>อีเมล</label>
           <input
             maxLength={100}
             type="email"
             name="email"
+            placeholder="กรอกอีเมล เช่น example@mail.com"
             value={formData.email}
             onChange={handleChange}
+            onBlur={handleBlur}
             className={errors.email ? "errors" : ""}
+            required
           />
-          {errors.email && (
-            <p className="error-message">
-              <i className="fas fa-exclamation-circle"></i> {errors.email}
-            </p>
-          )}
-        </div>
-        <div className="input-group-register">
-          <label>ชื่อจริง:</label>
-          <input
-            maxLength={100}
-            type="text"
-            name="first_name"
-            value={formData.first_name}
-            onChange={handleChange}
-            className={errors.first_name ? "errors" : ""}
-          />
-          {errors.first_name && (
-            <p className="error-message">
-              <i className="fas fa-exclamation-circle"></i> {errors.first_name}
-            </p>
-          )}
+          {renderError(errors.email)}
         </div>
 
-        <div className="input-group-register">
-          <label>นามสกุล:</label>
-          <input
-            maxLength={100}
-            type="text"
-            name="last_name"
-            value={formData.last_name}
-            onChange={handleChange}
-            className={errors.last_name ? "errors" : ""}
-          />
-          {errors.last_name && (
-            <p className="error-message">
-              <i className="fas fa-exclamation-circle"></i> {errors.last_name}
-            </p>
-          )}
+        <div className="form-row-2">
+          <div className="form-group">
+            <label>ชื่อจริง</label>
+            <input
+              maxLength={100}
+              type="text"
+              name="first_name"
+              placeholder="กรอกชื่อจริง"
+              value={formData.first_name}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={errors.first_name ? "errors" : ""}
+              required
+            />
+            {renderError(errors.first_name)}
+          </div>
+
+          <div className="form-group">
+            <label>นามสกุล</label>
+            <input
+              maxLength={100}
+              type="text"
+              name="last_name"
+              placeholder="กรอกนามสกุล"
+              value={formData.last_name}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={errors.last_name ? "errors" : ""}
+              required
+            />
+            {renderError(errors.last_name)}
+          </div>
         </div>
 
-        <div className="input-group-register">
-          <label>รหัสผ่าน:</label>
+        <div className="form-group">
+          <label>รหัสผ่าน</label>
           <div className="password-wrapper-register">
             <input
               type={showPassword ? "text" : "password"}
               name="password"
+              placeholder="ตั้งรหัสผ่านอย่างน้อย 10 ตัวอักษร"
               value={formData.password}
               onChange={handleChange}
-              className={errors.passwordLength ? "errors" : ""}
+              onBlur={handleBlur}
+              className={
+                errors.password || errors.passwordLength ? "errors" : ""
+              }
+              required
             />
             <button
               type="button"
               className="toggle-password-btn-register"
               onClick={() => setShowPassword(!showPassword)}
+              title={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
             >
-              {showPassword ? "ซ่อน" : "แสดง"}
+              {showPassword ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
             </button>
           </div>
-          {errors.passwordLength && (
-            <p className="error-message">
-              <i className="fas fa-exclamation-circle"></i>{" "}
-              {errors.passwordLength}
-            </p>
-          )}
-          {errors.password && (
-            <p className="error-message">{errors.password}</p>
-          )}
+          {renderError(errors.passwordLength || errors.password)}
         </div>
 
-        <div className="input-group-register">
-          <label>ยืนยันรหัสผ่าน:</label>
+        <div className="form-group">
+          <label>ยืนยันรหัสผ่าน</label>
           <div className="password-wrapper-register">
             <input
               type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
+              placeholder="ยืนยันรหัสผ่านอีกครั้ง"
               value={formData.confirmPassword}
               onChange={handleChange}
+              onBlur={handleBlur}
               className={errors.passwordMatch ? "errors" : ""}
+              required
             />
             <button
               type="button"
               className="toggle-password-btn-register"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              title={showConfirmPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
             >
-              {showConfirmPassword ? "ซ่อน" : "แสดง"}
+              {showConfirmPassword ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
             </button>
           </div>
-          {errors.passwordMatch && (
-            <p className="error-message">
-              <i className="fas fa-exclamation-circle"></i>{" "}
-              {errors.passwordMatch}
-            </p>
-          )}
-          {errors.password && (
-            <p className="error-message">{errors.password}</p>
-          )}
+          {renderError(errors.passwordMatch)}
         </div>
 
         <button
           className="register-button"
-          style={{
-            cursor: startProcessLoad ? "not-allowed" : "pointer",
-          }}
           disabled={startProcessLoad}
           type="submit"
         >
@@ -390,12 +489,13 @@ export default function Register() {
               <span className="dot three">●</span>
             </span>
           ) : (
-            "ลงทะเบียน"
+            "ลงทะเบียนบัญชีใหม่"
           )}
         </button>
+
         <div className="login-title">
           <Link href="/login" className="login-link">
-            หรือคุณมีบัญชีอยู่แล้ว เข้าสู่ระบบ
+            มีบัญชีสมาชิกอยู่แล้ว? เข้าสู่ระบบ
           </Link>
         </div>
       </form>

@@ -41,7 +41,10 @@ export default function FieldHeader({
       ) : (
         <div className="no-image-placeholder-profile">ไม่มีรูปภาพสนาม</div>
       )}
-      <div className="profile-header-overlay">
+      <div
+        className="profile-header-overlay"
+        onClick={() => onImageClick && onImageClick(displayImage)}
+      >
         {onEditImage && (
           <button 
             className="edit-header-btn" 

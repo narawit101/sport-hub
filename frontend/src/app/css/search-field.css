@@ -29,89 +29,102 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
   height: 100%;
-  min-height: 420px;
+  min-height: 380px;
   width: 100%;
   background: white;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 10px 30px -10px rgba(3, 4, 94, 0.06), 0 1px 3px rgba(3, 4, 94, 0.01);
   overflow: hidden;
-  transition: 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .card-search:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -15px rgba(3, 4, 94, 0.12), 0 2px 6px rgba(3, 4, 94, 0.02);
 }
 
 .card-img-search {
-  object-fit: contain;
+  object-fit: cover;
   width: 100%;
-  height: 300px;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.421);
+  height: 200px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-bottom: none;
 }
 
 .card-body-search {
-  padding: 15px;
-  text-align: center;
-  margin: 10px 0;
-  min-height: 50px;
+  padding: 15px 0 0 0;
+  text-align: left;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .card-body-search h3 {
-  font-size: 22px;
+  font-size: 20px;
   color: var(--text-color);
-  font-weight: 600;
-  margin: 10px 0;
-  min-height: 70px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  min-height: auto;
+  line-height: 1.3;
 }
 
-.card-body-search p {
-  font-size: 18px;
-  color: #6b7280;
-  font-weight: 600;
-  margin: 10px 0;
-  min-height: 20px;
-}
-
-.first-label-time {
-  font-size: 18px;
-  color: var(--text-color);
-  font-weight: 600;
-  margin: 10px 0;
-  min-height: 20px;
-}
-
-.firsttime-search {
-  align-items: center;
-  justify-content: center;
-  text-align: left;
-  margin: 10px 0;
-  min-height: 20px;
-}
-
-.firstopen-search {
-  text-align: left;
-  align-items: center;
-  justify-content: center;
-  margin: 10px 0;
-  min-height: 20px;
-}
-
-.no-fields-message {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  font-size: large;
-}
-
+/* Rating layout horizontal */
 .reviwe-container-search {
-  margin: 5px auto 20px auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 12px 0;
+  width: 100%;
+}
+
+.reviwe-star-search {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: #facc15;
+  font-size: 14px;
+}
+
+.reviwe-star-search span.rating-score {
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Detail list with SVGs */
+.card-info-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  border-top: 1px solid #f1f3f5;
+  padding-top: 12px;
+}
+
+.card-info-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.card-info-detail-item svg {
+  color: var(--text-color, #03045e);
+  flex-shrink: 0;
 }
 
 .no-fields-message-search {

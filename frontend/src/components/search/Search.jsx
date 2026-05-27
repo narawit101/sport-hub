@@ -17,7 +17,7 @@ export default function Search() {
   const [dataLoading, setDataLoading] = useState(true);
   const { user, isLoading } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
-  const fieldPerPage = 16;
+  const fieldPerPage = 4;
 
   useEffect(() => {
     if (isLoading) return;
@@ -53,7 +53,9 @@ export default function Search() {
       try {
         console.log("query", query);
         console.log("query days", translatedQuery);
-        const data = await apiClient.get(`/search?query=${encodeURIComponent(translatedQuery)}`);
+        const data = await apiClient.get(
+          `/search?query=${encodeURIComponent(translatedQuery)}`,
+        );
 
         setApprovedFields(data.data);
         console.log("approvefield", data);
@@ -95,7 +97,8 @@ export default function Search() {
             <div className="no-results-message-search">
               <h3>ไม่พบผลการค้นหา</h3>
               <p>
-                ไม่พบสนามกีฬาที่ตรงกับ <span className="query-highlight-search">"{query}"</span>
+                ไม่พบสนามกีฬาที่ตรงกับ{" "}
+                <span className="query-highlight-search">"{query}"</span>
               </p>
               <div className="search-suggestions-search">
                 <p>ลองค้นหาด้วยคำอื่น เช่น:</p>
@@ -108,19 +111,21 @@ export default function Search() {
             </div>
           </div>
         )}
-      </div>
-      <div className="pagination-previwe-field-search">
-        {Array.from(
-          { length: Math.ceil(approvedFields.length / fieldPerPage) },
-          (_, i) => (
-            <button
-              key={i}
-              className={currentPage === i + 1 ? "active" : ""}
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </button>
-          )
+        {approvedFields.length > fieldPerPage && (
+          <div className="pagination-previwe-field-search">
+            {Array.from(
+              { length: Math.ceil(approvedFields.length / fieldPerPage) },
+              (_, i) => (
+                <button
+                  key={i}
+                  className={currentPage === i + 1 ? "active" : ""}
+                  onClick={() => setCurrentPage(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              ),
+            )}
+          </div>
         )}
       </div>
     </>

@@ -164,9 +164,9 @@ export default function Mybooking() {
   return (
     <>
       <div className="myorder-container">
-        <h1>
+        {/* <h1>
           การจองสนามของคุณ {userFirstName} {userLastName}
-        </h1>
+        </h1> */}
 
         <DateRangeFilter
           filters={filters}
@@ -178,7 +178,13 @@ export default function Mybooking() {
           customerMode={true}
         />
 
-        {booking.length > 0 && <BookingStatsSummary stats={stats} />}
+        {booking.length > 0 && (
+          <BookingStatsSummary
+            stats={stats}
+            collapsible={true}
+            defaultCollapsed={true}
+          />
+        )}
         {dataLoading ? (
           <ul className="booking-list skeleton-list" aria-hidden="true">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -208,7 +214,86 @@ export default function Mybooking() {
             />
           </>
         ) : (
-          <h1 className="booking-list">ไม่พบคำสั่งจอง</h1>
+          <div className="empty-booking-container">
+            <div className="empty-booking-icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="36"
+                height="36"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+                <path d="M8 14h.01" />
+                <path d="M12 14h.01" />
+                <path d="M16 14h.01" />
+                <path d="M8 18h.01" />
+                <path d="M12 18h.01" />
+                <path d="M16 18h.01" />
+              </svg>
+            </div>
+            <h3 className="empty-booking-title">ไม่พบรายการจองของคุณ</h3>
+            <p className="empty-booking-description">
+              {filters.date || filters.status
+                ? "ไม่พบรายการจองที่ตรงตามเงื่อนไขตัวกรองที่คุณกำหนด"
+                : "คุณยังไม่มีประวัติการจองสนามกีฬาในระบบ เริ่มต้นจองสนามเพื่อสนุกกับการออกกำลังกายได้เลย!"}
+            </p>
+            {filters.date || filters.status ? (
+              <button
+                type="button"
+                className="empty-booking-action-btn"
+                onClick={() => {
+                  setFilters({ date: "", status: "" });
+                  setCurrentPage(1);
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                <span>ล้างตัวกรองทั้งหมด</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="empty-booking-action-btn"
+                onClick={() => router.push("/")}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <span>ค้นหาสนามกีฬา</span>
+              </button>
+            )}
+          </div>
         )}
       </div>
     </>

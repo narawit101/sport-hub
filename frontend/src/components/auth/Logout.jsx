@@ -6,6 +6,8 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 import apiClient from "@/lib/apiClient";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -33,14 +35,8 @@ export default function LogoutButton() {
 
   return (
     <div className="logout-container">
-      <button className="logout-button" onClick={handleLogout}>
-        <i className="fas fa-sign-out-alt"></i>{" "}
-        <img
-          src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1755271167/bx--log-out_eq26uh.png"
-          width={20}
-          height={20}
-          alt=""
-        />
+      <button className="logout-button" onClick={handleLogout} disabled={startProcessLoad}>
+        <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" />
         {startProcessLoad ? (
           <span className="dot-loading">
             <span className="dot one">●</span>

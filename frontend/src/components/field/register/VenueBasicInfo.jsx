@@ -73,26 +73,14 @@ export default function VenueBasicInfo({ fieldData, handleFieldChange, setFieldD
             />
           </div>
           {fieldData.gps_location && (
-            <div
-              style={{
-                color: "#034078",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-                margin: " 20px auto",
-                padding: 8,
-                backgroundColor: "#beddf9ff",
-                borderRadius: 4,
-              }}
-            >
+            <div className="gps-selected-chip">
               <img
-                width={20}
-                height={20}
+                width={16}
+                height={16}
                 src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1756972382/bxs--map_c0lmby.png"
                 alt=""
               />
-              {""} พิกัดที่เลือก: {fieldData.gps_location}
+              พิกัดที่เลือก: {fieldData.gps_location}
             </div>
           )}
         </div>
@@ -119,9 +107,9 @@ export default function VenueBasicInfo({ fieldData, handleFieldChange, setFieldD
               />
             </div>
           </div>
-          <div className="duration-time-container">
+          <div className="duration-time-container" style={{ marginTop: "16px" }}>
             <div className="input-group-register-field">
-              <div className="icon-label-days-container">
+              <div className="icon-label-days-container" style={{ marginBottom: "8px" }}>
                 <label>แบ่งช่วงเวลาในการจอง:</label>
                 <img
                   width={20}
@@ -145,9 +133,9 @@ export default function VenueBasicInfo({ fieldData, handleFieldChange, setFieldD
           </div>
         </div>
 
-        <div className="open-days-container">
+        <div className="open-days-container" >
           <div className="input-group-register-field">
-            <div className="icon-label-days-container">
+            <div className="icon-label-days-container" style={{ marginBottom: "8px" }}>
               <label style={{ textAlign: "center" }}>
                 เลือกวันเปิดบริการ:
               </label>
@@ -201,8 +189,8 @@ export default function VenueBasicInfo({ fieldData, handleFieldChange, setFieldD
         </div>
       </div>
 
-      <div className="input-group-register-field">
-        <div className="icon-label-container">
+      <div className="input-group-register-field" style={{ marginTop: "24px" }}>
+        <div className="icon-label-container" style={{ marginBottom: "8px" }}>
           <label>ยกเลิกการจองได้ภายใน (ชั่วโมง): </label>
           <img
             style={{ verticalAlign: "middle" }}

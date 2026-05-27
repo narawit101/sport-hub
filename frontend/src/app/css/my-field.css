@@ -16,19 +16,53 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  padding: 24px 20px 8px 20px;
   gap: 20px;
 }
 
+.status-filter-wrapper-myfield {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-filter-label-myfield {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-filter-label-myfield svg {
+  color: var(--text-color, #03045e);
+  stroke: var(--text-color, #03045e);
+  fill: none;
+}
+
 .sport-select-myfield {
-  width: 150px;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 5px;
-  border: 1px solid #000000;
+  width: 160px;
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
   outline: none;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  background-color: #fafafa;
+  color: #495057;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.sport-select-myfield:focus {
+  border-color: var(--text-color);
+  box-shadow: 0 0 0 3px rgba(3, 4, 94, 0.12);
+  background-color: #ffffff;
+  color: #212529;
 }
 
 
@@ -38,94 +72,138 @@
   flex-direction: column;
   justify-content: flex-start;
   height: 100%;
-  min-height: 420px;
+  min-height: 440px;
   background: white;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 10px 30px -10px rgba(3, 4, 94, 0.06), 0 1px 3px rgba(3, 4, 94, 0.01);
   overflow: hidden;
-  transition: 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 20px;
   position: relative;
 }
 
 .card-myfield:hover {
   cursor: pointer;
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -15px rgba(3, 4, 94, 0.12), 0 2px 6px rgba(3, 4, 94, 0.02);
 }
 
 .card-delete-btn {
   position: absolute;
   top: 15px;
   right: 15px;
-  background-color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.85);
   color: white !important;
   border: none;
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   display: flex !important;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .card-delete-btn svg {
   color: white;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .card-delete-btn:hover {
-  background-color: #c82333;
+  background-color: #dc3545;
+  transform: scale(1.1);
 }
 
 .card-myfield-img {
-  object-fit: contain;
+  object-fit: cover;
   width: 100%;
-  height: 250px;
-  border-radius: 8px;
+  height: 200px;
+  border-radius: 12px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
+/* Floating Status Badge */
+.card-myfield-status-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  letter-spacing: 0.3px;
+}
+
+.card-myfield-status-badge.passed {
+  background-color: rgba(40, 167, 69, 0.9);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-myfield-status-badge.pending {
+  background-color: rgba(255, 193, 7, 0.9);
+  color: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-myfield-status-badge.failed {
+  background-color: rgba(220, 53, 69, 0.9);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .custom-field-name {
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
+  font-size: 19px;
+  font-weight: 700;
+  text-align: left;
   color: var(--text-color);
-  margin: 15px auto 0 auto;
-  min-height: 40px;
+  margin: 15px 0 6px 0;
+  min-height: auto;
+  line-height: 1.3;
+}
+
+.custom-owner-info-myfield {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  margin: 0px 0px 15px 0px;
+  color: #64748b;
+  font-weight: 500;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 
 .custom-button-group-myfield {
   display: flex;
   flex-direction: column;
   margin-top: auto;
-  gap: 12px;
-  margin-bottom: 17px;
-  font-size: 0.8rem;
+  gap: 10px;
 }
 
 .main-buttons-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 8px;
 }
 
 .main-buttons-row:has(button:only-child) {
   grid-template-columns: 1fr;
-  justify-items: center;
 }
 
 .main-buttons-row button:only-child {
   grid-column: 1 / -1;
-  justify-self: center;
-  max-width: 200px;
+  max-width: 100%;
 }
 
 .full-width-buttons {
@@ -134,126 +212,104 @@
   gap: 8px;
 }
 
-.custom-button-view-stat-myfield {
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  flex: 1;
-  background-color: #138865;
-  color: #fff;
-}
-
-.custom-button-view-stat-myfield:hover {
-  background-color: #1ba085;
-}
-
 .custom-button-view-myfield,
 .custom-button-edit-myfield,
 .custom-button-view-order-myfield,
 .custom-button-view-stat-myfield {
   cursor: pointer;
   border: none;
-  border-radius: 8px;
-  color: #fff;
-  padding: 12px 16px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 0.85rem;
+  font-size: 13px;
+  box-sizing: border-box;
 }
 
 .custom-button-view-myfield img,
 .custom-button-edit-myfield img,
 .custom-button-view-order-myfield img,
 .custom-button-view-stat-myfield img {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   flex-shrink: 0;
+  transition: filter 0.2s ease;
 }
 
-.custom-button-delete-myfield {
-  display: none;
-}
-
-.custom-button-view-order-myfield {
-  background-color: #008000;
-}
-
-.custom-button-view-order-myfield:hover {
-  background-color: #38a938;
-}
-
-.myfield-container button {
-  color: #fff;
-  margin-top: 2px;
-  padding: 10px 10px;
-  font-weight: 00;
-  border: none;
-}
-
-.custom-owner-info-myfield {
-  display: inline-block;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  margin: 0px auto 15px auto;
-  color: #6c757d;
-  background-color: #f8f9fa;
-}
-
-.custom-owner-info-myfield.passed {
-  color: #155724;
-  background-color: #d4f4dd;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.custom-owner-info-myfield.failed {
-  color: #721c24;
-  background-color: #fddede;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.custom-owner-info-myfield.pending {
-  color: #856404;
-  background-color: #fff4ce;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
+/* ดูรายละเอียด - Soft brand tint button */
 .custom-button-view-myfield {
-  background: var(--text-color);
-  color: white;
+  background-color: rgba(3, 4, 94, 0.05);
+  color: var(--text-color);
+  border: 1px solid rgba(3, 4, 94, 0.1);
+}
+
+.custom-button-view-myfield img {
+  filter: brightness(0) invert(8%) sepia(99%) saturate(4649%) hue-rotate(239deg) brightness(85%) contrast(106%);
 }
 
 .custom-button-view-myfield:hover {
-  background-color: #10127c;
+  background-color: rgba(3, 4, 94, 0.1);
+  transform: translateY(-1px);
 }
 
+/* แก้ไข - Soft gray tint button */
 .custom-button-edit-myfield {
-  background-color: #616161;
-  color: white;
+  background-color: rgba(108, 117, 125, 0.06);
+  color: #495057;
+  border: 1px solid rgba(108, 117, 125, 0.15);
+}
+
+.custom-button-edit-myfield img {
+  filter: brightness(0) opacity(0.65);
 }
 
 .custom-button-edit-myfield:hover {
-  background-color: #424242;
+  background-color: rgba(108, 117, 125, 0.12);
+  transform: translateY(-1px);
 }
 
-.custom-button-delete-myfield {
-  background-color: #dc3545;
-  color: white;
+/* รายการจองของสนาม - Primary brand gradient with white icon */
+.custom-button-view-order-myfield {
+  background: linear-gradient(135deg, #03045e, #055199);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.12);
 }
 
-.custom-button-delete-myfield:hover {
-  background-color: #c82333;
+.custom-button-view-order-myfield img {
+  filter: brightness(0) invert(1);
+}
+
+.custom-button-view-order-myfield:hover {
+  background: linear-gradient(135deg, #055199, #03045e);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(3, 4, 94, 0.2);
+}
+
+/* สถิติการจองสนาม - Secondary green tint button, turns white on hover */
+.custom-button-view-stat-myfield {
+  background-color: rgba(19, 136, 101, 0.06);
+  color: #138865;
+  border: 1px solid rgba(19, 136, 101, 0.18);
+}
+
+.custom-button-view-stat-myfield img {
+  filter: brightness(0) invert(26%) sepia(94%) saturate(634%) hue-rotate(119deg) brightness(93%) contrast(92%);
+}
+
+.custom-button-view-stat-myfield:hover {
+  background-color: #138865;
+  color: #ffffff;
+  border-color: #138865;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(19, 136, 101, 0.15);
+}
+
+.custom-button-view-stat-myfield:hover img {
+  filter: brightness(0) invert(1);
 }
 
 .custom-no-fields-message-myfield {
@@ -284,13 +340,12 @@
 }
 
 .field-section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 800;
   color: var(--text-color);
-  border-radius: 25px;
-  border: none;
-  margin: 0px 0px 0px 0px;
-  padding: 0.95rem;
+  margin: 0;
+  padding: 0;
+  letter-spacing: -0.5px;
 }
 
 .pagination-myfield {
@@ -353,24 +408,35 @@
   margin-top: 20px;
 }
 
-.savebtn-myfield {
+.savebtn-myfield,
+.canbtn-myfield {
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  font-size: 14px;
   border-radius: 8px;
-  background-color: #28a745;
-  margin: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 !important;
+}
+
+.savebtn-myfield {
+  background-color: var(--danger-color, #dc3545) !important;
+  color: white !important;
 }
 
 .savebtn-myfield:hover {
-  background: #21cd49;
+  background-color: #bd2130 !important;
 }
 
 .canbtn-myfield {
-  border-radius: 8px;
-  margin: 10px;
-  background-color: #dc3545;
+  background-color: rgba(108, 117, 125, 0.1) !important;
+  color: #495057 !important;
+  border: 1px solid rgba(108, 117, 125, 0.15) !important;
 }
 
 .canbtn-myfield:hover {
-  background-color: #c82333;
+  background-color: rgba(108, 117, 125, 0.18) !important;
 }
 
 .confirm-delete-text {

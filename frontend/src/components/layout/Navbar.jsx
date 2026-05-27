@@ -309,10 +309,20 @@ export default function Navbar() {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
+
+  const [isScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const formatDate = (isoString) => formatDateToThai(isoString);
 
   return (
-    <nav className="nav">
+    <nav className={`nav ${isScrolled ? "scrolled" : ""}`}>
       <div className="ullist">
         <button
           className="hamburger"

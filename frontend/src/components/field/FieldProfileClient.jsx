@@ -593,7 +593,7 @@ export default function CheckFieldDetail() {
           </div>
 
           {/* รายละเอียดสนามย่อย */}
-          <div className="undercontainer-proflie">
+          <div className="undercontainer-profile">
             <h1 className="sub-fields-profile">รายละเอียดสนามย่อย</h1>
             <div className="sub-fields-container-profile">
               {fieldData?.sub_fields && fieldData.sub_fields.length > 0 ? (
@@ -916,24 +916,22 @@ export default function CheckFieldDetail() {
                   href={getGoogleMapsLink(fieldData.gps_location)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    display: "flex",
-                    width: "160px",
-                    marginTop: "30px",
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                    marginBottom: "30px",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "6px 12px",
-                    backgroundColor: "#e0f2fe",
-                    color: "#03045e",
-                    borderRadius: "999px",
-                    fontSize: "14px",
-                    textDecoration: "none",
-                    fontWeight: "bold",
-                  }}
+                  className="open-google-maps-btn"
                 >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
                   เปิดใน GOOGLE MAP
                 </a>
               </div>
@@ -1123,7 +1121,7 @@ export default function CheckFieldDetail() {
             >
               X
             </button>
-            <div className="undercontainer-proflie-overlay">
+            <div className="undercontainer-profile-overlay">
               <h1 className="sub-fields-profile">เลือกสนามย่อย</h1>
               <div className="sub-fields-container-profile-overlay">
                 {fieldData?.sub_fields && fieldData.sub_fields.length > 0 ? (

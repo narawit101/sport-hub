@@ -127,20 +127,38 @@ export default function MyFieldPage() {
           ) : (
             <h2 className="field-section-title">สนามของฉัน</h2>
           )}
-          <select
-            onChange={(e) => setStatusFilter(e.target.value)}
-            value={statusFilter}
-            className="sport-select-myfield"
-          >
-            <option value="ทั้งหมด">ทั้งหมด</option>
-            <option value={FIELD_STATUS.VERIFIED}>
-              {FIELD_STATUS.VERIFIED}
-            </option>
-            <option value={FIELD_STATUS.PENDING}>{FIELD_STATUS.PENDING}</option>
-            <option value={FIELD_STATUS.REJECTED}>
-              {FIELD_STATUS.REJECTED}
-            </option>
-          </select>
+          <div className="status-filter-wrapper-myfield">
+            <label className="status-filter-label-myfield">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              <span>กรองสถานะ:</span>
+            </label>
+            <select
+              onChange={(e) => setStatusFilter(e.target.value)}
+              value={statusFilter}
+              className="sport-select-myfield"
+            >
+              <option value="ทั้งหมด">ทั้งหมด</option>
+              <option value={FIELD_STATUS.VERIFIED}>
+                {FIELD_STATUS.VERIFIED}
+              </option>
+              <option value={FIELD_STATUS.PENDING}>{FIELD_STATUS.PENDING}</option>
+              <option value={FIELD_STATUS.REJECTED}>
+                {FIELD_STATUS.REJECTED}
+              </option>
+            </select>
+          </div>
         </div>
         <FieldGrid
           fields={currentField}

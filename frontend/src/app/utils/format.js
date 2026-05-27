@@ -62,12 +62,37 @@ export const convertToThaiDays = (days) => {
   if (Array.isArray(days)) {
     dayArray = days;
   } else {
-    dayArray = days.split(" ");
+    dayArray = days.split(/[\s,]+/);
   }
 
-  const sortedDays = dayArray.sort((a, b) => {
-    return dayOrder.indexOf(a) - dayOrder.indexOf(b);
-  });
+  // Filter valid days and get unique ones
+  const uniqueDays = Array.from(new Set(dayArray.filter(d => dayOrder.includes(d))));
+  
+  if (uniqueDays.length === 0) return "";
+
+  // Sort unique days by dayOrder index
+  const sortedDays = uniqueDays.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
+
+  // If all 7 days are selected
+  if (sortedDays.length === 7) {
+    return "ทุกวัน";
+  }
+
+  // Check if consecutive
+  const indices = sortedDays.map(d => dayOrder.indexOf(d));
+  let isConsecutive = true;
+  for (let i = 1; i < indices.length; i++) {
+    if (indices[i] !== indices[i - 1] + 1) {
+      isConsecutive = false;
+      break;
+    }
+  }
+
+  if (isConsecutive && sortedDays.length >= 2) {
+    const firstDay = dayMapping[sortedDays[0]];
+    const lastDay = dayMapping[sortedDays[sortedDays.length - 1]];
+    return `${firstDay} - ${lastDay}`;
+  }
 
   return sortedDays.map((day) => dayMapping[day] || day).join(" ");
 };

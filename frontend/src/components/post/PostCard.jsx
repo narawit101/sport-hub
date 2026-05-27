@@ -106,7 +106,24 @@ export default function PostCard({
           />
           <div className="field-name-created-at-home">
             <h2 className="post-field-name-home">{post.field_name}</h2>
-            <div className="time-home">{dayjs(post.created_at).fromNow()}</div>
+            <div className="time-home">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="time-icon-home"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span>{dayjs(post.created_at).fromNow()}</span>
+            </div>
           </div>
         </div>
       )}
@@ -114,7 +131,24 @@ export default function PostCard({
       {!isHome ? (
         <>
           <h2 className="post-title">{renderTextWithLinks(post.title)}</h2>
-          <div className="time">{dayjs(post.created_at).fromNow()}</div>
+          <div className="time">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="time-icon-profile"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span>{dayjs(post.created_at).fromNow()}</span>
+          </div>
         </>
       ) : (
         <h2 className="post-title-home">{renderTextWithLinks(post.title)}</h2>
@@ -238,7 +272,21 @@ export default function PostCard({
           className="view-post-btn-home"
           onClick={() => onViewPost(post)}
         >
-          ดูโพสต์
+          <span>ดูรายละเอียด</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
         </button>
       )}
 

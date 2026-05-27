@@ -126,9 +126,15 @@ export default function HomePage() {
       </div>
 
       <div className="homepage">
+        <Category></Category>
+
         <div className="news-section">
           <div className="title-notice">
-            <h1>ประกาศจากสนามกีฬา</h1>
+            <span className="section-badge">News & Updates</span>
+            <h1>ความเคลื่อนไหวและโปรโมชัน</h1>
+            <p className="section-subtitle">
+              ติดตามข่าวสาร กิจกรรมพิเศษ และโปรโมชันล่าสุดส่งตรงจากสนามกีฬาที่คุณสนใจ
+            </p>
           </div>
           {dataLoading && (
             <div className="news-skeleton-wrapper" aria-hidden="true">
@@ -162,7 +168,6 @@ export default function HomePage() {
               />
             ))}
         </div>
-        <Category></Category>
       </div>
     </>
   );
