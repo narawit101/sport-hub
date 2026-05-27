@@ -32,18 +32,18 @@ export default function FieldHeader({
             src={`${displayImage}`}
             alt="รูปสนามกีฬา"
             className="field-image-profile-fg"
+            style={{
+              cursor: onImageClick && displayImage ? "zoom-in" : "default",
+            }}
+            onClick={() =>
+              onImageClick && displayImage && onImageClick(displayImage)
+            }
           />
         </>
       ) : (
         <div className="no-image-placeholder-profile">ไม่มีรูปภาพสนาม</div>
       )}
-      <div
-        className="profile-header-overlay"
-        style={{ cursor: onImageClick && displayImage ? "zoom-in" : "default" }}
-        onClick={() =>
-          onImageClick && displayImage && onImageClick(displayImage)
-        }
-      >
+      <div className="profile-header-overlay">
         {onEditImage && (
           <button
             className="edit-header-btn"
@@ -56,10 +56,7 @@ export default function FieldHeader({
             แก้ไขรูปภาพ
           </button>
         )}
-        <div
-          className="profile-header-content"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="profile-header-content">
           <h1 className="profile-header-title">{fieldData?.field_name}</h1>
           <div className="profile-header-meta">
             {onShowFollowers && (

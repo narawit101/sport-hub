@@ -535,8 +535,15 @@ export default function CheckFieldDetail() {
       <div className="field-detail-container-profile">
         <div className="profile-main-content">
           {/* แนะนำสนาม */}
-          <div className="description-profile-box">
-            <h1>แนะนำสนาม</h1>
+          <div
+            className="description-profile-box"
+            onClick={() => setShowModalDescription(true)}
+            style={{ cursor: "pointer" }}
+          >
+            <div className="description-header-profile">
+              <h1>แนะนำสนาม</h1>
+              <span className="view-more-text">ดูเพิ่มเติม</span>
+            </div>
             <div
               className="detail-profile-content"
               dangerouslySetInnerHTML={{
@@ -762,15 +769,15 @@ export default function CheckFieldDetail() {
               </div>
             </div>
 
-            <div className="reviwe-container-profile">
+            <div className="review-container-profile">
               {filteredReviews.length > 0 ? (
                 filteredReviews.map((review, index) => (
                   <div
-                    className="reviwe-content-profile"
+                    className="review-content-profile"
                     key={review.review_id || index}
                   >
-                    <div className="review-box-profile">
-                      <div className="user-profile-name-profile">
+                    <div className="review-item-header">
+                      <div className="review-user-info">
                         <img
                           className="user-profile-review-profile"
                           src={
@@ -780,32 +787,54 @@ export default function CheckFieldDetail() {
                           }
                           alt="รีวิว"
                         />
-                        <strong className="review-name-profile">
-                          {review.first_name} {review.last_name}
-                        </strong>
-                      </div>
-                      <div className="review-stars-profile">
-                        {[1, 2, 3, 4, 5].map((num) => (
-                          <span
-                            key={num}
-                            className={`star-profile ${
-                              num <= review.rating ? "active" : ""
-                            }`}
-                          >
-                            ★
-                          </span>
-                        ))}
+                        <div className="review-user-details">
+                          <strong className="review-name-profile">
+                            {review.first_name} {review.last_name}
+                          </strong>
+                          <div className="review-stars-profile">
+                            {[1, 2, 3, 4, 5].map((num) => (
+                              <span
+                                key={num}
+                                className={`star-profile ${
+                                  num <= review.rating ? "active" : ""
+                                }`}
+                              >
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="detail-reviwe-profile">
+                    <div className="detail-review-profile">
                       <p className="review-label">ความคิดเห็น</p>
                       <p className="review-comment">{review.comment}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="no-reviwe-content-profile">
-                  <div className="no-review-text">ยังไม่มีคะแนนการรีวิว</div>
+                <div className="empty-review-container">
+                  <div className="empty-review-icon-wrapper">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      <line x1="9" y1="10" x2="15" y2="10" />
+                      <line x1="12" y1="7" x2="12" y2="13" />
+                    </svg>
+                  </div>
+                  <h3 className="empty-review-title">ยังไม่มีรีวิวสำหรับสนามนี้</h3>
+                  <p className="empty-review-description">
+                    คุณสามารถเป็นคนแรกที่ให้รีวิวหลังจากจองและเข้าใช้สนามแล้ว
+                  </p>
                 </div>
               )}
             </div>
@@ -1024,8 +1053,14 @@ export default function CheckFieldDetail() {
       )}
       {showModalFollower && (
         <>
-          <div className="modal-overlay-profile-follower">
-            <div className="modal-post-profile-follower">
+          <div
+            className="modal-overlay-profile-follower"
+            onClick={() => setShowModalFollower(false)}
+          >
+            <div
+              className="modal-post-profile-follower"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="modal-header-follower">
                 <h2>ผู้ติดตาม </h2>
                 <button
@@ -1068,8 +1103,14 @@ export default function CheckFieldDetail() {
         </>
       )}
       {showModalDescription && (
-        <div className="modal-overlay-profile-follower">
-          <div className="modal-post-profile-follower">
+        <div
+          className="modal-overlay-profile-follower"
+          onClick={() => setShowModalDescription(false)}
+        >
+          <div
+            className="modal-post-profile-follower"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header-follower">
               <h2>แนะนำสนาม</h2>
               <button
