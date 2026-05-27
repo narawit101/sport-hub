@@ -78,12 +78,14 @@ export default function Booking() {
   };
 
   const isPastSlot = (slot) => {
-    if (!serverTime || !bookingDate) return false;
+    if (!serverTime || !bookingDateFormatted) return false;
     const [st] = slot.split(" - ");
     const [h, m] = st.split(":").map(Number);
 
-    const sTime = new Date(bookingDate);
-    sTime.setHours(h, m, 0, 0);
+    // bookingDateFormatted is formatted as "YYYY-MM-DD"
+    // Construct absolute target time in Asia/Bangkok timezone (+07:00)
+    const targetISO = `${bookingDateFormatted}T${st.padStart(5, "0")}:00+07:00`;
+    const sTime = new Date(targetISO);
 
     if (openHours) {
       const [oh] = openHours.split(":").map(Number);
@@ -135,15 +137,39 @@ export default function Booking() {
 
   const today = serverTime || new Date();
   const maxDate = new Date(today.getTime());
-  maxDate.setDate(maxDate.getDate() + 60);
+  maxDate.setDate(maxDate.getDate() + 365);
+
+  // Safe timezone-independent boundaries without mutating `today`
+  const startOfToday = new Date(today.getTime());
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const endOfMaxDate = new Date(maxDate.getTime());
+  endOfMaxDate.setHours(23, 59, 59, 999);
+
+  const isTileDisabled = ({ date, view }) => {
+    if (view !== "month") return false;
+    const day = date.getDay();
+    if (!openDays.includes(day)) return true;
+
+    const compareDate = new Date(date.getTime());
+    compareDate.setHours(0, 0, 0, 0);
+
+    if (compareDate < startOfToday) return true;
+    if (compareDate > endOfMaxDate) return true;
+
+    return false;
+  };
 
   const tileClassName = ({ date, view }) => {
+    if (view !== "month") return "";
     const day = date.getDay();
+    const compareDate = new Date(date.getTime());
+    compareDate.setHours(0, 0, 0, 0);
+
     if (
-      view === "month" &&
       openDays.includes(day) &&
-      date <= maxDate &&
-      date >= new Date(today.setHours(0, 0, 0, 0))
+      compareDate <= endOfMaxDate &&
+      compareDate >= startOfToday
     ) {
       return "allowed-day";
     }
@@ -151,7 +177,7 @@ export default function Booking() {
   };
 
   return (
-    <div>
+    <div className="booking-page-container">
       <div className="container-bookings">
         {slots.length === 0 ? (
           <div className="loading-data">
@@ -168,14 +194,26 @@ export default function Booking() {
                   className="calendar-toggle-btn"
                   onClick={() => setShowCalendar(!showCalendar)}
                 >
-                  {bookingDate ? (
-                    formatDateToThai(bookingDate)
-                  ) : (
-                    <img
-                      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAUZJREFUSEvNVYFxwjAMfG1SJilMAkxSOgndBDpJYZJv3ycFJyF2Am6vvgMOR9G/9PLb8MvLpvKTfDGzSw2/FlcCOAIQyKYEQrIYNwIguVNiAG8AVEGtirXHnAF8mtlHTqgDIKnAxCZLWkseufSOPlp6ZxPtzQG+POB9yKKmQzyXHgBO+m9mq/BsL2+L2AtZpT68HERkU64AUPKdmU2KvgSRJH/IqxOHHCDEWpJrKla5zprAAFDf0maL7DEoQwAJU5z5ueAkQ+heBX8L4Cx0ktO4+bSJ2dy9RDjXoFfBPQtYsPcPWjRX0Htxs0RurYFO8nog6MiGF2ggq9BB24fIBwDbHODJFo0AdIqlfAuz032i6vdy5aigs1l/8JBluJNGa2927YcoQFpcOGKfSPbs2RmoXa+uQdxSNUl0i139opGe3Wri/yX0b2jJ5Bkv0yj2AAAAAElFTkSuQmCC"
-                      alt="calendar"
-                    />
-                  )}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className="calendar-btn-icon"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  <span>
+                    {bookingDate
+                      ? formatDateToThai(bookingDate)
+                      : "เลือกวันที่"}
+                  </span>
                 </button>
                 {showCalendar && (
                   <div className="calendar-popup-overlay">
@@ -188,18 +226,17 @@ export default function Booking() {
                       </button>
                       <Calendar
                         onChange={(date) => {
+                          if (isTileDisabled({ date, view: "month" })) return;
                           setBookingDate(date);
                           setShowCalendar(false);
                           resetSelection();
                         }}
                         value={bookingDate}
                         showNeighboringMonth={false}
-                        minDate={new Date(today.setHours(0, 0, 0, 0))}
+                        minDate={startOfToday}
                         maxDate={maxDate}
                         tileClassName={tileClassName}
-                        tileDisabled={({ date, view }) =>
-                          view === "month" && !openDays.includes(date.getDay())
-                        }
+                        tileDisabled={isTileDisabled}
                       />
                     </div>
                   </div>
@@ -301,6 +338,16 @@ export default function Booking() {
                 เปิด: {openHours} - {closeHours} น
               </p>
             </div>
+            <div className="time-info server-time-info">
+              <p>
+                เวลาอ้างอิงสนาม (ICT):{" "}
+                <span>
+                  {serverTime
+                    ? `${serverTime.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.`
+                    : "กำลังโหลด..."}
+                </span>
+              </p>
+            </div>
             <div className="time-info-book">
               <strong>เวลาเริ่ม: {timeStart || "-"}</strong>
               <strong>เวลาสิ้นสุด: {timeEnd || "-"}</strong>
@@ -385,7 +432,21 @@ export default function Booking() {
                               />
                             ) : (
                               <div className="facility-no-image">
-                                ไม่มีรูปภาพ
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="30"
+                                  height="30"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  className="facility-placeholder-icon"
+                                >
+                                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                                </svg>
+                                <span>ไม่มีรูปภาพ</span>
                               </div>
                             )}
                           </div>
@@ -516,8 +577,28 @@ export default function Booking() {
                     <span>{formatPrice(totalPrice)} บาท</span>
                   </div>
                   <div className="price-row deposit-row">
-                    <strong>ค่ามัดจำ (จ่ายตอนนี้):</strong>
+                    <strong>มัดจำที่ต้องชำระ:</strong>
                     <span>{formatPrice(priceDeposit)} บาท</span>
+                  </div>
+                  <div className="deposit-helper-note">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      className="helper-icon"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span>
+                      คุณสามารถชำระเงินและแนบหลักฐานการโอนได้ภายหลังที่หน้า
+                      "ประวัติการจองของฉัน"
+                    </span>
                   </div>
                   <div className="price-row remaining-row">
                     <strong>คงเหลือ (จ่ายที่สนาม):</strong>
@@ -529,7 +610,9 @@ export default function Booking() {
               <div className="payment-method-section">
                 <h5>เลือกช่องทางการชำระเงิน</h5>
                 <div className="payment-options">
-                  <label className="payment-option">
+                  <label
+                    className={`payment-option ${payMethod === PAYMENT_METHOD.TRANSFER ? "active" : ""}`}
+                  >
                     <input
                       type="radio"
                       name="paymentMethod"
@@ -537,9 +620,33 @@ export default function Booking() {
                       checked={payMethod === PAYMENT_METHOD.TRANSFER}
                       onChange={(e) => setPayMethod(e.target.value)}
                     />
+                    <div className="payment-icon-wrapper">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className="payment-icon"
+                      >
+                        <rect
+                          x="2"
+                          y="5"
+                          width="20"
+                          height="14"
+                          rx="2"
+                          ry="2"
+                        />
+                        <line x1="2" y1="10" x2="22" y2="10" />
+                      </svg>
+                    </div>
                     <span>โอนเงิน (พร้อมเพย์)</span>
                   </label>
-                  <label className="payment-option">
+                  <label
+                    className={`payment-option ${payMethod === PAYMENT_METHOD.CASH ? "active" : ""}`}
+                  >
                     <input
                       type="radio"
                       name="paymentMethod"
@@ -547,6 +654,21 @@ export default function Booking() {
                       checked={payMethod === PAYMENT_METHOD.CASH}
                       onChange={(e) => setPayMethod(e.target.value)}
                     />
+                    <div className="payment-icon-wrapper">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className="payment-icon"
+                      >
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                      </svg>
+                    </div>
                     <span>จ่ายด้วยเงินสด</span>
                   </label>
                 </div>

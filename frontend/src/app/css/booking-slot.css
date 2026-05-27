@@ -58,34 +58,37 @@
 
 .status-box-book-1 {
   height: 40px;
-  background-color: #22c55e;
+  background-color: #e8f5e9;
+  border: 1.5px solid #a5d6a7;
   width: 80px;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(46, 125, 50, 0.05);
+  transition: all 0.3s ease;
 }
 
 .status-box-book-2 {
   height: 40px;
   width: 80px;
-  background-color: #e8c124;
+  background-color: #fff3e0;
+  border: 1.5px solid #ffcc80;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(230, 81, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
 .status-box-book-3 {
   height: 40px;
-  background-color: #b31e1e;
+  background-color: #ffebee;
+  border: 1.5px solid #ffcdd2;
   width: 80px;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(198, 40, 40, 0.05);
+  transition: all 0.3s ease;
 }
 
 .slot-time-book {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .slots-grid-book {
@@ -104,51 +107,60 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  background-color: #22c55e;
+  background-color: #e8f5e9;
+  border: 1.5px solid #a5d6a7;
   height: 80px;
-  color: white;
+  color: #2e7d32;
   padding: 1rem;
-  border-radius: 0.75rem;
+  border-radius: var(--input-radius, 8px);
   width: 9rem;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 6px rgba(46, 125, 50, 0.04);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .slot-box-book:hover {
-  background-color: #16a34a;
+  background-color: #c8e6c9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.1);
 }
 
 .slot-box-book.selected-slot {
-  background-color: #93c5fd;
-  border: 2px solid #2563eb;
-  color: #1e3a8a;
+  background-color: rgba(3, 4, 94, 0.05);
+  border: 2px solid var(--text-color);
+  color: var(--text-color);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.15);
 }
 
-.slot-box-book.approved-slot {
-  background-color: #b31e1e;
-  color: #ffffff;
-  pointer-events: none;
+.slot-box-book.selected-slot:hover {
+  background-color: rgba(3, 4, 94, 0.1);
 }
 
+.slot-box-book.approved-slot,
 .slot-box-book.complete-slot {
-  background-color: #b31e1e;
-  color: #ffffff;
+  background-color: #ffebee;
+  border: 1.5px solid #ffcdd2;
+  color: #c62828;
   pointer-events: none;
+  box-shadow: none;
 }
 
 .slot-box-book.pending-slot {
-  background-color: #e8c124;
-  color: rgb(73, 69, 69);
+  background-color: #fff3e0;
+  border: 1.5px solid #ffcc80;
+  color: #e65100;
   pointer-events: none;
+  box-shadow: none;
 }
 
 .slot-box-book.past-slot {
-  background-color: #858b95;
-  color: #ffffff;
+  background-color: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  color: #94a3b8;
   pointer-events: none;
-  opacity: 0.7;
+  opacity: 0.65;
+  box-shadow: none;
 }
 
 .container-bookings {
@@ -157,7 +169,7 @@
   justify-content: space-between;
   padding: 3px 30px 10px 30px;
   width: 100%;
-  margin: 70px auto 0 auto;
+  margin: 10px auto 0 auto;
   position: relative;
 }
 
@@ -1521,5 +1533,319 @@
 
   .facility-info-summary {
     padding: 1rem;
+  }
+}
+
+/* ==========================================
+   NEW PREMIUM DESIGN RULES FOR BOOKING FLOW
+   ========================================== */
+
+.booking-page-container {
+  max-width: 1280px;
+  margin: 110px auto 40px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.booking-page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.booking-header-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: rgba(3, 4, 94, 0.05);
+  color: var(--text-color, #03045e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(3, 4, 94, 0.03);
+}
+
+.booking-page-header:hover .booking-header-icon-wrapper {
+  transform: scale(1.08) rotate(5deg);
+  background-color: rgba(3, 4, 94, 0.08);
+}
+
+.booking-page-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-color, #03045e);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+}
+
+.booking-page-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+/* calendar toggle input style */
+.calendar-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--input-radius, 8px);
+  background-color: #fafafa;
+  color: #1e293b;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.calendar-toggle-btn:hover {
+  border-color: #94a3b8;
+  background-color: #f1f5f9;
+}
+
+.calendar-toggle-btn:focus {
+  border-color: var(--text-color, #03045e);
+  box-shadow: 0 0 0 3px rgba(3, 4, 94, 0.12);
+  background-color: #ffffff;
+}
+
+.calendar-btn-icon {
+  color: var(--text-color, #03045e);
+  flex-shrink: 0;
+}
+
+/* no image placeholder icon */
+.facility-placeholder-icon {
+  color: #94a3b8;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.facility-card-summary:hover .facility-placeholder-icon {
+  transform: scale(1.08) rotate(3deg);
+  color: var(--text-color, #03045e);
+}
+
+/* Deposit Helper Note Alert Box */
+.deposit-helper-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #1e40af;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-top: 12px;
+  text-align: left;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.deposit-helper-note .helper-icon {
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* Card-style Payment Method Selectors */
+.payment-options {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.payment-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.payment-option:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.payment-option input[type="radio"] {
+  accent-color: var(--text-color, #03045e);
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.payment-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.payment-option.active {
+  border-color: var(--text-color, #03045e);
+  background-color: rgba(3, 4, 94, 0.02);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.05);
+}
+
+.payment-option.active .payment-icon-wrapper {
+  background-color: rgba(3, 4, 94, 0.1);
+  color: var(--text-color, #03045e);
+}
+
+.payment-option.active span {
+  color: var(--text-color, #03045e);
+  font-weight: 700;
+}
+
+/* Premium Buttons overrides */
+.btn-confirm-booking {
+  background-color: var(--text-color, #03045e) !important;
+  color: #ffffff !important;
+  border-radius: var(--input-radius, 8px) !important;
+  padding: 12px 24px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.15) !important;
+}
+
+.btn-confirm-booking:hover:not(:disabled) {
+  background-color: #020438 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(3, 4, 94, 0.22) !important;
+}
+
+.btn-cancel-booking {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: var(--input-radius, 8px) !important;
+  padding: 12px 24px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+}
+
+.btn-cancel-booking:hover {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .booking-page-container {
+    margin-top: 90px;
+    padding: 0 10px;
+  }
+  
+  .booking-page-title {
+    font-size: 1.5rem;
+  }
+  
+  .payment-options {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* Live Server Time Clock styles */
+.server-time-reference {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 30px;
+  padding: 8px 16px;
+  color: #475569;
+  font-size: 0.88rem;
+  font-weight: 600;
+  width: fit-content;
+  margin: 15px auto 25px auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.server-time-reference .time-icon {
+  color: var(--text-color, #03045e);
+  flex-shrink: 0;
+}
+
+/* Redesign Summary checkout as overlay Modal */
+.booking-summary-section {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: var(--overlay-bg, rgba(75, 75, 75, 0.496)) !important;
+  backdrop-filter: blur(4px) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 1100 !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  animation: fadeInOverlay 0.2s ease-out forwards;
+}
+
+.booking-summary-container {
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow, 0 10px 30px -10px rgba(3, 4, 94, 0.08)) !important;
+  max-width: 680px !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  border: 1px solid var(--border-color, #e9ecef) !important;
+  animation: slideInContent 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInContent {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
