@@ -9,23 +9,29 @@ const NotificationContext = createContext();
  */
 export const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState(null);
+  const [isHiding, setIsHiding] = useState(false);
 
-  /**
-   * Show a notification.
-   * @param {string} text - Message to display.
-   * @param {"success" | "error"} type - Type of notification.
-   * @param {number} duration - Time in ms before the notification disappears.
-   */
   const notify = useCallback((text, type = "success", duration = 3000) => {
+    setIsHiding(false);
     setNotification({ text, type, duration, id: Date.now() });
   }, []);
 
   useEffect(() => {
     if (notification) {
-      const timer = setTimeout(() => {
+      // Start hiding animation slightly before the actual removal
+      const hideTimer = setTimeout(() => {
+        setIsHiding(true);
+      }, notification.duration - 300);
+
+      const removeTimer = setTimeout(() => {
         setNotification(null);
+        setIsHiding(false);
       }, notification.duration);
-      return () => clearTimeout(timer);
+
+      return () => {
+        clearTimeout(hideTimer);
+        clearTimeout(removeTimer);
+      };
     }
   }, [notification]);
 
@@ -33,7 +39,10 @@ export const NotificationProvider = ({ children }) => {
     <NotificationContext.Provider value={{ notify }}>
       {children}
       {notification && (
-        <div key={notification.id} className={`message-box ${notification.type}`}>
+        <div 
+          key={notification.id} 
+          className={`message-box ${notification.type} ${isHiding ? "hiding" : ""}`}
+        >
           <p>{notification.text}</p>
         </div>
       )}

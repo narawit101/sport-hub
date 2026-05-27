@@ -73,6 +73,7 @@
   color: var(--primary-color);
   background: linear-gradient(135deg, var(--primary-color) 0%, #1e3a8a 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;
 }
