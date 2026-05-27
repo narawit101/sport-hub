@@ -8,6 +8,7 @@ import { usePreventLeave } from "@/app/hooks/usePreventLeave";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import apiClient from "@/lib/apiClient";
 import { USER_STATUS, USER_ROLE } from "@/constants/status";
+import Pagination from "@/components/ui/Pagination";
 
 export default function RegisterFieldForm() {
   const router = useRouter("");
@@ -270,22 +271,11 @@ export default function RegisterFieldForm() {
           )}
         </div>
 
-        {sports.length > sportTypePerPage && (
-          <div className="pagination-facilities">
-            {Array.from(
-              { length: Math.ceil(sports.length / sportTypePerPage) },
-              (_, i) => (
-                <button
-                  key={i}
-                  className={currentPage === i + 1 ? "active" : ""}
-                  onClick={() => setCurrentPage(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              ),
-            )}
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(sports.length / sportTypePerPage)}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Add Sport Type Overlay Modal */}

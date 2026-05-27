@@ -2320,13 +2320,20 @@
 
 .modal-editfield {
   background: var(--primary-bg);
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: var(--border-radius);
-  max-width: 400px;
+  max-width: 500px;
   width: 90%;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color);
+}
+
+.modal-editfield p {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #334155;
+  margin-bottom: 2rem;
 }
 
 .modal-actions-editfield {
@@ -2939,118 +2946,31 @@
 .savebtn-inline,
 .save-btn,
 .save-new-facility-btn,
-.save-btn-add-fac {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #28a745 !important;
-  color: white !important;
-  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.1);
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  min-width: 80px;
-}
-
-.savebtn-editfield:hover,
-.save-edit-btn:hover,
-.savebtn-inline:hover,
-.save-btn:hover,
-.save-new-facility-btn:hover,
-.save-btn-add-fac:hover {
-  background: #218838 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(40, 167, 69, 0.2);
-}
-
+.save-btn-add-fac,
 .canbtn-editfield,
 .cancel-edit-btn,
 .canbtn-inline,
 .cancel-btn,
-.cancel-new-facility-btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #dc3545 !important;
-  color: white !important;
-  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.1);
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  min-width: 80px;
-}
-
-.canbtn-editfield:hover,
-.cancel-edit-btn:hover,
-.canbtn-inline:hover,
-.cancel-btn:hover,
-.cancel-new-facility-btn:hover {
-  background: #c82333 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(220, 53, 69, 0.2);
-}
-
+.cancel-new-facility-btn,
 .edit-facility-btn-simple,
 .edit-btn-inline,
 .editbtn-editfield,
-.toggle-addon-btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #03045e !important;
-  color: white !important;
-  box-shadow: 0 4px 10px rgba(3, 4, 94, 0.1);
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  min-width: 80px;
-}
-
-.edit-facility-btn-simple:hover:not(:disabled),
-.edit-btn-inline:hover:not(:disabled),
-.editbtn-editfield:hover:not(:disabled),
-.toggle-addon-btn:hover:not(:disabled) {
-  background: #020340 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(3, 4, 94, 0.2);
-}
-
+.toggle-addon-btn,
 .delete-facility-btn-simple,
 .delete-facility-btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #dc3545 !important;
-  color: white !important;
-  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.1);
   text-align: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: auto;
-  min-width: 80px;
+  min-width: 100px;
 }
 
 .edit-image-form-header {

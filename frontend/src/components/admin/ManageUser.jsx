@@ -101,11 +101,7 @@ export default function AdminManager() {
             disabled={startProcessLoad}
             onClick={() => onDelete(userId)}
           >
-            {startProcessLoad ? (
-              <LoadingSpinner mode="dots" />
-            ) : (
-              "ยืนยันการลบ"
-            )}
+            {startProcessLoad ? <LoadingSpinner mode="dots" /> : "ยืนยันการลบ"}
           </button>
           <button
             className="cancelbtn-user"
@@ -158,8 +154,8 @@ export default function AdminManager() {
 
       setUsers(
         users.map((user) =>
-          user.user_id === selectedUser.user_id ? selectedUser : user
-        )
+          user.user_id === selectedUser.user_id ? selectedUser : user,
+        ),
       );
       notify("แก้ไขเรียบร้อย", "success");
       setSelectedUser(null);
@@ -178,7 +174,9 @@ export default function AdminManager() {
 
   const filteredUsers = users.filter((user) => {
     if (roleFilter === "all")
-      return user.role === USER_ROLE.CUSTOMER || user.role === USER_ROLE.FIELD_OWNER;
+      return (
+        user.role === USER_ROLE.CUSTOMER || user.role === USER_ROLE.FIELD_OWNER
+      );
     return user.role === roleFilter;
   });
 
@@ -186,10 +184,7 @@ export default function AdminManager() {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-
-
-  if (isLoading)
-    return <LoadingSpinner mode="full" />;
+  if (isLoading) return <LoadingSpinner mode="full" />;
 
   return (
     <>
@@ -235,8 +230,8 @@ export default function AdminManager() {
                           user.status === USER_STATUS.PENDING
                             ? "pending"
                             : user.status === USER_STATUS.VERIFIED
-                            ? "approved"
-                            : "unknown"
+                              ? "approved"
+                              : "unknown"
                         }`}
                       >
                         {user.status || "ไม่ทราบสถานะ"}
@@ -247,10 +242,10 @@ export default function AdminManager() {
                       {user.role === USER_ROLE.CUSTOMER
                         ? "ลูกค้า"
                         : user.role === USER_ROLE.FIELD_OWNER
-                        ? "เจ้าของสนามกีฬา"
-                        : user.role === USER_ROLE.ADMIN
-                        ? "ผู้ดูแลระบบ"
-                        : user.role}
+                          ? "เจ้าของสนามกีฬา"
+                          : user.role === USER_ROLE.ADMIN
+                            ? "ผู้ดูแลระบบ"
+                            : user.role}
                     </td>
                     <td>
                       <button
@@ -379,8 +374,8 @@ export default function AdminManager() {
                         user.status === USER_STATUS.PENDING
                           ? "pending"
                           : user.status === USER_STATUS.VERIFIED
-                          ? "approved"
-                          : "unknown"
+                            ? "approved"
+                            : "unknown"
                       }`}
                     >
                       {user.status || "ไม่ทราบสถานะ"}
@@ -390,8 +385,8 @@ export default function AdminManager() {
                     {user.role === USER_ROLE.CUSTOMER
                       ? "ลูกค้า"
                       : user.role === USER_ROLE.FIELD_OWNER
-                      ? "เจ้าของสนามกีฬา"
-                      : user.role}
+                        ? "เจ้าของสนามกีฬา"
+                        : user.role}
                   </td>
                   <td>
                     <button
@@ -442,9 +437,6 @@ export default function AdminManager() {
           currentPage={currentPage}
           totalPages={Math.ceil(filteredUsers.length / usersPerPage)}
           onPageChange={setCurrentPage}
-          containerClassName="pagination-container-manager"
-          activeClassName="active-page-manager"
-          dotsClassName="pagination-dots-manager"
         />
         {selectedUser && (
           <div className="modal-manager">

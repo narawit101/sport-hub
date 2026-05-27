@@ -1,5 +1,7 @@
 :root {
   --text-color: #03045e;
+  --primary-color: #03045e;
+  --primary-hover: #02033b;
   --primary-bg: #ffffff;
   --secondary-bg: #f8f9fa;
   --border-color: #e9ecef;
@@ -8,6 +10,7 @@
   --success-color: #10b981;
   --danger-color: #ef4444;
 }
+
 
 /* Page Container */
 .check-field-detail-container {
@@ -621,7 +624,7 @@ h2 .edit-btn-inline {
 }
 
 .savebtn-editfield {
-  background: #10b981;
+  background-color: var(--primary-color) !important;
   color: white;
   border: none;
   padding: 8px 20px;

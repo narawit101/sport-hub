@@ -8,6 +8,7 @@ import apiClient from "@/lib/apiClient";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { USER_STATUS, FIELD_STATUS, USER_ROLE } from "@/constants/status";
 import FieldGrid from "@/components/shared/FieldGrid";
+import Pagination from "@/components/ui/Pagination";
 
 export default function MyFieldPage() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function MyFieldPage() {
   const [dataLoading, setDataLoading] = useState(true);
   const [startProcessLoad, SetstartProcessLoad] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const fieldPerPage = 20;
+  const fieldPerPage = 4;
   usePreventLeave(startProcessLoad);
 
   useEffect(() => {
@@ -153,7 +154,9 @@ export default function MyFieldPage() {
               <option value={FIELD_STATUS.VERIFIED}>
                 {FIELD_STATUS.VERIFIED}
               </option>
-              <option value={FIELD_STATUS.PENDING}>{FIELD_STATUS.PENDING}</option>
+              <option value={FIELD_STATUS.PENDING}>
+                {FIELD_STATUS.PENDING}
+              </option>
               <option value={FIELD_STATUS.REJECTED}>
                 {FIELD_STATUS.REJECTED}
               </option>
@@ -245,20 +248,11 @@ export default function MyFieldPage() {
             </div>
           </div>
         )}
-      </div>
-      <div className="pagination-myfield">
-        {Array.from(
-          { length: Math.ceil(filteredFields.length / fieldPerPage) },
-          (_, i) => (
-            <button
-              key={i}
-              className={currentPage === i + 1 ? "active" : ""}
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ),
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(filteredFields.length / fieldPerPage)}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </>
   );

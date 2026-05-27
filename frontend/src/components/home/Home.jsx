@@ -133,7 +133,8 @@ export default function HomePage() {
             <span className="section-badge">News & Updates</span>
             <h1>ความเคลื่อนไหวและโปรโมชัน</h1>
             <p className="section-subtitle">
-              ติดตามข่าวสาร กิจกรรมพิเศษ และโปรโมชันล่าสุดส่งตรงจากสนามกีฬาที่คุณสนใจ
+              ติดตามข่าวสาร กิจกรรมพิเศษ
+              และโปรโมชันล่าสุดส่งตรงจากสนามกีฬาที่คุณสนใจ
             </p>
           </div>
           {dataLoading && (

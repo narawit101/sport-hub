@@ -745,46 +745,7 @@
   color: #ffffff;
 }
 
-.pagination-container-order {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
 
-.pagination-container-order button {
-  padding: 6px 12px;
-  background-color: var(--text-color);
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s;
-}
-
-.pagination-container-order button:hover {
-  background: #2778ae;
-}
-
-.pagination-container-order button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
-
-.pagination-container-order .active-page-order {
-  background: #3498db;
-  color: white;
-  font-weight: bold;
-}
-
-.pagination-dots-order {
-  padding: 6px 10px;
-  color: #555;
-  font-weight: bold;
-}
 
 .card-delete-bookinng-btn {
   position: absolute;

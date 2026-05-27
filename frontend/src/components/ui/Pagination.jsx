@@ -6,9 +6,10 @@ export default function Pagination({
   currentPage,
   totalPages,
   onPageChange,
-  containerClassName = "pagination-container-order",
-  activeClassName = "active-page-order",
-  dotsClassName = "pagination-dots-order",
+  containerClassName = "pagination-container",
+  activeClassName = "active",
+  dotsClassName = "pagination-dots",
+  buttonClassName = "pagination-btn",
 }) {
   const getPaginationRange = (current, total) => {
     const delta = 2;
@@ -46,10 +47,12 @@ export default function Pagination({
   return (
     <div className={containerClassName}>
       <button
+        className={`${buttonClassName} pagination-nav-btn`}
         onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
         disabled={currentPage === 1}
+        aria-label="Previous Page"
       >
-        «
+        ‹
       </button>
 
       {getPaginationRange(currentPage, totalPages).map((page, index) =>
@@ -61,7 +64,7 @@ export default function Pagination({
           <button
             key={index}
             onClick={() => onPageChange(page)}
-            className={page === currentPage ? activeClassName : ""}
+            className={`${buttonClassName} ${page === currentPage ? activeClassName : ""}`}
           >
             {page}
           </button>
@@ -69,10 +72,12 @@ export default function Pagination({
       )}
 
       <button
+        className={`${buttonClassName} pagination-nav-btn`}
         onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
         disabled={currentPage === totalPages}
+        aria-label="Next Page"
       >
-        »
+        ›
       </button>
     </div>
   );

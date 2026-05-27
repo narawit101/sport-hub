@@ -141,8 +141,6 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
   const bodyClassName = isSearch ? "card-body-search" : "card-body-home";
   const reviewContainerClassName = isSearch ? "reviwe-container-search" : "reviwe-container-home";
   const reviewStarClassName = isSearch ? "reviwe-star-search" : "reviwe-star-home";
-  const firstTimeClassName = isSearch ? "firsttime-search" : "firsttime-home";
-  const firstOpenClassName = isSearch ? "firstopen-search" : "firstopen-home";
 
   return (
     <div className={cardClassName} onClick={onClick}>

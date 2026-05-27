@@ -4,15 +4,9 @@ import { useRouter } from "next/navigation";
 import "@/app/css/home-page.css";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useNotification } from "@/app/contexts/NotificationContext";
-import FieldCard from "@/components/field/FieldCard";
 import FieldGrid from "@/components/shared/FieldGrid";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faStar as solidStar,
-  faStarHalfAlt,
-} from "@fortawesome/free-solid-svg-icons";
-import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
 import apiClient from "@/lib/apiClient";
+import Pagination from "@/components/ui/Pagination";
 
 import { USER_STATUS } from "@/constants/status";
 
@@ -282,22 +276,11 @@ export default function HomePage() {
             </span>
           </div>
         )}
-        {approvedFields.length > fieldPerPage && (
-          <div className="pagination-previwe-field-home">
-            {Array.from(
-              { length: Math.ceil(approvedFields.length / fieldPerPage) },
-              (_, i) => (
-                <button
-                  key={i}
-                  className={currentPage === i + 1 ? "active" : ""}
-                  onClick={() => setCurrentPage(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              ),
-            )}
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(approvedFields.length / fieldPerPage)}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </>
   );
