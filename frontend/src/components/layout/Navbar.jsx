@@ -55,7 +55,6 @@ export default function Navbar() {
   const { notify } = useNotification();
 
   const loadExistingNotifications = useCallback(async () => {
-
     if (!user?.user_id || loadingRef.current) return;
 
     loadingRef.current = true;
@@ -88,7 +87,9 @@ export default function Navbar() {
           isRead: String(notification.status).toLowerCase() !== "unread",
         }));
         console.log("Formatted notifications:", formattedNotifications);
-        const totalUnread = formattedNotifications.filter((n) => !n.isRead).length;
+        const totalUnread = formattedNotifications.filter(
+          (n) => !n.isRead,
+        ).length;
         setUnreadCount(totalUnread);
         setNotifications(formattedNotifications.slice(0, 10));
         localStorage.setItem("unreadCount", totalUnread.toString());
@@ -132,7 +133,10 @@ export default function Navbar() {
       if (parseInt(user?.user_id) === parseInt(data?.reciveId)) {
         if (data.topic === "reset_count" || data.topic === "update_count") {
           setUnreadCount(data.unreadCount || 0);
-          localStorage.setItem("unreadCount", (data.unreadCount || 0).toString());
+          localStorage.setItem(
+            "unreadCount",
+            (data.unreadCount || 0).toString(),
+          );
         } else {
           const now = Date.now();
           if (now - lastLoadTime.current < 2000) return;
@@ -161,7 +165,7 @@ export default function Navbar() {
     try {
       await apiClient.put(`/notification/mark-all-read/${user.user_id}`);
       setNotifications((prev) =>
-        prev.map((n) => ({ ...n, isRead: true, status: "read" }))
+        prev.map((n) => ({ ...n, isRead: true, status: "read" })),
       );
       setUnreadCount(0);
       localStorage.setItem("unreadCount", "0");
@@ -179,8 +183,8 @@ export default function Navbar() {
           prev.map((n) =>
             n.notifyId === notification.notifyId
               ? { ...n, isRead: true, status: "read" }
-              : n
-          )
+              : n,
+          ),
         );
         setUnreadCount((prev) => {
           const newCount = Math.max(0, prev - 1);
@@ -237,7 +241,7 @@ export default function Navbar() {
         router.push(
           `/profile/${
             notification.fieldId || notification.field_id || ""
-          }?highlight=${currentKeyId}`
+          }?highlight=${currentKeyId}`,
         );
         setIsNotifyOpen(false);
       } else {
@@ -321,6 +325,19 @@ export default function Navbar() {
 
   const formatDate = (isoString) => formatDateToThai(isoString);
 
+  const handleSearch = () => {
+    if (searchRef.current) {
+      const input = searchRef.current.querySelector('input[type="text"]');
+      const query = input?.value.trim();
+      if (query) {
+        router.push(`/search?query=${encodeURIComponent(query)}`);
+        setIsSearchOpen(false);
+      } else {
+        notify("กรุณาพิมพ์คำค้นหา", "error");
+      }
+    }
+  };
+
   return (
     <nav className={`nav ${isScrolled ? "scrolled" : ""}`}>
       <div className="ullist">
@@ -360,18 +377,21 @@ export default function Navbar() {
               height="26"
             />
           </button>
-          <input
-            type="text"
-            placeholder="ค้นหา..."
-            className={`search-box ${isSearchOpen ? "active" : ""}`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const query = e.currentTarget.value.trim();
-                if (query)
-                  router.push(`/search?query=${encodeURIComponent(query)}`);
-              }
-            }}
-          />
+          <div className={`search-box-wrapper ${isSearchOpen ? "active" : ""}`}>
+            <input
+              type="text"
+              placeholder="ค้นหาชื่อสนาม, ประเภทกีฬา..."
+              className="search-input-modern"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
+            />
+            <button className="search-submit-btn" onClick={handleSearch}>
+              ค้นหา
+            </button>
+          </div>
         </div>
 
         {isLoading ? (
@@ -579,405 +599,121 @@ export default function Navbar() {
                 </div>
                 <ul className="notification-list">
                   {notifications.length > 0 ? (
-                    notifications.map((notification, index) => (
-                      <li
-                        key={`${notification.notifyId}-${index}`}
-                        className={`notification-item ${
-                          !notification.isRead ? "unread" : ""
-                        }`}
-                        onClick={() => handleNotificationClick(notification)}
-                      >
-                        {notification.topic === "new_booking" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              มีการจองสนามใหม่
-                            </strong>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            <small>
-                              ผู้จอง: {notification.senderName || "-"}
-                            </small>
-                            <br />
-                            <small>
-                              สนาม: {notification.fieldName || "-"}
-                              <br />
-                              สนามย่อย: {notification.subFieldName || "-"}
-                            </small>
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                          </>
-                        )}
-                        {notification.topic === "booking_approved" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              การจองได้รับการอนุมัติแล้ว
-                            </strong>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            {notification.reciveName && (
-                              <small>
-                                ผู้จอง: {notification.reciveName || "-"}
-                              </small>
-                            )}
-                            <br />
-                            <small>
-                              สนาม: {notification.fieldName || "-"}
-                              <br />
-                              สนามย่อย: {notification.subFieldName || "-"}
-                            </small>
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                          </>
-                        )}
-                        {notification.topic === "booking_rejected" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              การจองถูกปฏิเสธ
-                            </strong>
-                            <br />
-                            <small className="notif-rejected-reson">
-                              เหตุผล: {notification.rawMessage}
-                            </small>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            {notification.reciveName && (
-                              <small>
-                                ผู้จอง: {notification.reciveName || "-"}
-                              </small>
-                            )}
-                            <br />
-                            <small>
-                              สนาม: {notification.fieldName || "-"}
-                              <br />
-                              สนามย่อย: {notification.subFieldName || "-"}
-                            </small>
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                          </>
-                        )}
-                        {notification.topic === "booking_complete" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              การจองเสร็จสิ้น
-                            </strong>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            <small>
-                              สนาม: {notification.fieldName || "-"}
-                              <br />
-                              สนามย่อย: {notification.subFieldName || "-"}
-                            </small>
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                            <br />
-                            <small className="notif-hint">
-                              กรณีต้องการให้คะแนนสนาม คลิกที่หมายเลขการจองนี้
-                            </small>
-                          </>
-                        )}
-                        {notification.topic === "booking_verified" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              สลิปมัดจำของคุณได้รับการยืนยันแล้ว
-                            </strong>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            {notification.reciveName && (
-                              <small>
-                                ผู้จอง: {notification.reciveName || "-"}
-                              </small>
-                            )}
-                            <br />
-                            {notification.fieldName && (
-                              <small>
-                                สนาม: {notification.fieldName || "-"}
-                                <br />
-                                สนามย่อย: {notification.subFieldName || "-"}
-                              </small>
-                            )}
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                            <br />
-                          </>
-                        )}
-                        {notification.topic === "deposit_payment_uploaded" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              มีการอัปโหลดสลิปมัดจำ
-                            </strong>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            <small>
-                              สนาม: {notification.fieldName || "-"}
-                              <br />
-                              สนามย่อย: {notification.subFieldName || "-"}
-                            </small>
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                          </>
-                        )}
-                        {notification.topic ===
-                          "total_slip_payment_uploaded" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              มีการอัปโหลดสลิปยอดทั้งหมด
-                            </strong>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            <small>
-                              สนาม: {notification.fieldName || "-"}
-                              <br />
-                              สนามย่อย: {notification.subFieldName || "-"}
-                            </small>
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                          </>
-                        )}
+                    notifications.map((notification, index) => {
+                      const topicMap = {
+                        new_booking: "มีการจองสนามใหม่",
+                        booking_approved: "การจองได้รับการอนุมัติแล้ว",
+                        booking_rejected: "การจองถูกปฏิเสธ",
+                        booking_complete: "การจองเสร็จสิ้น",
+                        booking_verified: "สลิปมัดจำของคุณได้รับการยืนยันแล้ว",
+                        deposit_payment_uploaded: "มีการอัปโหลดสลิปมัดจำ",
+                        total_slip_payment_uploaded:
+                          "มีการอัปโหลดสลิปยอดทั้งหมด",
+                        field_registered: "มีการลงทะเบียนสนามใหม่",
+                        field_approved: "สนามกีฬาของคุณได้รับการอนุมัติ",
+                        field_appeal: "คำร้องลงทะเบียนสนามอีกครั้ง",
+                        field_rejected: "สนามกีฬาของคุณไม่ได้รับการอนุมัติ",
+                        field_posted: "มีโพสต์ใหม่จากสนามที่คุณติดตาม",
+                        booking_cancelled: "การจองถูกยกเลิกโดยเจ้าของสนาม",
+                        cancel_booking_by_customer: "การจองถูกยกเลิกโดยลูกค้า",
+                        new_following: "มีผู้ติดตามใหม่ในสนามของคุณ",
+                      };
+                      const title =
+                        topicMap[notification.topic] || "การแจ้งเตือน";
 
-                        {notification.topic === "field_registered" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              มีการลงทะเบียนสนามใหม่
-                            </strong>
-                            <br />
-                            <small>
-                              เจ้าของสนาม: {notification.senderName || "-"}
-                            </small>
-                          </>
-                        )}
-                        {notification.topic === "field_approved" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              สนามกีฬาของคุณได้รับการอนุมัติ
-                            </strong>
-                            <br />
-                            <small>
-                              เจ้าของสนาม: {notification.reciveName || "-"}
-                            </small>
-                          </>
-                        )}
-                        {notification.topic === "field_appeal" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              คำร้องลงทะเบียนสนามอีกครั้ง
-                            </strong>
-                            <br />
-                            <small>
-                              เจ้าของสนาม: {notification.senderName || "-"}
-                            </small>
-                          </>
-                        )}
-                        {notification.topic === "field_rejected" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              สนามกีฬาของคุณไม่ได้รับการอนุมัติ
-                            </strong>
-                            <br />
-                            <small className="notif-rejected-reson">
-                              เหตุผล: {notification.rawMessage || "-"}
-                            </small>
-                            <br />
-                            <small>
-                              เจ้าของสนาม: {notification.senderName || "-"}
-                            </small>
-                            <br />
-                          </>
-                        )}
-                        {notification.topic === "field_posted" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              มีโพสต์ใหม่จากสนามที่คุณติดตาม
-                            </strong>
-                            <br />
-                            {notification.fieldName && (
-                              <small>
-                                สนาม: {notification.fieldName || "-"}
-                              </small>
-                            )}
-                            {notification.postContent && (
-                              <>
-                                <br />
+                      return (
+                        <li
+                          key={`${notification.notifyId}-${index}`}
+                          className={`notification-item ${!notification.isRead ? "unread" : ""}`}
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          <strong>{title}</strong>
+                          {/* {notification.keyId && <small>หมายเลข: #{notification.keyId}</small>} */}
+
+                          {/* Topic-specific fields */}
+                          {[
+                            "new_booking",
+                            "booking_approved",
+                            "booking_rejected",
+                            "booking_complete",
+                            "booking_verified",
+                            "deposit_payment_uploaded",
+                            "total_slip_payment_uploaded",
+                            "booking_cancelled",
+                            "cancel_booking_by_customer",
+                          ].includes(notification.topic) && (
+                            <>
+                              {notification.fieldName && (
+                                <small>สนาม: {notification.fieldName}</small>
+                              )}
+                              {[
+                                "booking_rejected",
+                                "booking_cancelled",
+                                "cancel_booking_by_customer",
+                              ].includes(notification.topic) &&
+                                notification.rawMessage && (
+                                  <small className="notif-rejected-reson">
+                                    เหตุผล: {notification.rawMessage}
+                                  </small>
+                                )}
+                            </>
+                          )}
+
+                          {[
+                            "field_registered",
+                            "field_approved",
+                            "field_rejected",
+                            "field_appeal",
+                          ].includes(notification.topic) && (
+                            <>
+                              {notification.senderName &&
+                                notification.topic !== "field_approved" && (
+                                  <small>
+                                    เจ้าของสนาม: {notification.senderName}
+                                  </small>
+                                )}
+                              {notification.reciveName &&
+                                notification.topic === "field_approved" && (
+                                  <small>
+                                    เจ้าของสนาม: {notification.reciveName}
+                                  </small>
+                                )}
+                              {notification.topic === "field_rejected" &&
+                                notification.rawMessage && (
+                                  <small className="notif-rejected-reson">
+                                    เหตุผล: {notification.rawMessage}
+                                  </small>
+                                )}
+                            </>
+                          )}
+
+                          {notification.topic === "field_posted" && (
+                            <>
+                              {notification.fieldName && (
+                                <small>สนาม: {notification.fieldName}</small>
+                              )}
+                              {notification.postContent && (
                                 <small>
                                   หัวข้อ:{" "}
-                                  {notification.postContent.slice(0, 10)}
-                                  {notification.postContent.length > 10 &&
-                                    "..."}
+                                  {notification.postContent.slice(0, 40)}...
                                 </small>
-                              </>
-                            )}
-                          </>
-                        )}
-                        {notification.topic === "booking_cancelled" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              การจองถูกยกเลิกโดยเจ้าของสนาม
-                            </strong>
-                            <br />
-                            <small className="notif-rejected-reson">
-                              เหตุผล: {notification.rawMessage}
-                            </small>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            <small>
-                              ผู้จอง: {notification.reciveName || "-"}
-                            </small>
-                            <br />
-                            <small>
-                              สนาม: {notification.fieldName || "-"}
-                              <br />
-                              สนามย่อย: {notification.subFieldName || "-"}
-                            </small>
-                            <br />
-                            {notification.bookingDate && (
+                              )}
+                            </>
+                          )}
+
+                          {notification.topic === "new_following" &&
+                            notification.senderName && (
                               <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
+                                ผู้ติดตาม: {notification.senderName}
                               </small>
                             )}
-                          </>
-                        )}
-                        {notification.topic ===
-                          "cancel_booking_by_customer" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              การจองถูกยกเลิกโดยลูกค้า
-                            </strong>
-                            <br />
-                            <small className="notif-rejected-reson">
-                              เหตุผล: {notification.rawMessage}
-                            </small>
-                            <br />
-                            <small>หมายเลข: #{notification.keyId}</small>
-                            <br />
-                            <small>
-                              ผู้จอง: {notification.senderName || "-"}
-                            </small>
-                            <br />
-                            <small>
-                              สนาม: {notification.fieldName || "-"}
-                              <br />
-                              สนามย่อย: {notification.subFieldName || "-"}
-                            </small>
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                          </>
-                        )}
-                        {notification.topic === "new_following" && (
-                          <>
-                            <strong className="notif-new_booking">
-                              มีผู้ติดตามใหม่ในสนามของคุณ
-                            </strong>
-                            <br />
-                            <small>
-                              ผู้ติดตาม: {notification.senderName || "-"}
-                            </small>
-                            <br />
-                            <br />
-                            {notification.bookingDate && (
-                              <small>
-                                วันที่: {formatDate(notification.bookingDate)}
-                                <br />
-                                เวลา: {notification.startTime} -{" "}
-                                {notification.endTime}
-                              </small>
-                            )}
-                          </>
-                        )}
-                        {![
-                          "new_booking",
-                          "booking_approved",
-                          "booking_rejected",
-                          "booking_complete",
-                          "booking_cancelled",
-                          "deposit_payment_uploaded",
-                          "total_slip_payment_uploaded",
-                          "field_registered",
-                          "field_approved",
-                          "field_rejected",
-                          "field_appeal",
-                          "field_posted",
-                          "booking_cancelled",
-                          "cancel_booking_by_customer",
-                          "new_following",
-                          "booking_verified",
-                        ].includes(notification.topic) && (
-                          <>
-                            <strong>การแจ้งเตือน</strong>
-                            <br />
-                            <small>Ref: #{notification.keyId}</small>
-                          </>
-                        )}
-                        <span className="notification-time">
-                          {dayjs(notification.created_at).fromNow()}
-                        </span>
-                      </li>
-                    ))
+
+                          <span className="notification-time">
+                            {dayjs(notification.created_at).fromNow()}
+                          </span>
+                        </li>
+                      );
+                    })
                   ) : (
                     <li className="notification-item empty">
                       ไม่มีการแจ้งเตือน

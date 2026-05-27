@@ -35,6 +35,7 @@ router.get("/", async (req, res) => {
       WHERE (
         st.sport_name ILIKE $1 OR
         f.field_name ILIKE $1 OR
+        f.address ILIKE $1 OR
         f.field_description ILIKE $1 OR
         array_to_string(f.open_days, ',') ILIKE $1 OR
         a.content ILIKE $1 OR
@@ -79,6 +80,7 @@ router.get("/", async (req, res) => {
       WHERE (
         similarity(st.sport_name, $1) > 0.3 OR
         similarity(f.field_name, $1) > 0.3 OR
+        similarity(f.address, $1) > 0.3 OR
         similarity(f.field_description, $1) > 0.3 OR
         similarity(array_to_string(f.open_days, ','), $1) > 0.3 OR
         similarity(a.content, $1) > 0.3 OR
