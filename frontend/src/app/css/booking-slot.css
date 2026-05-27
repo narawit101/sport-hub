@@ -166,6 +166,7 @@
 .container-bookings {
   gap: 20px;
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   padding: 3px 30px 10px 30px;
   width: 100%;

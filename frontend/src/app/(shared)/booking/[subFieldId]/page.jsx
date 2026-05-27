@@ -10,6 +10,7 @@ import Calendar from "react-calendar";
 import "@/app/css/calendar-styles.css";
 import { useBookingFlow } from "@/app/hooks/useBookingFlow";
 import { BOOKING_STATUS, PAYMENT_METHOD } from "@/constants/status";
+import Link from "next/link";
 
 export default function Booking() {
   const { subFieldId } = useParams();
@@ -225,6 +226,7 @@ export default function Booking() {
                         ปิด
                       </button>
                       <Calendar
+                        locale="th-TH"
                         onChange={(date) => {
                           if (isTileDisabled({ date, view: "month" })) return;
                           setBookingDate(date);
@@ -597,7 +599,14 @@ export default function Booking() {
                     </svg>
                     <span>
                       คุณสามารถชำระเงินและแนบหลักฐานการโอนได้ภายหลังที่หน้า
-                      "ประวัติการจองของฉัน"
+                      <a
+                        target="_blank"
+                        href="/my-booking"
+                        className="font-medium hover:underline"
+                      >
+                        {" "}
+                        รายการจองของฉัน{" "}
+                      </a>
                     </span>
                   </div>
                   <div className="price-row remaining-row">

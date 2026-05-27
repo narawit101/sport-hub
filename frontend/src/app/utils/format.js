@@ -129,17 +129,17 @@ export const getBookingStatusDisplay = (booking) => {
 
   switch (status) {
     case "pending":
-      return { text: "รอตรวจสอบ", className: "pending" };
+      return { text: "รอตรวจสอบการจอง", className: "pending" };
     case "approved":
-      return { text: "อนุมัติแล้ว", className: "approved" };
+      return { text: "อนุมัติการจองแล้ว", className: "approved" };
     case "rejected":
-      return { text: "ไม่อนุมัติ", className: "rejected" };
+      return { text: "ปฏิเสธการจอง", className: "rejected" };
     case "complete":
-      return { text: "การจองสำเร็จ", className: "complete" };
+      return { text: "ยืนยันการใช้บริการสำเร็จ", className: "complete" };
     case "verified":
-      return { text: "อนุมัติแล้ว (ยืนยันสลิปแล้ว)", className: "verified" };
+      return { text: "อนุมัติแล้ว (ตรวจสอบสลิปเรียบร้อย)", className: "verified" };
     case "cancelled":
-      return { text: "ยกเลิกแล้ว", className: "cancelled" };
+      return { text: "ยกเลิกการจองแล้ว", className: "cancelled" };
     default:
       return { text: "ไม่ทราบสถานะ", className: "unknown" };
   }
