@@ -21,13 +21,8 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Modal Content Container */
@@ -37,24 +32,15 @@
   border-radius: 28px;
   box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
   width: 95%;
-  max-width: 450px;
-  /* Increased size */
+  max-width: 480px;
   overflow: hidden;
-  padding: 60px 30px 30px 30px;
-  /* Extra top padding for close button */
+  padding: 60px 20px 25px 20px;
   animation: calendarAppear 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes calendarAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.9) translateY(30px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 /* New Premium Close Button */
@@ -72,7 +58,7 @@
   justify-content: center;
   color: #64748b;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s ease;
   z-index: 100;
 }
 
@@ -120,18 +106,19 @@
 
 .react-calendar__navigation__label {
   flex-grow: 1;
-  font-size: 1.15rem !important;
+  font-size: 1.2rem !important;
   background: none !important;
   border: none !important;
   cursor: default !important;
   color: var(--text-color) !important;
+  font-weight: 800 !important;
 }
 
 .react-calendar__month-view__weekdays {
   text-align: center;
   text-transform: uppercase;
   font-weight: 800;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #94a3b8;
   padding-bottom: 15px;
 }
@@ -140,26 +127,26 @@
   text-decoration: none;
 }
 
+/* FIX: Remove display grid that caused misalignment */
 .react-calendar__month-view__days {
-  display: grid !important;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  display: flex !important;
+  flex-wrap: wrap !important;
 }
 
 .react-calendar__tile {
+  width: 14.2857% !important; /* Proper 7 columns calculation */
   aspect-ratio: 1/1;
   display: flex !important;
   align-items: center;
   justify-content: center;
   border-radius: 14px !important;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: #334155;
   background: none;
   border: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0 !important;
-  margin: 2px 0;
 }
 
 .react-calendar__tile:enabled:hover,
@@ -169,19 +156,26 @@
   transform: scale(1.05);
 }
 
+/* Active / Selected Date */
+.react-calendar__tile--active {
+  background: var(--text-color) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 15px -3px rgba(3, 4, 94, 0.3) !important;
+  transform: scale(1.05);
+}
+
 .react-calendar__tile--active:enabled:hover,
 .react-calendar__tile--active:enabled:focus {
   background: #020340 !important;
   color: #ffffff !important;
-  transform: scale(1.05);
 }
 
-/* Allowed days (can book) */
-.react-calendar__tile.allowed-day {
-  color: var(--text-color);
-  cursor: pointer !important;
+/* Weekends Coloring */
+.react-calendar__month-view__days__day--weekend {
+  color: #ef4444 !important;
 }
 
+/* Now / Today Date */
 .react-calendar__tile--now {
   background: #eff6ff !important;
   color: #2563eb !important;
@@ -191,28 +185,23 @@
 .react-calendar__tile--now::after {
   content: '';
   position: absolute;
-  bottom: 6px;
-  width: 4px;
-  height: 4px;
+  bottom: 8px;
+  width: 5px;
+  height: 5px;
   background: #2563eb;
   border-radius: 50%;
 }
 
-.react-calendar__tile--active {
-  background: var(--text-color) !important;
-  color: #ffffff !important;
-  box-shadow: 0 10px 15px -3px rgba(3, 4, 94, 0.3) !important;
-  transform: scale(1.05);
-}
-
+/* Disabled dates */
 .react-calendar__tile:disabled {
   background: transparent !important;
   color: #cbd5e1 !important;
   cursor: default !important;
 }
 
-.react-calendar__tile--neighboringMonth {
-  opacity: 0.3;
+/* Hide neighboring month tiles to prevent confusion and layout shifts */
+.react-calendar__month-view__days__day--neighboringMonth {
+  visibility: hidden !important;
 }
 
 /* Date Selector Button (Main Page) */
@@ -238,24 +227,14 @@
   box-shadow: 0 10px 15px -3px rgba(3, 4, 94, 0.1);
 }
 
-.calendar-toggle-btn svg {
-  color: var(--text-color);
-  stroke-width: 2.5;
-}
-
 /* Mobile Adjustments */
 @media (max-width: 480px) {
   .calendar-popup {
     width: 95%;
-    padding: 10px;
+    padding: 50px 10px 15px 10px;
   }
-
+  
   .react-calendar__tile {
-    font-size: 0.9rem;
-  }
-
-  .calendar-toggle-btn {
-    padding: 10px 18px;
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 }

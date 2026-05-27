@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import "@/app/css/booking-slot.css";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { formatPrice, formatDateToThai } from "@/app/utils/format";
@@ -10,11 +10,9 @@ import Calendar from "react-calendar";
 import "@/app/css/calendar-styles.css";
 import { useBookingFlow } from "@/app/hooks/useBookingFlow";
 import { BOOKING_STATUS, PAYMENT_METHOD } from "@/constants/status";
-import Link from "next/link";
 
 export default function Booking() {
   const { subFieldId } = useParams();
-  const router = useRouter();
   const { notify } = useNotification();
   const { user, isLoading: authLoading } = useAuth();
 
@@ -23,12 +21,9 @@ export default function Booking() {
     closeHours,
     slots,
     selectedSlots,
-    selectedSlotsArr,
     canBook,
     timeStart,
     timeEnd,
-    startDate,
-    endDate,
     totalHours,
     price,
     newPrice,
@@ -46,7 +41,6 @@ export default function Booking() {
     bookingDate,
     setBookingDate,
     openDays,
-    isBooked,
     subFieldData,
     fieldName,
     showSummary,
@@ -214,8 +208,14 @@ export default function Booking() {
                   </span>
                 </button>
                 {showCalendar && (
-                  <div className="calendar-popup-overlay" onClick={() => setShowCalendar(false)}>
-                    <div className="calendar-popup" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="calendar-popup-overlay"
+                    onClick={() => setShowCalendar(false)}
+                  >
+                    <div
+                      className="calendar-popup"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <button
                         className="btn-close-calendar-premium"
                         onClick={() => setShowCalendar(false)}
@@ -352,7 +352,9 @@ export default function Booking() {
                 </svg>
               </div>
               <div className="server-time-content">
-                <span className="server-time-label">เวลามาตรฐานประเทศไทย (GMT+7)</span>
+                <span className="server-time-label">
+                  เวลามาตรฐานประเทศไทย (GMT+7)
+                </span>
                 <span className="server-time-value">
                   {serverTime
                     ? `${serverTime.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.`
