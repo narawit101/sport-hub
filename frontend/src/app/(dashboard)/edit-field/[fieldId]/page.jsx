@@ -1029,6 +1029,7 @@ export default function EditFieldDetail() {
         onImageClick={setSelectedImage}
         onEditImage={() => startEditing("img_field", field?.img_field)}
         previewUrl={previewUrl}
+        showFollowersCount={false}
       />
 
       <div className="check-field-detail-container editfield-container">

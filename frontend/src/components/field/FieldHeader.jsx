@@ -10,6 +10,7 @@ export default function FieldHeader({
   onUnfollow,
   onShowFollowers,
   showFollowAction = false,
+  showFollowersCount = true,
   startProcessLoad = false,
   onImageClick,
   onEditImage,
@@ -71,13 +72,16 @@ export default function FieldHeader({
           </div>
 
           <div className="profile-header-meta">
-            <div
-              onClick={onShowFollowers}
-              className="profile-meta-item followers-link"
-            >
-              <strong>{formatPrice(followersCount)}</strong>
-              <span>ผู้ติดตาม</span>
-            </div>
+            {showFollowersCount && (
+              <div
+                onClick={onShowFollowers}
+                className="profile-meta-item followers-link"
+                style={{ cursor: onShowFollowers ? "pointer" : "default" }}
+              >
+                <strong>{formatPrice(followersCount)}</strong>
+                <span>ผู้ติดตาม</span>
+              </div>
+            )}
 
             {showFollowAction && (
               <div className="profile-follow-action">

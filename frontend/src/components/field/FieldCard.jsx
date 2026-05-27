@@ -3,9 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { convertToThaiDays } from "@/app/utils/format";
 import { FIELD_STATUS } from "@/constants/status";
 
@@ -19,7 +17,10 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
         className="card-myfield"
         onClick={() => router.push(`/profile/${field.field_id}`)}
       >
-        <div className="card-myfield-image-wrapper" style={{ position: "relative", width: "100%" }}>
+        <div
+          className="card-myfield-image-wrapper"
+          style={{ position: "relative", width: "100%" }}
+        >
           <img
             src={
               field.img_field
@@ -34,8 +35,8 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
               field.status === FIELD_STATUS.VERIFIED
                 ? "passed"
                 : field.status === FIELD_STATUS.REJECTED
-                ? "failed"
-                : "pending"
+                  ? "failed"
+                  : "pending"
             }`}
           >
             {field.status}
@@ -58,15 +59,13 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
           เจ้าของ: {field.first_name} {field.last_name}
         </div>
 
-        <div 
-          className="custom-button-group-myfield" 
+        <div
+          className="custom-button-group-myfield"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="main-buttons-row">
             <button
-              onClick={() =>
-                router.push(`/check-field/${field.field_id}`)
-              }
+              onClick={() => router.push(`/check-field/${field.field_id}`)}
               className="custom-button-view-myfield"
             >
               <img
@@ -79,9 +78,7 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
             </button>
             {field.status !== FIELD_STATUS.PENDING && (
               <button
-                onClick={() =>
-                  router.push(`/edit-field/${field.field_id}`)
-                }
+                onClick={() => router.push(`/edit-field/${field.field_id}`)}
                 className="custom-button-edit-myfield"
               >
                 <img
@@ -98,23 +95,7 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
           {field.status === FIELD_STATUS.VERIFIED && (
             <div className="full-width-buttons">
               <button
-                onClick={() =>
-                  router.push(`/my-order/${field.field_id}`)
-                }
-                className="custom-button-view-order-myfield"
-              >
-                <img
-                  src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1755269241/material-symbols--order-approve-outline-rounded_xgqryx.png"
-                  width={15}
-                  height={15}
-                  alt=""
-                />
-                รายการจองของสนาม
-              </button>
-              <button
-                onClick={() =>
-                  router.push(`/statistics/${field.field_id}`)
-                }
+                onClick={() => router.push(`/statistics/${field.field_id}`)}
                 className="custom-button-view-stat-myfield"
               >
                 <img
@@ -124,6 +105,18 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
                   alt=""
                 />
                 สถิติการจองสนาม
+              </button>
+              <button
+                onClick={() => router.push(`/my-order/${field.field_id}`)}
+                className="custom-button-view-order-myfield"
+              >
+                <img
+                  src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1755269241/material-symbols--order-approve-outline-rounded_xgqryx.png"
+                  width={15}
+                  height={15}
+                  alt=""
+                />
+                รายการจองของสนาม
               </button>
             </div>
           )}
@@ -137,7 +130,9 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
   const cardClassName = isSearch ? "card-search" : "card-home";
   const imgClassName = isSearch ? "card-img-search" : "card-img-home";
   const bodyClassName = isSearch ? "card-body-search" : "card-body-home";
-  const reviewContainerClassName = isSearch ? "reviwe-container-search" : "reviwe-container-home";
+  const reviewContainerClassName = isSearch
+    ? "reviwe-container-search"
+    : "reviwe-container-home";
 
   return (
     <div className={cardClassName} onClick={onClick}>
@@ -153,19 +148,51 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
       <div className={bodyClassName}>
         <h3>{field.field_name}</h3>
         <div className={reviewContainerClassName}>
-          <div className="card-rating-info" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <div
+            className="card-rating-info"
+            style={{ display: "flex", alignItems: "center", gap: "6px" }}
+          >
             {field.avg_rating && field.avg_rating > 0 ? (
               <>
-                <span className="star-icon" style={{ color: "#facc15", fontSize: "16px" }}>★</span>
-                <span className="rating-score" style={{ fontWeight: 700, color: "#1e293b", fontSize: "14px" }}>
+                <span
+                  className="star-icon"
+                  style={{ color: "#facc15", fontSize: "16px" }}
+                >
+                  ★
+                </span>
+                <span
+                  className="rating-score"
+                  style={{
+                    fontWeight: 700,
+                    color: "#1e293b",
+                    fontSize: "14px",
+                  }}
+                >
                   {field.avg_rating}
                 </span>
-                <span className="review-count" style={{ color: "#64748b", fontSize: "13px", fontWeight: 500 }}>
+                <span
+                  className="review-count"
+                  style={{
+                    color: "#64748b",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                  }}
+                >
                   ({field.review_count || 0} รีวิว)
                 </span>
               </>
             ) : (
-              <span className="no-rating-text" style={{ color: "#94a3b8", fontWeight: 500, fontSize: "12.5px", background: "#f8fafc", padding: "2px 8px", borderRadius: "6px" }}>
+              <span
+                className="no-rating-text"
+                style={{
+                  color: "#94a3b8",
+                  fontWeight: 500,
+                  fontSize: "12.5px",
+                  background: "#f8fafc",
+                  padding: "2px 8px",
+                  borderRadius: "6px",
+                }}
+              >
                 ยังไม่มีรีวิว
               </span>
             )}
@@ -189,7 +216,9 @@ export default function FieldCard({ field, mode = "home", onClick, onDelete }) {
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span>{field.open_hours} น. - {field.close_hours} น.</span>
+            <span>
+              {field.open_hours} น. - {field.close_hours} น.
+            </span>
           </div>
 
           {/* Days Row */}

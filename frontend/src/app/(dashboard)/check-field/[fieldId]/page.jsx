@@ -221,6 +221,7 @@ export default function CheckFieldDetail() {
       <FieldHeader 
         fieldData={fieldData} 
         onImageClick={setSelectedImage} 
+        showFollowersCount={false}
       />
 
       <div className="check-field-detail-container">
