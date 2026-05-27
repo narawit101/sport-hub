@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "@/app/css/footer.css";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,6 +13,17 @@ import { useAuth } from "@/app/contexts/AuthContext";
 
 export default function Footer() {
   const { user } = useAuth();
+  const [lastField, setLastField] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const fieldId = localStorage.getItem("field_id");
+      const fieldName = localStorage.getItem("field_name");
+      if (fieldId && fieldName) {
+        setLastField({ id: fieldId, name: fieldName });
+      }
+    }
+  }, []);
 
   return (
     <footer className="footer">
@@ -49,11 +60,24 @@ export default function Footer() {
               <Link href="/">หน้าแรก</Link>
             </li>
             <li>
-              <Link href="/search">ค้นหาสนาม</Link>
+              <Link href="/search">ค้นหาสนามกีฬา</Link>
             </li>
             <li>
-              <Link href="/contact">ติดต่อเรา</Link>
+              <Link href="/categories">สนามกีฬาทั้งหมด</Link>
             </li>
+            {user && (
+              <li>
+                <Link href="/contact">ติดต่อผู้ดูแลระบบ</Link>
+              </li>
+            )}
+
+            {user && lastField && (
+              <li>
+                <Link href={`/profile/${lastField.id}?showDescription=true`}>
+                  ติดต่อสนามกีฬาที่ดูล่าสุด: {lastField.name}
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
 
@@ -72,7 +96,7 @@ export default function Footer() {
             )}
 
             <li>
-              <Link href="/register-field">ลงทะเบียนสนาม</Link>
+              <Link href="/register-field">ลงทะเบียนสนามกีฬา</Link>
             </li>
           </ul>
         </div>

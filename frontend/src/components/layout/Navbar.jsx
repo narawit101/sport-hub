@@ -827,20 +827,11 @@ export default function Navbar() {
               >
                 <img
                   src="https://res.cloudinary.com/dlwfuul9o/image/upload/v1758739454/fluent--chat-help-20-regular_knlirt.png"
-                  alt="ติดต่อสนามกีฬาล่าสุด"
+                  alt="ติดต่อสนามล่าสุด"
                   width={30}
                   height={30}
                 />
-                <div className="contact-field-lasted">
-                  ติดต่อสนามกีฬาที่ดูล่าสุด
-                  <ul>
-                    <li>
-                      {" "}
-                      สนาม: {""}
-                      {fieldName}
-                    </li>
-                  </ul>
-                </div>
+                ติดต่อสนามล่าสุด: {fieldName}
               </Link>
             </li>
           )}

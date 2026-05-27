@@ -41,6 +41,9 @@ export default function CheckFieldDetail() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingPostData, setEditingPostData] = useState(null);
 
+  // Create Modal State (kept at root level to avoid CSS transform stacking context issues)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
   const [showModalFollower, setShowModalFollower] = useState(false);
   const [showModalDescription, setShowModalDescription] = useState(false);
@@ -55,7 +58,6 @@ export default function CheckFieldDetail() {
   const [highlightMissing, setHighlightMissing] = useState(false);
   usePreventLeave(startProcessLoad);
   const [notFoundFlag, setNotFoundFlag] = useState(false);
-  const [showSubfieldModal, setShowSubfieldModal] = useState(false);
   const [userFollowing, setUserFollowing] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [dataFollowers, setDataFollowers] = useState([]);
@@ -338,10 +340,6 @@ export default function CheckFieldDetail() {
     fetchReviews();
   }, [fieldId]);
 
-  const scrollToBookingSection = () => {
-    setShowSubfieldModal(true);
-  };
-
   const handleCloseLightbox = () => {
     setSelectedImage(null);
   };
@@ -456,10 +454,6 @@ export default function CheckFieldDetail() {
     return review.rating === parseInt(selectedRating);
   });
 
-  const handleCancel = () => {
-    setShowSubfieldModal(false);
-  };
-
   const clearHighlight = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("highlight");
@@ -514,6 +508,18 @@ export default function CheckFieldDetail() {
           <img src={selectedImage} alt="Zoomed" className="lightbox-image" />
         </div>
       )}
+
+      {/* Create Post Modal — rendered at root level to avoid CSS transform stacking context issues
+          from .post-profile:hover { transform: translateY(-2px) } */}
+      <PostModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        mode="create"
+        fieldId={fieldId}
+        onSuccess={(newPost) => {
+          console.log("โพสใหม่ถูกสร้างแล้ว Socket จะจัดการให้:", newPost);
+        }}
+      />
 
       <FieldHeader
         fieldData={fieldData}
@@ -599,9 +605,6 @@ export default function CheckFieldDetail() {
                 </div>
               )}
             </div>
-            <div className="profile-btn">
-              <button onClick={scrollToBookingSection}>เลือกสนาม</button>
-            </div>
           </div>
 
           {/* โพสต์ล่าสุดจากสนาม */}
@@ -653,11 +656,7 @@ export default function CheckFieldDetail() {
             )}
             {canPost && (
               <Post
-                setCurrentPage={setCurrentPage}
-                fieldId={fieldId}
-                onPostSuccess={(newPost) => {
-                  console.log("โพสใหม่ถูกสร้างแล้ว Socket จะจัดการให้:", newPost);
-                }}
+                onOpenModal={() => setIsCreateModalOpen(true)}
               />
             )}
             {!dataLoading && postData.length === 0 && (
@@ -1019,57 +1018,6 @@ export default function CheckFieldDetail() {
               >
                 ยกเลิก
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {showSubfieldModal && (
-        <div className="modal-overlay-subfield">
-          <div className="modal-box-subfield">
-            <button
-              style={{
-                cursor: startProcessLoad ? "not-allowed" : "pointer",
-              }}
-              disabled={startProcessLoad}
-              onClick={handleCancel}
-              className="btn-cancel-subfield-profile"
-            >
-              X
-            </button>
-            <div className="undercontainer-profile-overlay">
-              <h1 className="sub-fields-profile">เลือกสนามย่อย</h1>
-              <div className="sub-fields-container-profile-overlay">
-                {fieldData?.sub_fields && fieldData.sub_fields.length > 0 ? (
-                  fieldData.sub_fields.map((sub) => (
-                    <div
-                      key={sub.sub_field_id}
-                      className="sub-field-card-profile-overlay"
-                      onClick={() =>
-                        router.push(`/booking/${sub.sub_field_id}`)
-                      }
-                    >
-                      <p>
-                        <strong>ชื่อสนาม:</strong> {sub.sub_field_name}
-                      </p>
-                      <p>
-                        <strong>ราคา:</strong> {formatPrice(sub.price)} บาท
-                      </p>
-                      <p>
-                        <strong>กีฬา:</strong> {sub.sport_name}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="sub-fields-container-profile">
-                    {" "}
-                    {dataLoading && (
-                      <div className="loading-data">
-                        <div className="loading-data-spinner"></div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>

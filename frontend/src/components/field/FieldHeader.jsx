@@ -20,11 +20,7 @@ export default function FieldHeader({
   const displayImage = previewUrl || fieldData.img_field;
 
   return (
-    <div
-      className="image-container-profile"
-      style={{ cursor: onImageClick ? "pointer" : "default" }}
-      onClick={() => onImageClick && onImageClick(displayImage)}
-    >
+    <div className="image-container-profile">
       {displayImage ? (
         <>
           <img
@@ -43,11 +39,14 @@ export default function FieldHeader({
       )}
       <div
         className="profile-header-overlay"
-        onClick={() => onImageClick && onImageClick(displayImage)}
+        style={{ cursor: onImageClick && displayImage ? "zoom-in" : "default" }}
+        onClick={() =>
+          onImageClick && displayImage && onImageClick(displayImage)
+        }
       >
         {onEditImage && (
-          <button 
-            className="edit-header-btn" 
+          <button
+            className="edit-header-btn"
             onClick={(e) => {
               e.stopPropagation();
               onEditImage();

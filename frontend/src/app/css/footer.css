@@ -18,7 +18,7 @@
 }
 
 .footer-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px;
   display: flex;
@@ -93,6 +93,62 @@
   color: var(--text-color);
   text-decoration: underline;
   text-underline-offset: 4px;
+}
+
+/* Recent Field Footer Card */
+.footer-recent-field-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  margin-top: 5px;
+}
+
+.footer-contact-link {
+  text-decoration: none !important;
+}
+
+.footer-contact-link:hover .footer-recent-field-card {
+  border-color: var(--text-color);
+  background: #f0f4ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.08);
+}
+
+.field-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(3, 4, 94, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.field-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.field-name-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-action-text {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
 }
 
 .footer-bottom {

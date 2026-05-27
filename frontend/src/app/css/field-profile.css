@@ -608,36 +608,7 @@
   }
 }
 
-.add-post-button {
-  width: 50%;
-  margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
 
-.savebtn-edit-post-profile {
-  margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: var(--success-color);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.savebtn-edit-post-profile:hover {
-  background-color: var(--hover-success-color);
-}
-
-.add-post-button:hover {
-  background-color: #45a049;
-}
 
 .field-info-profile {
   display: flex;
@@ -692,7 +663,7 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   padding: 24px;
-  margin-bottom: 25px;
+  /* margin-bottom: 25px; */
   border-radius: 16px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
   box-sizing: border-box;
@@ -925,27 +896,34 @@
 }
 
 .profile-btn button {
-  width: 150px;
+  width: 100%;
+  max-width: 200px;
   margin: 30px auto;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  margin-top: 20px;
-  background: linear-gradient(135deg, #1b0ed4, #055199);
+  background: var(--text-color, #03045e);
   color: white;
-  font-size: 18px;
-  font-weight: bold;
-  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px 28px;
   border: none;
-  border-radius: 15px;
+  border-radius: var(--border-radius, 16px);
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(135, 126, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.15);
+  transition: all 0.25s ease;
   outline: none;
 }
 
 .profile-btn button:hover {
-  background: #1b0ed4;
+  background: #020438;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(3, 4, 94, 0.25);
+}
+
+.profile-btn button:active {
+  transform: translateY(0);
 }
 
 .field-facilities-profile p.no-facilities {
@@ -1998,28 +1976,31 @@
 
 .open-google-maps-btn {
   display: flex;
-  width: 170px;
+  width: 100%;
+  max-width: 220px;
   margin: 20px auto 10px auto;
   text-align: center;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background-color: #e0f2fe;
-  color: #03045e;
-  border-radius: 9999px;
-  font-size: 13.5px;
+  gap: 10px;
+  padding: 12px 20px;
+  background-color: #f8fafc;
+  color: var(--text-color, #03045e);
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
   text-decoration: none;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(3, 4, 94, 0.05);
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
 }
 
 .open-google-maps-btn:hover {
-  background-color: #03045e;
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(3, 4, 94, 0.15);
+  background-color: #ffffff;
+  border-color: var(--text-color, #03045e);
+  color: var(--text-color, #03045e);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(3, 4, 94, 0.1);
 }
 
 .open-google-maps-btn svg {
