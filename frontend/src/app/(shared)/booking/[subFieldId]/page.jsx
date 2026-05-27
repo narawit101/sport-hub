@@ -532,6 +532,15 @@ export default function Booking() {
                 </p>
               </div>
 
+              <div className="section-title-compact">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>ข้อมูลการจองเวลา</span>
+              </div>
               <div className="details-grid-premium">
                 <div className="detail-item-compact">
                   <span className="label">วันที่จอง</span>
@@ -556,7 +565,10 @@ export default function Booking() {
               {facilities.length > 0 && (
                 <div className="facilities-compact-section">
                   <h4 className="section-title-compact">
-                    สิ่งอำนวยความสะดวกเพิ่มเติม
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <span>สิ่งอำนวยความสะดวกเพิ่มเติม</span>
                   </h4>
                   <div className="facilities-list-compact">
                     {facilities.map((fac) => {
