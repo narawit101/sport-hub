@@ -637,57 +637,83 @@
   margin-bottom: 10px;
 }
 
-.addon-options-book {
-  padding: 20px 0 3px;
-  margin-top: 10px;
+.package-selector-premium {
+  margin: 5px 0 20px 0;
 }
 
-.addon-title {
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  font-size: 18px;
-  font-weight: 600;
+.package-title-premium {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
   margin-bottom: 12px;
-}
-
-.addon-grid-book {
-  justify-content: center;
-  align-items: center;
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
-.addon-card {
-  padding: 16px;
-  border: 2px solid #939393;
+.package-title-premium svg {
+  color: var(--text-color);
+}
+
+.package-grid-premium {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.package-card-premium {
+  background: #ffffff;
+  border: 1.5px solid #f1f5f9;
   border-radius: 12px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  width: 180px;
-  text-align: center;
-  background-color: #fafafa;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
 }
 
-.addon-card:hover {
+.package-card-premium:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateX(4px);
+}
+
+.package-card-premium.selected {
   border-color: var(--text-color);
+  background: rgba(3, 4, 94, 0.03);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.05);
 }
 
-.addon-card.selected {
-  border-color: var(--text-color);
-  background-color: #f3f3ff;
+.package-info-premium {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.addon-content-book {
-  font-size: 16px;
-  font-weight: 500;
+.package-name-premium {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-color);
 }
 
-.addon-price-book {
-  font-size: 14px;
-  color: #333;
-  margin-top: 4px;
+.package-price-premium {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.package-check-icon {
+  color: var(--text-color);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.2s ease;
+}
+
+.package-card-premium.selected .package-check-icon {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .toggle-facilities {
@@ -1982,38 +2008,378 @@
   flex-shrink: 0;
 }
 
-/* Redesign Summary checkout as overlay Modal */
+/* ==========================================
+   BOOKING SUMMARY MODAL (PREMIUM)
+   ========================================== */
+
 .booking-summary-section {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  background-color: var(--overlay-bg, rgba(75, 75, 75, 0.496)) !important;
-  backdrop-filter: blur(4px) !important;
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-  z-index: 1100 !important;
+  z-index: 2500 !important;
   margin: 0 !important;
   padding: 20px !important;
   box-sizing: border-box !important;
-  animation: fadeInOverlay 0.2s ease-out forwards;
 }
 
 .booking-summary-container {
   background: #ffffff !important;
-  border-radius: 16px !important;
-  box-shadow: var(--shadow, 0 10px 30px -10px rgba(3, 4, 94, 0.08)) !important;
-  max-width: 680px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  max-width: 600px !important;
   width: 100% !important;
-  max-height: 90vh !important;
+  max-height: 92vh !important;
   overflow-y: auto !important;
-  border: 1px solid var(--border-color, #e9ecef) !important;
-  animation: slideInContent 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-  box-sizing: border-box !important;
+  border: 1px solid #e2e8f0 !important;
+  animation: slideInContent 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   padding: 0 !important;
-  margin: 0 !important;
+}
+
+.summary-details {
+  padding: 0 30px 30px 30px !important;
+}
+
+.venue-summary-box {
+  text-align: center;
+  margin-bottom: 25px;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+}
+
+.field-title-summary {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin: 0 0 4px 0;
+}
+
+.sub-field-title-summary {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  margin: 0;
+}
+
+.details-grid-premium {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.detail-item-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 12px;
+}
+
+.detail-item-compact .label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item-compact .value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Compact Facilities List */
+.facilities-compact-section {
+  margin-bottom: 25px;
+}
+
+.section-title-compact {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.facilities-list-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 10px;
+}
+
+.facility-row-compact {
+  display: flex;
+  align-items: center; /* Changed from space-between to align-items: center */
+  gap: 15px; /* Added gap for elements */
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.facility-row-compact.active {
+  background: #f0f7ff;
+  border-color: #dbeafe;
+}
+
+.fac-visual-compact {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f1f5f9;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fac-thumb-premium {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fac-visual-compact.clickable {
+  cursor: zoom-in;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  border: 1.5px solid transparent;
+}
+
+.fac-visual-compact.clickable:hover {
+  transform: scale(1.05);
+  border-color: var(--text-color);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.1);
+}
+
+.fac-thumb-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  height: 100%;
+  width: 100%;
+}
+
+/* Facility Lightbox Modal */
+.btn-close-lightbox-fac {
+  position: absolute;
+  top: -45px;
+  right: 0;
+  background: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  color: #334155;
+  font-weight: bold;
+}
+
+.btn-close-lightbox-fac:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.1);
+}
+
+.premium-lightbox-content img {
+  border-radius: 16px;
+  max-width: 100%;
+  max-height: 80vh;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.fac-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.fac-meta-compact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fac-price {
+  font-size: 0.8rem;
+  color: var(--success-color);
+  font-weight: 700;
+}
+
+.fac-available {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.fac-actions {
+  flex-shrink: 0;
+}
+
+.fac-add-btn {
+  padding: 6px 12px;
+  background: #f1f5f9;
+  color: var(--text-color);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fac-add-btn:hover:not(:disabled) {
+  background: var(--text-color);
+  color: #ffffff;
+}
+
+.fac-quantity-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  padding: 4px 6px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  height: 32px;
+}
+
+.fac-quantity-stepper button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fac-quantity-stepper button:hover:not(:disabled) {
+  background: var(--text-color);
+  color: #ffffff;
+}
+
+.fac-quantity-input-compact {
+  width: 35px;
+  border: none;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-color);
+  background: transparent;
+  outline: none;
+  padding: 0;
+}
+
+/* Hide arrows for Chrome, Safari, Edge, Opera */
+.fac-quantity-input-compact::-webkit-outer-spin-button,
+.fac-quantity-input-compact::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide arrows for Firefox */
+.fac-quantity-input-compact[type=number] {
+  -moz-appearance: textfield;
+}
+
+.fac-remove-btn {
+  margin-left: 8px;
+  width: 24px !important;
+  height: 24px !important;
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+  border-radius: 6px !important;
+  font-size: 1rem !important;
+}
+
+/* Price Breakdown Premium */
+.price-breakdown-premium {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #f1f5f9;
+}
+
+.price-row-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.price-row-item.total-final {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1.5px dashed #cbd5e1;
+  color: var(--text-color);
+  font-size: 1.1rem;
+}
+
+.price-row-item.deposit-final {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.price-row-item.remaining-final {
+  color: var(--success-color);
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+/* Redefine global card header for Modal */
+.booking-summary-container .card-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.booking-summary-container .header-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #f0f4f8; /* More visible light gray-blue background */
+  border: 1.5px solid #e2e8f0;
+  color: var(--text-color, #03045e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: 0 4px 10px rgba(3, 4, 94, 0.05);
 }
 
 @keyframes fadeInOverlay {
@@ -2036,4 +2402,84 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-}
+  }
+
+  /* Premium Package Selector (Relocated to Sidebar) */
+  .package-selector-premium {
+  margin: 5px 0 20px 0;
+  }
+
+  .package-title-premium {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  }
+
+  .package-title-premium svg {
+  color: var(--text-color);
+  }
+
+  .package-grid-premium {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  }
+
+  .package-card-premium {
+  background: #ffffff;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  }
+
+  .package-card-premium:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateX(4px);
+  }
+
+  .package-card-premium.selected {
+  border-color: var(--text-color);
+  background: rgba(3, 4, 94, 0.03);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.05);
+  }
+
+  .package-info-premium {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  }
+
+  .package-name-premium {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-color);
+  }
+
+  .package-price-premium {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+  }
+
+  .package-check-icon {
+  color: var(--text-color);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.2s ease;
+  }
+
+  .package-card-premium.selected .package-check-icon {
+  opacity: 1;
+  transform: scale(1);
+  }

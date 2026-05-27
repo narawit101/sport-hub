@@ -313,6 +313,7 @@ For user profile settings, statistics summary lists, and dashboards, we split vi
 For lists or grids that can be empty (such as booking records, search results, or statistical records), replace raw text messages (like `ไม่พบคำสั่งจอง`) with a modern centered card widget.
 
 ### Guidelines
+
 1. **Friendly Copywriting**:
    - Avoid plain, abrupt system errors or generic messages.
    - Tailor the title and subtext to the user's active role:
@@ -325,10 +326,19 @@ For lists or grids that can be empty (such as booking records, search results, o
    - Use soft shadow, border radius, and flexbox centering.
 
 ### JSX Structure Example
+
 ```jsx
 <div className="empty-booking-container">
   <div className="empty-booking-icon-wrapper">
-    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
       <line x1="16" y1="2" x2="16" y2="6" />
       <line x1="8" y1="2" x2="8" y2="6" />
@@ -337,15 +347,21 @@ For lists or grids that can be empty (such as booking records, search results, o
   </div>
   <h3 className="empty-booking-title">ไม่พบรายการจองของคุณ</h3>
   <p className="empty-booking-description">
-    คุณยังไม่มีประวัติการจองในระบบ เริ่มต้นจองสนามเพื่อสนุกกับการออกกำลังกายได้เลย!
+    คุณยังไม่มีประวัติการจองในระบบ
+    เริ่มต้นจองสนามเพื่อสนุกกับการออกกำลังกายได้เลย!
   </p>
-  <button type="button" className="empty-booking-action-btn" onClick={onActionClick}>
+  <button
+    type="button"
+    className="empty-booking-action-btn"
+    onClick={onActionClick}
+  >
     <span>ค้นหาสนามกีฬา</span>
   </button>
 </div>
 ```
 
 ### CSS Styling Rules
+
 ```css
 .empty-booking-container {
   display: flex;
@@ -360,12 +376,16 @@ For lists or grids that can be empty (such as booking records, search results, o
   box-shadow: var(--shadow);
   max-width: 600px;
   margin: 30px auto;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .empty-booking-container:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 35px -10px rgba(3, 4, 94, 0.1), 0 2px 5px rgba(3, 4, 94, 0.02);
+  box-shadow:
+    0 15px 35px -10px rgba(3, 4, 94, 0.1),
+    0 2px 5px rgba(3, 4, 94, 0.02);
 }
 
 .empty-booking-icon-wrapper {
@@ -378,7 +398,9 @@ For lists or grids that can be empty (such as booking records, search results, o
   justify-content: center;
   margin-bottom: 20px;
   color: var(--text-color, #03045e);
-  transition: transform 0.3s ease, background 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease;
 }
 
 .empty-booking-container:hover .empty-booking-icon-wrapper {
@@ -394,15 +416,21 @@ For lists or grids that can be empty (such as booking records, search results, o
 Modals and lightboxes should appear with smooth, lightweight CSS keyframe transition animations to feel premium and interactive.
 
 ### Guidelines
+
 1. **Background Overlay**: Use `--overlay-bg` (`rgba(75, 75, 75, 0.496)`) with a blur filter (`backdrop-filter: blur(4px)`) to keep focus on the modal content.
 2. **Mount Transitions**: Trigger a simple fade-in overlay and scale slide-in animation on modal content mounting.
 3. **No Heavy Accents**: Do not use hard blue bar indicators (such as vertical lines) next to section titles; keep headers clean and typography-focused.
 
 ### CSS Animation Pattern
+
 ```css
 @keyframes fadeInOverlay {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInContent {

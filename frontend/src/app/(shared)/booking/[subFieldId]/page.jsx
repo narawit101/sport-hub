@@ -61,6 +61,7 @@ export default function Booking() {
   } = useBookingFlow(subFieldId, user, notify);
 
   const [showCalendar, setShowCalendar] = useState(false);
+  const [facLightboxImage, setFacLightboxImage] = useState(null);
   usePreventLeave(startProcessLoad);
 
   const formatTotalHours = (hours) => {
@@ -296,39 +297,6 @@ export default function Booking() {
                 );
               })}
             </div>
-
-            {addOns.length > 0 && (
-              <div className="addon-options-book">
-                <div className="addon-title">ประเภทราคา/แพ็กเกจ</div>
-                <div className="addon-grid-book">
-                  <div
-                    className={`addon-card ${selectPrice === "subFieldPrice" ? "selected" : ""}`}
-                    onClick={() => handlePriceOnChange("subFieldPrice")}
-                  >
-                    <div className="addon-content-book">
-                      {subFieldData.sport_name}
-                    </div>
-                    <div className="addon-price-book">
-                      {formatPrice(price)} บาท/ชม.
-                    </div>
-                  </div>
-                  {addOns.map((addon) => (
-                    <div
-                      key={addon.add_on_id}
-                      className={`addon-card ${selectPrice === addon.add_on_id.toString() ? "selected" : ""}`}
-                      onClick={() =>
-                        handlePriceOnChange(addon.add_on_id.toString())
-                      }
-                    >
-                      <div className="addon-content-book">{addon.content}</div>
-                      <div className="addon-price-book">
-                        {formatPrice(addon.price)} บาท/ชม.
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -387,6 +355,91 @@ export default function Booking() {
 
             <div className="divider-premium" />
 
+            {addOns.length > 0 && (
+              <div className="package-selector-premium">
+                <div className="package-title-premium">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                    <line x1="7" y1="7" x2="7.01" y2="7" />
+                  </svg>
+                  <span>เลือกประเภทแพ็กเกจ</span>
+                </div>
+                <div className="package-grid-premium">
+                  <div
+                    className={`package-card-premium ${selectPrice === "subFieldPrice" ? "selected" : ""}`}
+                    onClick={() => handlePriceOnChange("subFieldPrice")}
+                  >
+                    <div className="package-info-premium">
+                      <span className="package-name-premium">
+                        ราคาปกติ ({subFieldData.sport_name})
+                      </span>
+                      <span className="package-price-premium">
+                        {formatPrice(price)} บาท/ชม.
+                      </span>
+                    </div>
+                    <div className="package-check-icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                  </div>
+                  {addOns.map((addon) => (
+                    <div
+                      key={addon.add_on_id}
+                      className={`package-card-premium ${selectPrice === addon.add_on_id.toString() ? "selected" : ""}`}
+                      onClick={() =>
+                        handlePriceOnChange(addon.add_on_id.toString())
+                      }
+                    >
+                      <div className="package-info-premium">
+                        <span className="package-name-premium">
+                          {addon.content}
+                        </span>
+                        <span className="package-price-premium">
+                          {formatPrice(addon.price)} บาท/ชม.
+                        </span>
+                      </div>
+                      <div className="package-check-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="time-selection-summary-premium">
               <div className="time-row-premium">
                 <div className="time-col-premium">
@@ -412,10 +465,10 @@ export default function Booking() {
                   <span>ราคารวมทั้งสิ้น:</span>
                   <strong>{formatPrice(totalPrice)} บาท</strong>
                 </div>
-                <div className="price-row-premium deposit">
+                {/* <div className="price-row-premium deposit">
                   <span>ค่ามัดจำ:</span>
                   <strong>{formatPrice(priceDeposit)} บาท</strong>
-                </div>
+                </div> */}
 
                 <div className="action-buttons-premium">
                   <button
@@ -438,88 +491,139 @@ export default function Booking() {
       </div>
 
       {showSummary && (
-        <div className="booking-summary-section">
-          <div className="booking-summary-container" ref={summaryRef}>
-            {/* <h2 className="summary-header">สรุปการจอง</h2> */}
-            <div className="summary-details">
-              <h3 className="field-title-summary">{fieldName}</h3>
-              <p className="sub-field-title-summary">
-                สนาม: {subFieldData.sub_field_name}
+        <div
+          className="booking-summary-section"
+          onClick={() => setShowSummary(false)}
+        >
+          <div
+            className="booking-summary-container"
+            onClick={(e) => e.stopPropagation()}
+            ref={summaryRef}
+          >
+            <div className="card-header" style={{ padding: "30px 30px 10px" }}>
+              <div className="header-icon-wrapper">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="26"
+                  height="26"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                  <polyline points="10 9 9 9 8 9" />
+                </svg>
+              </div>
+              <h2 className="card-title">สรุปรายการจอง</h2>
+              <p className="card-subtitle">
+                กรุณาตรวจสอบข้อมูลการจองของคุณก่อนยืนยัน
               </p>
+            </div>
 
-              <div className="time-summary-info">
-                <div className="summary-row">
-                  <strong>วันที่:</strong>
-                  <span>{formatDateToThai(bookingDate)}</span>
+            <div className="summary-details">
+              <div className="venue-summary-box">
+                <h3 className="field-title-summary">{fieldName}</h3>
+                <p className="sub-field-title-summary">
+                  สนามย่อย: {subFieldData.sub_field_name}
+                </p>
+              </div>
+
+              <div className="details-grid-premium">
+                <div className="detail-item-compact">
+                  <span className="label">วันที่จอง</span>
+                  <span className="value">{formatDateToThai(bookingDate)}</span>
                 </div>
-                <div className="summary-row">
-                  <strong>เวลา:</strong>
-                  <span>
+                <div className="detail-item-compact">
+                  <span className="label">ช่วงเวลา</span>
+                  <span className="value">
                     {timeStart} - {timeEnd} น.
                   </span>
                 </div>
-                <div className="summary-row">
-                  <strong>จำนวนเวลา:</strong>
-                  <span>{formatTotalHours(totalHours)}</span>
+                <div className="detail-item-compact">
+                  <span className="label">รวมเวลา</span>
+                  <span className="value">{formatTotalHours(totalHours)}</span>
                 </div>
-                <div className="summary-row">
-                  <strong>กิจกรรม:</strong>
-                  <span>{activity}</span>
+                <div className="detail-item-compact">
+                  <span className="label">ประเภทกิจกรรม</span>
+                  <span className="value">{activity || "-"}</span>
                 </div>
               </div>
 
               {facilities.length > 0 && (
-                <div className="facilities-summary-section">
-                  <h4>เลือกสิ่งอำนวยความสะดวก</h4>
-                  <div className="facilities-carousel">
+                <div className="facilities-compact-section">
+                  <h4 className="section-title-compact">
+                    สิ่งอำนวยความสะดวกเพิ่มเติม
+                  </h4>
+                  <div className="facilities-list-compact">
                     {facilities.map((fac) => {
                       const isSelected = !!selectedFacilities[fac.field_fac_id];
                       const available =
                         facilityAvailability[fac.field_fac_id] ??
                         fac.fac_quantity;
+
                       return (
                         <div
                           key={fac.field_fac_id}
-                          className={`facility-card-summary ${isSelected ? "selected" : ""}`}
+                          className={`facility-row-compact ${isSelected ? "active" : ""}`}
                         >
-                          <div className="facility-image-container">
+                          <div
+                            className={`fac-visual-compact ${fac.fac_image ? "clickable" : ""}`}
+                            onClick={() => fac.fac_image && setFacLightboxImage(fac.fac_image)}
+                            title={fac.fac_image ? "คลิกเพื่อดูรูปขยาย" : ""}
+                          >
                             {fac.fac_image ? (
                               <img
                                 src={fac.fac_image}
                                 alt={fac.fac_name}
-                                className="facility-image"
+                                className="fac-thumb-premium"
                               />
                             ) : (
-                              <div className="facility-no-image">
+                              <div className="fac-thumb-placeholder">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
-                                  width="30"
-                                  height="30"
+                                  width="16"
+                                  height="16"
                                   viewBox="0 0 24 24"
                                   fill="none"
                                   stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  className="facility-placeholder-icon"
+                                  strokeWidth="2.5"
                                 >
-                                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                  <line
+                                    x1="12"
+                                    y1="22.08"
+                                    x2="12"
+                                    y2="12"
+                                  ></line>
                                 </svg>
-                                <span>ไม่มีรูปภาพ</span>
+                                <span style={{ fontSize: "10px", marginTop: "2px" }}>
+                                  ไม่มีรูป
+                                </span>
                               </div>
                             )}
                           </div>
-                          <div className="facility-info-summary">
-                            <p className="facility-name">{fac.fac_name}</p>
-                            <p className="facility-price">
-                              {formatPrice(fac.fac_price)} บาท/ชิ้น
-                            </p>
-                            <p className="facility-availability">
-                              ว่าง: {available} ชิ้น
-                            </p>
-                            <div className="facility-controls">
+
+                          <div className="fac-info">
+                            <span className="fac-name">{fac.fac_name}</span>
+                            <div className="fac-meta-compact">
+                              <span className="fac-price">
+                                {formatPrice(fac.fac_price)} บาท
+                              </span>
+                              <span className="fac-available">
+                                คงเหลือ: {available} ชิ้น
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="fac-actions">
+                            {!isSelected ? (
                               <button
-                                className={`facility-select-btn ${isSelected ? "selected" : ""}`}
+                                className="fac-add-btn"
                                 onClick={() =>
                                   handleFacilitySelect(
                                     fac.field_fac_id,
@@ -527,123 +631,99 @@ export default function Booking() {
                                     fac.fac_name,
                                   )
                                 }
-                                disabled={available <= 0 && !isSelected}
+                                disabled={available <= 0}
                               >
-                                {isSelected
-                                  ? "เลือกแล้ว"
-                                  : available <= 0
-                                    ? "สินค้าหมด"
-                                    : "เลือก"}
+                                {available <= 0 ? "หมด" : "+ เพิ่ม"}
                               </button>
-                              {isSelected && (
-                                <div className="quantity-control">
-                                  <button
-                                    type="button"
-                                    className="quantity-btn"
-                                    onClick={() =>
-                                      handleFacilityQuantityChange(
-                                        fac.field_fac_id,
-                                        selectedFacilities[fac.field_fac_id]
-                                          .quantity - 1,
-                                      )
-                                    }
-                                    disabled={
+                            ) : (
+                              <div className="fac-quantity-stepper">
+                                <button
+                                  onClick={() =>
+                                    handleFacilityQuantityChange(
+                                      fac.field_fac_id,
                                       selectedFacilities[fac.field_fac_id]
-                                        .quantity <= 1
-                                    }
-                                  >
-                                    -
-                                  </button>
-                                  <input
-                                    type="number"
-                                    className="quantity-input"
-                                    value={
+                                        .quantity - 1,
+                                    )
+                                  }
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  className="fac-quantity-input-compact"
+                                  value={
+                                    selectedFacilities[fac.field_fac_id]
+                                      .quantity
+                                  }
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value) || 1;
+                                    handleFacilityQuantityChange(
+                                      fac.field_fac_id,
+                                      Math.min(Math.max(1, val), available),
+                                    );
+                                  }}
+                                  min="1"
+                                  max={available}
+                                />
+                                <button
+                                  onClick={() =>
+                                    handleFacilityQuantityChange(
+                                      fac.field_fac_id,
                                       selectedFacilities[fac.field_fac_id]
-                                        .quantity
-                                    }
-                                    onChange={(e) => {
-                                      const val = parseInt(e.target.value) || 1;
-                                      handleFacilityQuantityChange(
-                                        fac.field_fac_id,
-                                        Math.min(Math.max(1, val), available),
-                                      );
-                                    }}
-                                    min="1"
-                                    max={available}
-                                  />
-                                  <button
-                                    type="button"
-                                    className="quantity-btn"
-                                    onClick={() =>
-                                      handleFacilityQuantityChange(
-                                        fac.field_fac_id,
-                                        selectedFacilities[fac.field_fac_id]
-                                          .quantity + 1,
-                                      )
-                                    }
-                                    disabled={
-                                      selectedFacilities[fac.field_fac_id]
-                                        .quantity >= available
-                                    }
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                                        .quantity + 1,
+                                    )
+                                  }
+                                  disabled={
+                                    selectedFacilities[fac.field_fac_id]
+                                      .quantity >= available
+                                  }
+                                >
+                                  +
+                                </button>
+                                <button
+                                  className="fac-remove-btn"
+                                  onClick={() =>
+                                    handleFacilitySelect(
+                                      fac.field_fac_id,
+                                      fac.fac_price,
+                                      fac.fac_name,
+                                    )
+                                  }
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                  {Object.values(selectedFacilities).length > 0 && (
-                    <div className="selected-facilities-summary">
-                      <h5>สิ่งอำนวยความสะดวกที่เลือก:</h5>
-                      {Object.values(selectedFacilities).map((item) => (
-                        <div
-                          key={item.field_fac_id}
-                          className="selected-facility-item"
-                        >
-                          <span>
-                            {item.fac_name} ({item.quantity} ชิ้น)
-                          </span>
-                          <span>
-                            {formatPrice(item.price * item.quantity)} บาท
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
 
-              <div className="price-summary-section">
-                <div className="price-breakdown">
-                  <div className="price-row">
-                    <strong>
-                      ราคาค่าสนาม ({formatPrice(newPrice)} / ชม.):
-                    </strong>
-                    <span>{formatPrice(newPrice * totalHours)} บาท</span>
+              <div className="price-breakdown-premium">
+                <div className="price-row-item">
+                  <span>ค่าสนาม ({formatPrice(newPrice)}/ชม.)</span>
+                  <span>{formatPrice(newPrice * totalHours)} บาท</span>
+                </div>
+                {Object.values(selectedFacilities).length > 0 && (
+                  <div className="price-row-item">
+                    <span>ค่าสิ่งอำนวยความสะดวก</span>
+                    <span>{formatPrice(sumFac)} บาท</span>
                   </div>
-                  {Object.values(selectedFacilities).length > 0 && (
-                    <div className="price-row">
-                      <strong>ค่าสิ่งอำนวยความสะดวก:</strong>
-                      <span>{formatPrice(sumFac)} บาท</span>
-                    </div>
-                  )}
-                  <div className="price-row total-row">
-                    <strong>ราคารวมทั้งสิ้น:</strong>
-                    <span>{formatPrice(totalPrice)} บาท</span>
-                  </div>
-                  <div className="price-row deposit-row">
-                    <strong>มัดจำที่ต้องชำระ:</strong>
-                    <span>{formatPrice(priceDeposit)} บาท</span>
-                  </div>
-
-                  <div className="price-row remaining-row">
-                    <strong>คงเหลือ (จ่ายที่สนาม):</strong>
-                    <span>{formatPrice(totalRemaining)} บาท</span>
-                  </div>
+                )}
+                <div className="price-row-item total-final">
+                  <strong>ราคารวมทั้งสิ้น</strong>
+                  <strong>{formatPrice(totalPrice)} บาท</strong>
+                </div>
+                <div className="price-row-item deposit-final">
+                  <span>ยอดมัดจำที่ต้องชำระ</span>
+                  <span>{formatPrice(priceDeposit)} บาท</span>
+                </div>
+                <div className="price-row-item remaining-final">
+                  <span>คงเหลือจ่ายหน้าสนาม</span>
+                  <span>{formatPrice(totalRemaining)} บาท</span>
                 </div>
               </div>
               <div className="deposit-helper-note">
@@ -756,6 +836,26 @@ export default function Booking() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {facLightboxImage && (
+        <div
+          className="premium-lightbox-overlay"
+          onClick={() => setFacLightboxImage(null)}
+        >
+          <div
+            className="premium-lightbox-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="btn-close-lightbox-fac"
+              onClick={() => setFacLightboxImage(null)}
+            >
+              ×
+            </button>
+            <img src={facLightboxImage} alt="รูปสิ่งอำนวยความสะดวก" />
           </div>
         </div>
       )}

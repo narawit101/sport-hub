@@ -175,21 +175,39 @@
   color: #ef4444 !important;
 }
 
-/* Now / Today Date */
+/* Now / Today Date - More subtle approach */
 .react-calendar__tile--now {
-  background: #eff6ff !important;
+  background: #ffffff !important;
   color: #2563eb !important;
+  border: 2px solid #dbeafe !important;
   position: relative;
 }
 
 .react-calendar__tile--now::after {
   content: '';
   position: absolute;
-  bottom: 8px;
+  bottom: 4px;
   width: 5px;
   height: 5px;
   background: #2563eb;
   border-radius: 50%;
+}
+
+/* Hovering Today when NOT active */
+.react-calendar__tile--now:enabled:hover:not(.react-calendar__tile--active) {
+  background: #f0f7ff !important;
+  border-color: #bfdbfe !important;
+}
+
+/* Selected + Today */
+.react-calendar__tile--now.react-calendar__tile--active {
+  background: var(--text-color) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.react-calendar__tile--now.react-calendar__tile--active::after {
+  background: #ffffff; /* White dot when selected */
 }
 
 /* Disabled dates */
