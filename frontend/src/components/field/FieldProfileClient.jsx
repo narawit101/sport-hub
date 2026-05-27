@@ -351,7 +351,9 @@ export default function CheckFieldDetail() {
 
   const handleEditSuccess = (updatedPost) => {
     setPostData((prev) =>
-      prev.map((post) => (post.post_id === updatedPost.post_id ? updatedPost : post)),
+      prev.map((post) =>
+        post.post_id === updatedPost.post_id ? updatedPost : post,
+      ),
     );
   };
 
@@ -531,6 +533,17 @@ export default function CheckFieldDetail() {
         showFollowAction={!!user}
         startProcessLoad={startProcessLoad}
         onImageClick={setSelectedImage}
+        averageRating={
+          reviewData && reviewData.length > 0
+            ? (
+                reviewData.reduce(
+                  (acc, curr) => acc + (Number(curr.rating) || 0),
+                  0,
+                ) / reviewData.length
+              ).toFixed(1)
+            : null
+        }
+        totalReviews={reviewData ? reviewData.length : 0}
       />
       <div className="field-detail-container-profile">
         <div className="profile-main-content">
@@ -547,7 +560,8 @@ export default function CheckFieldDetail() {
             <div
               className="detail-profile-content"
               dangerouslySetInnerHTML={{
-                __html: fieldData?.field_description || "ไม่มีข้อมูลคำแนะนำสนาม",
+                __html:
+                  fieldData?.field_description || "ไม่มีข้อมูลคำแนะนำสนาม",
               }}
             />
           </div>
@@ -661,11 +675,7 @@ export default function CheckFieldDetail() {
                 <div className="loading-data-spinner"></div>
               </div>
             )}
-            {canPost && (
-              <Post
-                onOpenModal={() => setIsCreateModalOpen(true)}
-              />
-            )}
+            {canPost && <Post onOpenModal={() => setIsCreateModalOpen(true)} />}
             {!dataLoading && postData.length === 0 && (
               <div className="empty-post-container">
                 <div className="empty-post-icon-wrapper">
@@ -693,39 +703,42 @@ export default function CheckFieldDetail() {
                 </p>
               </div>
             )}
-            {!dataLoading && postData.length > 0 && processedPosts.length === 0 && (
-              <div className="empty-post-container">
-                <div className="empty-post-icon-wrapper">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
+            {!dataLoading &&
+              postData.length > 0 &&
+              processedPosts.length === 0 && (
+                <div className="empty-post-container">
+                  <div className="empty-post-icon-wrapper">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                  </div>
+                  <h3 className="empty-post-title">ไม่พบโพสต์ที่คุณค้นหา</h3>
+                  <p className="empty-post-description">
+                    ไม่พบประกาศตามตัวเลือกที่เลือก
+                    ลองล้างตัวกรองเพื่อดูโพสต์ทั้งหมด
+                  </p>
+                  {filterDate && (
+                    <button
+                      type="button"
+                      className="empty-post-action-btn"
+                      onClick={() => setFilterDate("")}
+                    >
+                      ล้างตัวกรองวันที่
+                    </button>
+                  )}
                 </div>
-                <h3 className="empty-post-title">ไม่พบโพสต์ที่คุณค้นหา</h3>
-                <p className="empty-post-description">
-                  ไม่พบประกาศตามตัวเลือกที่เลือก ลองล้างตัวกรองเพื่อดูโพสต์ทั้งหมด
-                </p>
-                {filterDate && (
-                  <button
-                    type="button"
-                    className="empty-post-action-btn"
-                    onClick={() => setFilterDate("")}
-                  >
-                    ล้างตัวกรองวันที่
-                  </button>
-                )}
-              </div>
-            )}
+              )}
             {currentPostProfile.map((post) => (
               <PostCard
                 key={post.post_id}
@@ -750,7 +763,7 @@ export default function CheckFieldDetail() {
           {/* รีวิวสนามกีฬา */}
           <div className="reviews-section-profile">
             <div className="reviews-header-profile">
-              <h1>รีวิวสนามกีฬา</h1>
+              <h1>รีวิวสนามกีฬา ({reviewData.length})</h1>
               <div className="reviews-filter-wrapper">
                 <label htmlFor="review-score">คะแนน:</label>
                 <select
@@ -831,7 +844,9 @@ export default function CheckFieldDetail() {
                       <line x1="12" y1="7" x2="12" y2="13" />
                     </svg>
                   </div>
-                  <h3 className="empty-review-title">ยังไม่มีรีวิวสำหรับสนามนี้</h3>
+                  <h3 className="empty-review-title">
+                    ยังไม่มีรีวิวสำหรับสนามนี้
+                  </h3>
                   <p className="empty-review-description">
                     คุณสามารถเป็นคนแรกที่ให้รีวิวหลังจากจองและเข้าใช้สนามแล้ว
                   </p>
@@ -893,24 +908,12 @@ export default function CheckFieldDetail() {
               [...fieldData.open_days]
                 .sort(
                   (a, b) =>
-                    [
-                      "Mon",
-                      "Tue",
-                      "Wed",
-                      "Thu",
-                      "Fri",
-                      "Sat",
-                      "Sun",
-                    ].indexOf(a) -
-                    [
-                      "Mon",
-                      "Tue",
-                      "Wed",
-                      "Thu",
-                      "Fri",
-                      "Sat",
-                      "Sun",
-                    ].indexOf(b)
+                    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(
+                      a,
+                    ) -
+                    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(
+                      b,
+                    ),
                 )
                 .map((day, index) => (
                   <div className="opendays" key={index}>
@@ -930,8 +933,8 @@ export default function CheckFieldDetail() {
               {fieldData?.cancel_hours} ชม.
             </p>
             <p>
-              <strong>ค่ามัดจำ:</strong>{" "}
-              {formatPrice(fieldData?.price_deposit)} บาท
+              <strong>ค่ามัดจำ:</strong> {formatPrice(fieldData?.price_deposit)}{" "}
+              บาท
             </p>
             <p>
               <strong>ธนาคาร:</strong> {fieldData?.name_bank}
@@ -955,7 +958,9 @@ export default function CheckFieldDetail() {
             <div className="field-facilities-profile">
               {Array.isArray(facilities) ? (
                 facilities.length === 0 ? (
-                  <p className="no-facilities">ยังไม่มีสิ่งอำนวยความสะดวกสำหรับสนามนี้</p>
+                  <p className="no-facilities">
+                    ยังไม่มีสิ่งอำนวยความสะดวกสำหรับสนามนี้
+                  </p>
                 ) : (
                   <div className="facilities-carousel-container-profile">
                     <div className="facilities-carousel-profile">
@@ -997,7 +1002,11 @@ export default function CheckFieldDetail() {
                               จำนวนทั้งหมด: {facility.quantity_total} ชิ้น
                             </p>
                             <p className="facility-quantity-profile-vertical">
-                              รายละเอียด: {facility.description}
+                              รายละเอียด:{" "}
+                              {facility.description &&
+                              facility.description !== "undefined"
+                                ? facility.description
+                                : "ไม่มีรายละเอียด"}
                             </p>
                           </div>
                         </div>

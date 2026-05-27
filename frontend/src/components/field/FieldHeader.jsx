@@ -14,6 +14,8 @@ export default function FieldHeader({
   onImageClick,
   onEditImage,
   previewUrl,
+  averageRating = null,
+  totalReviews = 0,
 }) {
   if (!fieldData) return null;
 
@@ -57,19 +59,26 @@ export default function FieldHeader({
           </button>
         )}
         <div className="profile-header-content">
-          <h1 className="profile-header-title">{fieldData?.field_name}</h1>
-          <div className="profile-header-meta">
-            {onShowFollowers && (
-              <div
-                onClick={onShowFollowers}
-                className="profile-followers-count"
-                style={{ cursor: "pointer" }}
-              >
-                <span>
-                  ผู้ติดตาม <strong>{formatPrice(followersCount)}</strong> คน
-                </span>
+          <div className="profile-title-container">
+            <h1 className="profile-header-title">{fieldData?.field_name}</h1>
+            {averageRating && (
+              <div className="profile-rating-badge">
+                <span className="star-icon">★</span>
+                <span className="rating-value">{averageRating}</span>
+                <span className="review-count">({totalReviews} รีวิว)</span>
               </div>
             )}
+          </div>
+
+          <div className="profile-header-meta">
+            <div
+              onClick={onShowFollowers}
+              className="profile-meta-item followers-link"
+            >
+              <strong>{formatPrice(followersCount)}</strong>
+              <span>ผู้ติดตาม</span>
+            </div>
+
             {showFollowAction && (
               <div className="profile-follow-action">
                 {isFollowing ? (

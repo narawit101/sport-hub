@@ -38,12 +38,14 @@ export default function FieldFacilitiesList({
               <span>จำนวน:</span>
               <span>{facility.quantity_total} {facility.unit || "ชิ้น"}</span>
             </div>
-            {facility.description && (
-              <div className="detail-row description">
-                <span>รายละเอียด:</span>
-                <span>{facility.description}</span>
-              </div>
-            )}
+            <div className={`detail-row description ${!facility.description || facility.description === "undefined" ? "empty-desc" : ""}`}>
+              <span>รายละเอียด:</span>
+              <span>
+                {facility.description && facility.description !== "undefined"
+                  ? facility.description
+                  : "ไม่มีรายละเอียดเพิ่มเติม"}
+              </span>
+            </div>
             {isEditMode && (
               <div className="facility-actions">
                 <button

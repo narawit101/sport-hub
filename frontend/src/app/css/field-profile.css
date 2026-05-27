@@ -142,36 +142,81 @@
   letter-spacing: -0.5px;
 }
 
-.profile-header-meta {
+.profile-title-container {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
-.profile-followers-count {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
+.profile-rating-badge {
   display: flex;
   align-items: center;
+  gap: 6px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  padding: 8px 18px;
+  padding: 4px 12px;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  margin-top: 5px;
+}
+
+.profile-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.star-icon {
+  color: #facc15;
+  font-size: 18px;
+}
+
+.rating-value {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.review-count {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.profile-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
   transition: all 0.2s ease;
 }
 
-.profile-followers-count:hover {
+.followers-link {
+  cursor: pointer;
+}
+
+.followers-link:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
 
-.profile-followers-count strong {
-  font-size: 18px;
-  color: #ffffff;
-  margin: 0 4px;
+.profile-meta-item strong {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.profile-meta-item span {
+  font-size: 13px;
+  opacity: 0.9;
 }
 
 .profile-follow-action {
@@ -733,7 +778,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   border-bottom: 1px solid #edf2f7;
   padding-bottom: 12px;
   flex-wrap: wrap;

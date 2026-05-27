@@ -2,9 +2,9 @@
   --text-color: #03045e;
   --primary-bg: #ffffff;
   --secondary-bg: #f8f9fa;
-  --border-color: #e9ecef;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  --border-radius: 12px;
+  --border-color: #e2e8f0;
+  --shadow: 0 10px 30px -10px rgba(3, 4, 94, 0.08), 0 1px 3px rgba(3, 4, 94, 0.02);
+  --border-radius: 16px;
   --spacing: 1.5rem;
   --success-color: #28a745;
   --hover-success-color: #177c2e;
@@ -1092,11 +1092,12 @@
 
 .input-group-editfield label {
   color: var(--text-color);
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   display: flex;
   justify-content: center;
   text-align: center;
+  margin-bottom: 12px;
 }
 
 .input-group-editfield-center {
@@ -1112,17 +1113,17 @@
 }
 
 .input-group-editfield p {
-  color: #333;
-  font-size: 1rem;
+  color: #1e293b;
+  font-size: 1.1rem;
   font-weight: 500;
   margin: 20px auto;
-  line-height: 1.5;
+  line-height: 1.6;
   text-align: center;
 }
 
 .input-group-editfield li {
-  color: #00a093;
-  font-size: 1rem;
+  color: #0077b6;
+  font-size: 1.1rem;
   font-weight: 400;
   margin-bottom: 0.5rem;
   line-height: 1.5;
@@ -1131,38 +1132,38 @@
 .input-group-editfield select {
   width: 100%;
   margin-top: 10px;
-  padding: 0.75rem;
-  font-size: 1rem;
-  text-align: center;
+  padding: 12px 16px;
+  font-size: 16px;
+  text-align: left;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: var(--primary-bg);
+  background: white;
   transition: all 0.3s ease;
 }
 
 .editfield-container textarea,
 .editfield-container select {
   width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  text-align: center;
+  padding: 12px 16px;
+  font-size: 16px;
+  text-align: left;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: var(--primary-bg);
+  background: white;
   transition: all 0.3s ease;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .editfield-container input {
   width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
+  padding: 12px 16px;
+  font-size: 16px;
   display: flex;
   flex-direction: row;
-  text-align: center;
+  text-align: left;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: var(--primary-bg);
+  background: white;
   transition: all 0.3s ease;
   margin: 1rem auto;
 }
