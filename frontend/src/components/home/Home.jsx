@@ -15,7 +15,7 @@ export default function HomePage() {
   const [activeSidebarTab, setActiveSidebarTab] = useState("feed"); // feed | football
   const [activeFeedTab, setActiveFeedTab] = useState("general"); // general | following
   const [hideTabs, setHideTabs] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const feedScrollRef = useRef(null);
   const lastScrollTop = useRef(0);
 

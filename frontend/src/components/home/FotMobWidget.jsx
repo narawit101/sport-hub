@@ -76,6 +76,7 @@ export default function FotMobWidget({ hideTabs }) {
   const [standings, setStandings] = useState([]);
   const [seasons, setSeasons] = useState([]);
   const [leagueId, setLeagueId] = useState("47"); // Default EPL (47)
+  const [selectedSeason, setSelectedSeason] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [collapsedLeagues, setCollapsedLeagues] = useState({});
@@ -85,6 +86,43 @@ export default function FotMobWidget({ hideTabs }) {
       ...prev,
       [leagueId]: !prev[leagueId],
     }));
+  };
+
+  const handleLeagueChange = (newLeagueId) => {
+    setLeagueId(newLeagueId);
+    setSelectedSeason("");
+  };
+
+  const renderFormBadge = (match) => {
+    const result = match.resultString;
+    let bgClass = "";
+    let text = "";
+
+    if (result === "W") {
+      bgClass = "win";
+      text = "ชนะ";
+    } else if (result === "D") {
+      bgClass = "draw";
+      text = "เสมอ";
+    } else if (result === "L") {
+      bgClass = "loss";
+      text = "แพ้";
+    } else {
+      return null;
+    }
+
+    const isHome = match.home?.isOurTeam;
+
+    return (
+      <div
+        className={`standings-form-badge ${bgClass} ${isHome ? "home-match" : "away-match"}`}
+        key={match.linkToMatch}
+        title={`${match.home.name} ${match.score} ${match.away.name}`}
+      >
+        <span className="badge-text">{text}</span>
+        <span className="match-loc-line" />
+      </div>
+    );
   };
 
   // Fetch matches when date changes
@@ -102,12 +140,12 @@ export default function FotMobWidget({ hideTabs }) {
     }
   }, [activeTab]);
 
-  // Fetch standings when leagueId changes
+  // Fetch standings when leagueId or selectedSeason changes
   useEffect(() => {
     if (activeTab === "standings") {
       fetchStandings();
     }
-  }, [leagueId, activeTab]);
+  }, [leagueId, selectedSeason, activeTab]);
 
   const fetchMatches = async () => {
     setLoading(true);
@@ -139,7 +177,8 @@ export default function FotMobWidget({ hideTabs }) {
   const fetchStandings = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get(`/fotmob/standings?leagueId=${leagueId}`);
+      const seasonParam = selectedSeason ? `&season=${encodeURIComponent(selectedSeason)}` : "";
+      const res = await apiClient.get(`/fotmob/standings?leagueId=${leagueId}${seasonParam}`);
       setStandings(res.standings || []);
       setSeasons(res.allAvailableSeasons || []);
     } catch (err) {
@@ -419,25 +458,44 @@ export default function FotMobWidget({ hideTabs }) {
       {/* Standings Tab */}
       {activeTab === "standings" && (
         <div>
-          {/* League Selector */}
+          {/* League & Season Selectors */}
           <div className="standings-header-section">
             <span style={{ fontWeight: 800, color: "var(--text-color)" }}>
-              ลีกยอดนิยม
+              ตารางคะแนนฟุตบอล
             </span>
-            <select
-              className="standings-league-select"
-              value={leagueId}
-              onChange={(e) => {
-                setLeagueId(e.target.value);
-              }}
-            >
-              <option value="47">English Premier League</option>
-              <option value="339">Thai League 1</option>
-              <option value="87">La Liga</option>
-              <option value="54">Bundesliga</option>
-              <option value="55">Serie A</option>
-              <option value="53">Ligue 1</option>
-            </select>
+            <div className="standings-selectors-wrapper">
+              <select
+                className="standings-league-select"
+                value={leagueId}
+                onChange={(e) => {
+                  handleLeagueChange(e.target.value);
+                }}
+              >
+                <option value="47">English Premier League</option>
+                <option value="339">Thai League 1</option>
+                <option value="87">La Liga</option>
+                <option value="54">Bundesliga</option>
+                <option value="55">Serie A</option>
+                <option value="53">Ligue 1</option>
+              </select>
+
+              {seasons.length > 0 && (
+                <select
+                  className="standings-season-select"
+                  value={selectedSeason}
+                  onChange={(e) => {
+                    setSelectedSeason(e.target.value);
+                  }}
+                >
+                  <option value="">ฤดูกาลปัจจุบัน</option>
+                  {seasons.map((seasonStr) => (
+                    <option key={seasonStr} value={seasonStr}>
+                      {seasonStr}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
 
           {loading ? (
@@ -479,16 +537,16 @@ export default function FotMobWidget({ hideTabs }) {
               <table className="standings-table">
                 <thead>
                   <tr>
-                    <th style={{ width: "50px", textAlign: "center" }}>
-                      อันดับ
-                    </th>
+                    <th style={{ width: "55px", textAlign: "center" }}>#</th>
                     <th>สโมสร</th>
-                    <th style={{ width: "50px", textAlign: "center" }}>แข่ง</th>
-                    <th style={{ width: "50px", textAlign: "center" }}>ชนะ</th>
-                    <th style={{ width: "50px", textAlign: "center" }}>เสมอ</th>
-                    <th style={{ width: "50px", textAlign: "center" }}>แพ้</th>
-                    <th style={{ width: "50px", textAlign: "center" }}>+/-</th>
-                    <th style={{ width: "60px", textAlign: "center" }}>แต้ม</th>
+                    <th style={{ width: "45px", textAlign: "center" }}>แข่ง</th>
+                    <th style={{ width: "45px", textAlign: "center" }}>ชนะ</th>
+                    <th style={{ width: "45px", textAlign: "center" }}>เสมอ</th>
+                    <th style={{ width: "45px", textAlign: "center" }}>แพ้</th>
+                    <th style={{ width: "65px", textAlign: "center" }}>+/-</th>
+                    <th style={{ width: "45px", textAlign: "center" }}>=</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>คะแนน</th>
+                    <th style={{ width: "185px", textAlign: "left" }}>ฟอร์ม</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -497,7 +555,12 @@ export default function FotMobWidget({ hideTabs }) {
                       key={team.id}
                       className={team.idx <= 4 ? "top-team" : ""}
                     >
-                      <td style={{ textAlign: "center", fontWeight: 700 }}>
+                      <td
+                        className="standings-rank-cell"
+                        style={{
+                          borderLeft: team.qualColor ? `4px solid ${team.qualColor}` : "4px solid transparent"
+                        }}
+                      >
                         {team.idx}
                       </td>
                       <td>
@@ -518,7 +581,16 @@ export default function FotMobWidget({ hideTabs }) {
                       <td style={{ textAlign: "center" }}>{team.draws}</td>
                       <td style={{ textAlign: "center" }}>{team.losses}</td>
                       <td style={{ textAlign: "center", color: "#64748b" }}>
-                        {team.goalConDiff}
+                        {team.scoresStr || "-"}
+                      </td>
+                      <td
+                        style={{
+                          textAlign: "center",
+                          fontWeight: 700,
+                          color: team.goalConDiff > 0 ? "#10b981" : team.goalConDiff < 0 ? "#ef4444" : "#64748b"
+                        }}
+                      >
+                        {team.goalConDiff > 0 ? `+${team.goalConDiff}` : team.goalConDiff}
                       </td>
                       <td
                         style={{
@@ -528,6 +600,15 @@ export default function FotMobWidget({ hideTabs }) {
                         }}
                       >
                         {team.pts}
+                      </td>
+                      <td>
+                        <div className="standings-form-row">
+                          {team.form && team.form.length > 0 ? (
+                            team.form.slice(-5).map((match) => renderFormBadge(match))
+                          ) : (
+                            <span style={{ color: "#94a3b8", fontSize: "12px" }}>-</span>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
