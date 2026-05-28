@@ -212,7 +212,7 @@ router.get("/matches", async (req, res) => {
 router.get("/standings", async (req, res) => {
   const leagueId = req.query.leagueId || "47";
   const season = req.query.season || "";
-  const cacheKey = `fotmob:standings:v3:${leagueId}:${season || "current"}`;
+  const cacheKey = `fotmob:standings:v4:${leagueId}:${season || "current"}`;
 
   try {
     const cached = await getCachedData(cacheKey);
@@ -231,13 +231,16 @@ router.get("/standings", async (req, res) => {
     // The table structure in data/leagues: overview -> table -> [0] -> data -> table -> all
     let rawTable = [];
     let teamForm = {};
+    let legend = [];
     try {
         if (data.overview?.table?.[0]?.data?.table?.all) {
             rawTable = data.overview.table[0].data.table.all;
             teamForm = data.overview.table[0].teamForm || {};
+            legend = data.overview.table[0].data.legend || [];
         } else if (data.table?.[0]?.table?.all) {
             rawTable = data.table[0].table.all;
             teamForm = data.table[0].teamForm || {};
+            legend = data.table[0].legend || [];
         }
     } catch (e) {
         console.warn("Table structure unexpected, falling back");
@@ -261,7 +264,8 @@ router.get("/standings", async (req, res) => {
     const result = { 
       standings,
       allAvailableSeasons: data.allAvailableSeasons || [],
-      leagueName: data.details?.name || data.overview?.leagueName || data.table?.[0]?.leagueName || ""
+      leagueName: data.details?.name || data.overview?.leagueName || data.table?.[0]?.leagueName || "",
+      legend: legend || []
     };
     await setCachedData(cacheKey, result, 3600);
 

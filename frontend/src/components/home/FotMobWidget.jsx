@@ -91,12 +91,52 @@ export default function FotMobWidget({
   activeTab: externalActiveTab,
   leagueId: externalLeagueId,
   onLeagueChange,
+  allLeagues,
 }) {
   const activeTab = externalActiveTab || "matches"; // feed / matches / standings / news
 
   const [internalLeagueId, setInternalLeagueId] = useState("47");
   const leagueId = externalLeagueId || internalLeagueId;
   const setLeagueId = onLeagueChange || setInternalLeagueId;
+
+  const getCountryNameAndCodeForLeague = (id) => {
+    // Check popular leagues first or fallback
+    const POPULAR_COUNTRY_MAP = {
+      47: { name: "อังกฤษ", ccode: "ENG" },
+      8984: { name: "ไทย", ccode: "THA" },
+      87: { name: "สเปน", ccode: "ESP" },
+      54: { name: "เยอรมนี", ccode: "GER" },
+      55: { name: "อิตาลี", ccode: "ITA" },
+      53: { name: "ฝรั่งเศส", ccode: "FRA" },
+      42: { name: "นานาชาติ", ccode: "INT" },
+      73: { name: "นานาชาติ", ccode: "INT" }
+    };
+
+    if (!allLeagues) {
+      return POPULAR_COUNTRY_MAP[id] || null;
+    }
+    
+    // Check international
+    const intLeague = allLeagues.international?.find(l => String(l.id) === String(id));
+    if (intLeague) {
+      return { name: "นานาชาติ", ccode: "INT" };
+    }
+    
+    // Check countries
+    for (const country of allLeagues.countries || []) {
+      const found = country.leagues?.find(l => String(l.id) === String(id));
+      if (found) {
+        return { 
+          name: country.localizedName || country.name, 
+          ccode: country.ccode 
+        };
+      }
+    }
+
+    return POPULAR_COUNTRY_MAP[id] || null;
+  };
+
+  const countryInfo = getCountryNameAndCodeForLeague(leagueId);
 
   const [date, setDate] = useState(dayjs());
   const [matches, setMatches] = useState([]);
@@ -507,11 +547,42 @@ export default function FotMobWidget({
       {/* Standings Tab */}
       {activeTab === "standings" && (
         <div>
-          {/* League & Season Selectors */}
-          <div className="standings-header-section">
-            <span style={{ fontWeight: 800, color: "var(--text-color)" }}>
-              ตารางคะแนน {leagueName || POPULAR_LEAGUE_NAMES[leagueId] || ""}
-            </span>
+          {/* Premium League & Country Detail Header */}
+          <div className="league-detail-header-premium">
+            <div className="league-detail-info-left">
+              <img
+                src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${leagueId}.png`}
+                alt={leagueName || POPULAR_LEAGUE_NAMES[leagueId]}
+                className="league-detail-logo-large"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+              <div className="league-detail-text-col">
+                <h2 className="league-detail-name">
+                  {leagueName || POPULAR_LEAGUE_NAMES[leagueId] || ""}
+                </h2>
+                {countryInfo && (
+                  <div className="league-detail-country-row">
+                    <img
+                      src={countryInfo.ccode === "INT" 
+                        ? "https://images.fotmob.com/image_resources/logo/teamlogo/int.png"
+                        : `https://images.fotmob.com/image_resources/logo/teamlogo/${countryInfo.ccode.toLowerCase()}.png`
+                      }
+                      alt={countryInfo.name}
+                      className="league-detail-country-flag"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                    <span className="league-detail-country-name">
+                      {countryInfo.name}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="standings-selectors-wrapper">
               {seasons.length > 0 && (
                 <select

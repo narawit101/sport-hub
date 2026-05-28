@@ -1094,3 +1094,64 @@
     padding: 12px;
   }
 }
+
+/* League Detail Header Premium */
+.league-detail-header-premium {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background-color: #ffffff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #e9ecef);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.02);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.league-detail-info-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.league-detail-logo-large {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.league-detail-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.league-detail-name {
+  font-size: 1.3rem;
+  font-weight: 850;
+  color: var(--text-color, #03045e);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.league-detail-country-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.league-detail-country-flag {
+  width: 18px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.league-detail-country-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #64748b;
+}

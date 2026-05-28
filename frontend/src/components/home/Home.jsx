@@ -564,6 +564,7 @@ export default function HomePage() {
                       activeTab={activeSidebarTab}
                       leagueId={selectedLeagueId}
                       onLeagueChange={setSelectedLeagueId}
+                      allLeagues={allLeagues}
                     />
                   </div>
                 )}
