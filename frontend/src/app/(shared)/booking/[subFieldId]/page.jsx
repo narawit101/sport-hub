@@ -414,10 +414,14 @@ export default function Booking() {
                       onChange={(e) => handlePriceOnChange(e.target.value)}
                     >
                       <option value="subFieldPrice">
-                        ราคาปกติ ({subFieldData.sport_name}) — {formatPrice(price)} บาท/ชม.
+                        ราคาปกติ ({subFieldData.sport_name}) —{" "}
+                        {formatPrice(price)} บาท/ชม.
                       </option>
                       {addOns.map((addon) => (
-                        <option key={addon.add_on_id} value={addon.add_on_id.toString()}>
+                        <option
+                          key={addon.add_on_id}
+                          value={addon.add_on_id.toString()}
+                        >
                           {addon.content} — {formatPrice(addon.price)} บาท/ชม.
                         </option>
                       ))}
@@ -949,6 +953,38 @@ export default function Booking() {
             <img src={facLightboxImage} alt="รูปสิ่งอำนวยความสะดวก" />
           </div>
         </div>
+      )}
+
+      {selectedSlots.length > 0 && (
+        <button
+          className="fab-booking-summary"
+          onClick={() => {
+            const element = document.querySelector(".book-sider");
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }}
+          aria-label="เลื่อนไปดูสรุปการจอง"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="fab-booking-icon"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <polyline points="19 12 12 19 5 12" />
+          </svg>
+          {/* <span className="fab-booking-badge">
+            {selectedSlots.length}
+          </span> */}
+        </button>
       )}
     </div>
   );

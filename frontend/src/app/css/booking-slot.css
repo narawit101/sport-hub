@@ -2505,3 +2505,84 @@
   align-items: center;
   justify-content: center;
 }
+
+.fab-booking-summary {
+  display: none;
+}
+
+@media screen and (max-width: 1000px) {
+  .fab-booking-summary {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #03045e 0%, #023e8a 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(3, 4, 138, 0.4);
+    z-index: 999;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    animation: slideUpFadeRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .fab-booking-summary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(3, 4, 138, 0.5);
+  }
+
+  .fab-booking-summary:active {
+    transform: translateY(-1px);
+  }
+
+  .fab-booking-icon {
+    animation: bounceSlow 2s infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fab-booking-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: #ef4444;
+    color: white;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  @keyframes slideUpFadeRight {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes bounceSlow {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(4px);
+    }
+  }
+}
