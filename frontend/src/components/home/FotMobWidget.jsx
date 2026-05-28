@@ -68,16 +68,27 @@ const getThaiDisplayDate = (d) => {
   }
 };
 
-export default function FotMobWidget({ hideTabs }) {
-  const [activeTab, setActiveTab] = useState("matches"); // matches | standings | news
+export default function FotMobWidget({
+  hideTabs,
+  activeTab: externalActiveTab,
+  leagueId: externalLeagueId,
+  onLeagueChange,
+}) {
+  const activeTab = externalActiveTab || "matches"; // feed / matches / standings / news
+
+  const [internalLeagueId, setInternalLeagueId] = useState("47");
+  const leagueId = externalLeagueId || internalLeagueId;
+  const setLeagueId = onLeagueChange || setInternalLeagueId;
+
   const [date, setDate] = useState(dayjs());
   const [matches, setMatches] = useState([]);
   const [news, setNews] = useState([]);
   const [standings, setStandings] = useState([]);
+  const [leagueName, setLeagueName] = useState("");
   const [seasons, setSeasons] = useState([]);
-  const [leagueId, setLeagueId] = useState("47"); // Default EPL (47)
   const [selectedSeason, setSelectedSeason] = useState("");
   const [loading, setLoading] = useState(false);
+  const [newsLoadingMore, setNewsLoadingMore] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [collapsedLeagues, setCollapsedLeagues] = useState({});
 
@@ -91,6 +102,25 @@ export default function FotMobWidget({ hideTabs }) {
   const handleLeagueChange = (newLeagueId) => {
     setLeagueId(newLeagueId);
     setSelectedSeason("");
+  };
+
+  const formatRelativeThaiTime = (gmtTimeStr) => {
+    if (!gmtTimeStr) return "";
+    const now = dayjs();
+    const time = dayjs(gmtTimeStr);
+    const diffMinutes = now.diff(time, "minute");
+
+    if (diffMinutes < 1) return "เมื่อครู่";
+    if (diffMinutes < 60) return `${diffMinutes} นาทีที่ผ่านมา`;
+
+    const diffHours = now.diff(time, "hour");
+    if (diffHours < 24) return `${diffHours} ชั่วโมงที่ผ่านมา`;
+
+    const diffDays = now.diff(time, "day");
+    if (diffDays < 30) return `${diffDays} วันที่ผ่านมา`;
+
+    const diffMonths = now.diff(time, "month");
+    return `${diffMonths} เดือนที่ผ่านมา`;
   };
 
   const renderFormBadge = (match) => {
@@ -164,7 +194,7 @@ export default function FotMobWidget({ hideTabs }) {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get("/fotmob/news");
+      const res = await apiClient.get("/fotmob/news?startIndex=0");
       setNews(res.news || []);
     } catch (err) {
       console.error("Error fetching news:", err);
@@ -174,17 +204,37 @@ export default function FotMobWidget({ hideTabs }) {
     }
   };
 
+  const loadMoreNews = async () => {
+    if (newsLoadingMore) return;
+    setNewsLoadingMore(true);
+    try {
+      const res = await apiClient.get(`/fotmob/news?startIndex=${news.length}`);
+      const newItems = res.news || [];
+      setNews((prev) => [...prev, ...newItems]);
+    } catch (err) {
+      console.error("Error loading more news:", err);
+    } finally {
+      setNewsLoadingMore(false);
+    }
+  };
+
   const fetchStandings = async () => {
     setLoading(true);
     try {
-      const seasonParam = selectedSeason ? `&season=${encodeURIComponent(selectedSeason)}` : "";
-      const res = await apiClient.get(`/fotmob/standings?leagueId=${leagueId}${seasonParam}`);
+      const seasonParam = selectedSeason
+        ? `&season=${encodeURIComponent(selectedSeason)}`
+        : "";
+      const res = await apiClient.get(
+        `/fotmob/standings?leagueId=${leagueId}${seasonParam}`,
+      );
       setStandings(res.standings || []);
       setSeasons(res.allAvailableSeasons || []);
+      setLeagueName(res.leagueName || "");
     } catch (err) {
       console.error("Error fetching standings:", err);
       setStandings([]);
       setSeasons([]);
+      setLeagueName("");
     } finally {
       setLoading(false);
     }
@@ -203,45 +253,11 @@ export default function FotMobWidget({ hideTabs }) {
         class: "live",
       };
     }
-    // Convert UTC/Start time to Local Time if needed, or return original string
     return { text: status.startDateStr || "เร็วๆ นี้", class: "upcoming" };
   };
 
   return (
     <div className="football-widget-container">
-      {/* Widget Header */}
-      {/* <div className="football-widget-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10s10-4.49 10-10S17.51 2 12 2m6.23 15H16l-1.25 2.5c-.86.32-1.78.5-2.75.5s-1.89-.18-2.75-.5L8 17H5.77a8 8 0 0 1-1.63-3.53L6 10.99L4.78 8.56a8.02 8.02 0 0 1 4.79-4.19L12 5.99l2.43-1.62c2.11.68 3.84 2.21 4.79 4.19L18 11l1.86 2.48A8.1 8.1 0 0 1 18.24 17Z"></path>
-          <path fill="currentColor" d="m8.5 11l1.5 4h4l1.5-4L12 8.5z"></path>
-        </svg>
-        <h2 className="football-widget-title">ข่าวกีฬา & ผลบอลสด</h2>
-      </div> */}
-
-      {/* Header Tabs */}
-      <div className={`football-tabs ${hideTabs ? "scroll-hide" : ""}`}>
-        <button
-          className={`football-tab-btn ${activeTab === "matches" ? "active" : ""}`}
-          onClick={() => setActiveTab("matches")}
-        >
-          ผลบอล
-        </button>
-        <button
-          className={`football-tab-btn ${activeTab === "standings" ? "active" : ""}`}
-          onClick={() => {
-            setActiveTab("standings");
-          }}
-        >
-          ตารางคะแนน
-        </button>
-        <button
-          className={`football-tab-btn ${activeTab === "news" ? "active" : ""}`}
-          onClick={() => setActiveTab("news")}
-        >
-          ข่าวฟุตบอลต่างประเทศ
-        </button>
-      </div>
-
       {/* Content Area */}
       {/* Matches Tab */}
       {activeTab === "matches" && (
@@ -355,8 +371,9 @@ export default function FotMobWidget({ hideTabs }) {
               </p>
             </div>
           ) : (
-            matches.map((league) => (
-              <div key={league.id} className="league-group">
+            <div className="football-matches-scroll-container">
+              {matches.map((league) => (
+                <div key={league.id} className="league-group">
                 <div
                   className="league-header"
                   onClick={() => toggleLeague(league.id)}
@@ -370,7 +387,9 @@ export default function FotMobWidget({ hideTabs }) {
                         e.target.style.display = "none";
                       }}
                     />
-                    <span>{POPULAR_LEAGUE_NAMES[league.id] || league.name}</span>
+                    <span>
+                      {POPULAR_LEAGUE_NAMES[league.id] || league.name}
+                    </span>
                   </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -406,7 +425,9 @@ export default function FotMobWidget({ hideTabs }) {
                         <div key={match.id} className="match-card">
                           {/* Left side: Status badge */}
                           <div className="match-status-col">
-                            <span className={`match-status-badge-flat ${status.class}`}>
+                            <span
+                              className={`match-status-badge-flat ${status.class}`}
+                            >
                               {statusText}
                             </span>
                           </div>
@@ -414,7 +435,9 @@ export default function FotMobWidget({ hideTabs }) {
                           {/* Center: Teams and Score */}
                           <div className="match-teams-score-col">
                             <div className="match-team-home-flat">
-                              <span className="team-name-flat">{match.home.name}</span>
+                              <span className="team-name-flat">
+                                {match.home.name}
+                              </span>
                               <img
                                 src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}.png`}
                                 alt={match.home.name}
@@ -438,11 +461,13 @@ export default function FotMobWidget({ hideTabs }) {
                                   e.target.src = "/images/football-default.png";
                                 }}
                               />
-                              <span className="team-name-flat">{match.away.name}</span>
+                              <span className="team-name-flat">
+                                {match.away.name}
+                              </span>
                             </div>
                           </div>
 
-                          {/* Right side: spacer column to balance centering */}
+                          {/* Right side: spacer col */}
                           <div className="match-spacer-col"></div>
                         </div>
                       );
@@ -450,7 +475,8 @@ export default function FotMobWidget({ hideTabs }) {
                   </div>
                 )}
               </div>
-            ))
+            ))}
+            </div>
           )}
         </div>
       )}
@@ -461,24 +487,9 @@ export default function FotMobWidget({ hideTabs }) {
           {/* League & Season Selectors */}
           <div className="standings-header-section">
             <span style={{ fontWeight: 800, color: "var(--text-color)" }}>
-              ตารางคะแนนฟุตบอล
+              ตารางคะแนน {leagueName || POPULAR_LEAGUE_NAMES[leagueId] || ""}
             </span>
             <div className="standings-selectors-wrapper">
-              <select
-                className="standings-league-select"
-                value={leagueId}
-                onChange={(e) => {
-                  handleLeagueChange(e.target.value);
-                }}
-              >
-                <option value="47">English Premier League</option>
-                <option value="339">Thai League 1</option>
-                <option value="87">La Liga</option>
-                <option value="54">Bundesliga</option>
-                <option value="55">Serie A</option>
-                <option value="53">Ligue 1</option>
-              </select>
-
               {seasons.length > 0 && (
                 <select
                   className="standings-season-select"
@@ -545,7 +556,9 @@ export default function FotMobWidget({ hideTabs }) {
                     <th style={{ width: "55px", textAlign: "center" }}>แพ้</th>
                     <th style={{ width: "75px", textAlign: "center" }}>+/-</th>
                     <th style={{ width: "55px", textAlign: "center" }}>=</th>
-                    <th style={{ width: "65px", textAlign: "center" }}>คะแนน</th>
+                    <th style={{ width: "65px", textAlign: "center" }}>
+                      คะแนน
+                    </th>
                     <th style={{ width: "195px", textAlign: "left" }}>ฟอร์ม</th>
                   </tr>
                 </thead>
@@ -558,7 +571,9 @@ export default function FotMobWidget({ hideTabs }) {
                       <td
                         className="standings-rank-cell"
                         style={{
-                          borderLeft: team.qualColor ? `4px solid ${team.qualColor}` : "4px solid transparent"
+                          borderLeft: team.qualColor
+                            ? `4px solid ${team.qualColor}`
+                            : "4px solid transparent",
                         }}
                       >
                         {team.idx}
@@ -587,10 +602,17 @@ export default function FotMobWidget({ hideTabs }) {
                         style={{
                           textAlign: "center",
                           fontWeight: 700,
-                          color: team.goalConDiff > 0 ? "#10b981" : team.goalConDiff < 0 ? "#ef4444" : "#64748b"
+                          color:
+                            team.goalConDiff > 0
+                              ? "#10b981"
+                              : team.goalConDiff < 0
+                                ? "#ef4444"
+                                : "#64748b",
                         }}
                       >
-                        {team.goalConDiff > 0 ? `+${team.goalConDiff}` : team.goalConDiff}
+                        {team.goalConDiff > 0
+                          ? `+${team.goalConDiff}`
+                          : team.goalConDiff}
                       </td>
                       <td
                         style={{
@@ -604,9 +626,15 @@ export default function FotMobWidget({ hideTabs }) {
                       <td>
                         <div className="standings-form-row">
                           {team.form && team.form.length > 0 ? (
-                            team.form.slice(-5).map((match) => renderFormBadge(match))
+                            team.form
+                              .slice(-5)
+                              .map((match) => renderFormBadge(match))
                           ) : (
-                            <span style={{ color: "#94a3b8", fontSize: "12px" }}>-</span>
+                            <span
+                              style={{ color: "#94a3b8", fontSize: "12px" }}
+                            >
+                              -
+                            </span>
                           )}
                         </div>
                       </td>
@@ -627,7 +655,9 @@ export default function FotMobWidget({ hideTabs }) {
                 </div>
                 <div className="standings-legend-item">
                   <span className="legend-dot ecl-dot" />
-                  <span className="legend-text">รอบคัดเลือกยูโรปาคอนเฟอเรนซ์ลีก</span>
+                  <span className="legend-text">
+                    รอบคัดเลือกยูโรปาคอนเฟอเรนซ์ลีก
+                  </span>
                 </div>
                 <div className="standings-legend-item">
                   <span className="legend-dot rel-dot" />
@@ -681,33 +711,175 @@ export default function FotMobWidget({ hideTabs }) {
               </p>
             </div>
           ) : (
-            news.map((item, idx) => (
-              <a
-                key={idx}
-                href={item.pageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="football-news-card"
-              >
-                {item.imageUrl && (
-                  <img
-                    src={item.imageUrl}
-                    alt={item.title}
-                    className="football-news-thumb"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
-                  />
-                )}
-                <div className="football-news-content">
-                  <h3 className="football-news-title">{item.title}</h3>
-                  <div className="football-news-meta">
-                    <span className="football-news-source">{item.source}</span>
-                    <span>{item.time}</span>
+            <div className="news-content-wrapper">
+              {news.length >= 5 ? (
+                <>
+                  {/* Featured Top Section */}
+                  <div className="football-news-featured-wrapper">
+                    {/* Left featured card */}
+                    <a
+                      href={news[0].pageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="news-featured-big"
+                    >
+                      {news[0].imageUrl && (
+                        <img
+                          src={news[0].imageUrl}
+                          alt={news[0].title}
+                          className="news-featured-big-img"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      )}
+                      <div className="news-featured-big-overlay">
+                        <div className="news-featured-big-header">
+                          {/* <img
+                            src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${leagueId}.png`}
+                            alt="League Logo"
+                            className="news-featured-league-logo"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          /> */}
+                          {/* <span className="news-featured-league-name">
+                            {POPULAR_LEAGUE_NAMES[leagueId] || "ข่าวกีฬาฟุตบอล"}
+                          </span> */}
+                        </div>
+                        <h3 className="news-featured-big-title">
+                          {news[0].title}
+                        </h3>
+                        <div className="news-featured-big-meta">
+                          <span className="news-featured-source-badge">
+                            {news[0].source}
+                          </span>
+                          <span className="news-featured-time">
+                            {formatRelativeThaiTime(news[0].time)}
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+
+                    {/* Right column list */}
+                    <div className="news-featured-list">
+                      {news.slice(1, 5).map((item, idx) => (
+                        <a
+                          key={item.id || idx}
+                          href={item.pageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="news-featured-list-item"
+                        >
+                          <div className="news-featured-list-item-content">
+                            <h4 className="news-featured-list-item-title">
+                              {item.title}
+                            </h4>
+                            <div className="news-featured-list-item-meta">
+                              <span className="news-source">{item.source}</span>
+                              <span className="news-time">
+                                {formatRelativeThaiTime(item.time)}
+                              </span>
+                            </div>
+                          </div>
+                          {item.imageUrl && (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="news-featured-list-item-thumb"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          )}
+                        </a>
+                      ))}
+                    </div>
                   </div>
+
+                  {/* 2-Column Grid for remaining news items (5 onwards) */}
+                  {news.length > 5 && (
+                    <div className="football-news-grid">
+                      {news.slice(5).map((item, idx) => (
+                        <a
+                          key={item.id || idx}
+                          href={item.pageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="football-news-card-grid"
+                        >
+                          <div className="football-news-card-grid-content">
+                            <h4 className="football-news-card-grid-title">
+                              {item.title}
+                            </h4>
+                            <div className="football-news-card-grid-meta">
+                              <span className="news-source">{item.source}</span>
+                              <span className="news-time">
+                                {formatRelativeThaiTime(item.time)}
+                              </span>
+                            </div>
+                          </div>
+                          {item.imageUrl && (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="football-news-card-grid-thumb"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          )}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                /* Standard List Fallback */
+                <div className="football-news-list-legacy">
+                  {news.map((item, idx) => (
+                    <a
+                      key={idx}
+                      href={item.pageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="football-news-card"
+                    >
+                      {item.imageUrl && (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="football-news-thumb"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      )}
+                      <div className="football-news-content">
+                        <h3 className="football-news-title">{item.title}</h3>
+                        <div className="football-news-meta">
+                          <span className="football-news-source">
+                            {item.source}
+                          </span>
+                          <span>{formatRelativeThaiTime(item.time)}</span>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
                 </div>
-              </a>
-            ))
+              )}
+
+              {/* Pagination Load More Button */}
+              <div className="news-load-more-container">
+                <button
+                  className="btn-load-more-news"
+                  onClick={loadMoreNews}
+                  disabled={newsLoadingMore}
+                >
+                  {newsLoadingMore ? "กำลังโหลดข่าว..." : "ดูข่าวเพิ่มเติม ↗"}
+                </button>
+              </div>
+            </div>
           )}
         </div>
       )}

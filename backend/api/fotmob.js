@@ -52,16 +52,16 @@ async function fetchFromFotmob(url) {
   });
 }
 
-// 1. Football News Endpoint (Updated with tlnews)
+// 1. Football News Endpoint (Updated with tlnews and pagination)
 router.get("/news", async (req, res) => {
-  const cacheKey = "fotmob:news:v2";
+  const startIndex = req.query.startIndex || 0;
+  const cacheKey = `fotmob:news:v3:${startIndex}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
 
     // Using the official-looking data/tlnews endpoint discovered
-    // We fetch global news and specific league news if needed
-    const response = await fetchFromFotmob("https://www.fotmob.com/api/data/tlnews?id=47&type=league&language=th&startIndex=0");
+    const response = await fetchFromFotmob(`https://www.fotmob.com/api/data/tlnews?id=47&type=league&language=th&startIndex=${startIndex}`);
     
     if (!response.ok) {
       // Fallback to worldnews if tlnews fails
@@ -95,7 +95,7 @@ router.get("/news", async (req, res) => {
       pageUrl: item.page.url.startsWith("http") ? item.page.url : `https://www.fotmob.com${item.page.url}`,
     }));
 
-    const result = { news: newsItems.slice(0, 30) };
+    const result = { news: newsItems.slice(0, 20) };
     await setCachedData(cacheKey, result, 3600);
 
     res.status(200).json(result);
@@ -124,26 +124,39 @@ router.get("/matches", async (req, res) => {
     const filteredLeagues = [];
 
     leagues.forEach(league => {
-      if (POPULAR_LEAGUES.has(league.id)) {
-        const matches = (league.matches || []).map(match => ({
-          id: match.id,
-          home: { id: match.home.id, name: match.home.name, score: match.home.score },
-          away: { id: match.away.id, name: match.away.name, score: match.away.score },
-          status: {
-            finished: match.status?.finished || false,
-            started: match.status?.started || false,
-            cancelled: match.status?.cancelled || false,
-            liveTime: match.status?.liveTime || null,
-            scoreStr: match.status?.scoreStr || null,
-            reason: match.status?.reason || null,
-            startDateStr: match.status?.startDateStr || match.time || "",
-          }
-        }));
-
-        if (matches.length > 0) {
-          filteredLeagues.push({ id: league.id, name: league.name, ccode: league.ccode, matches });
+      const matches = (league.matches || []).map(match => ({
+        id: match.id,
+        home: { id: match.home.id, name: match.home.name, score: match.home.score },
+        away: { id: match.away.id, name: match.away.name, score: match.away.score },
+        status: {
+          finished: match.status?.finished || false,
+          started: match.status?.started || false,
+          cancelled: match.status?.cancelled || false,
+          liveTime: match.status?.liveTime || null,
+          scoreStr: match.status?.scoreStr || null,
+          reason: match.status?.reason || null,
+          startDateStr: match.status?.startDateStr || match.time || "",
         }
+      }));
+
+      if (matches.length > 0) {
+        filteredLeagues.push({ id: league.id, name: league.name, ccode: league.ccode, matches });
       }
+    });
+
+    // Sort leagues so that popular leagues are at the top, and other leagues are alphabetical
+    filteredLeagues.sort((a, b) => {
+      const aPop = POPULAR_LEAGUES.has(a.id);
+      const bPop = POPULAR_LEAGUES.has(b.id);
+      if (aPop && !bPop) return -1;
+      if (!aPop && bPop) return 1;
+      if (aPop && bPop) {
+        const order = [47, 339, 87, 54, 55, 53, 42, 73]; // EPL, Thai, La Liga, Bundesliga, Serie A, Ligue 1, UCL, UEL
+        const indexA = order.indexOf(a.id);
+        const indexB = order.indexOf(b.id);
+        return (indexA !== -1 ? indexA : 99) - (indexB !== -1 ? indexB : 99);
+      }
+      return a.name.localeCompare(b.name);
     });
 
     const result = { leagues: filteredLeagues };
@@ -210,7 +223,8 @@ router.get("/standings", async (req, res) => {
 
     const result = { 
       standings,
-      allAvailableSeasons: data.allAvailableSeasons || []
+      allAvailableSeasons: data.allAvailableSeasons || [],
+      leagueName: data.details?.name || data.overview?.leagueName || data.table?.[0]?.leagueName || ""
     };
     await setCachedData(cacheKey, result, 3600);
 
@@ -218,6 +232,27 @@ router.get("/standings", async (req, res) => {
   } catch (error) {
     console.error("[FotMob Standings Error]:", error.message);
     res.status(500).json({ message: "Failed to fetch standings" });
+  }
+});
+
+// 4. Get all leagues and countries grouped list
+router.get("/all-leagues", async (req, res) => {
+  const cacheKey = "fotmob:all-leagues:v1";
+  try {
+    const cached = await getCachedData(cacheKey);
+    if (cached) return res.status(200).json(cached);
+
+    const response = await fetchFromFotmob("https://www.fotmob.com/api/data/allLeagues");
+    if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+    const data = await response.json();
+    // Cache for 24 hours (86400 seconds)
+    await setCachedData(cacheKey, data, 86400);
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("[FotMob All Leagues Error]:", error.message);
+    res.status(500).json({ message: "Failed to fetch all leagues list" });
   }
 });
 

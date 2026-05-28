@@ -1658,7 +1658,7 @@
   flex-direction: column;
   gap: 30px;
   overflow-y: auto;
-  max-height: calc(100vh - 150px);
+  /* max-height: calc(100vh - 110px); */
   padding-right: 8px;
 }
 
@@ -1978,5 +1978,215 @@
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+/* Sidebar Leagues Selector Styles */
+.sidebar-leagues-panel {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color, #e9ecef);
+  padding-top: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sidebar-section-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 14px 0 8px 4px;
+}
+
+.sidebar-popular-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-league-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.sidebar-league-item:hover {
+  background-color: var(--secondary-bg, #f8f9fa);
+  color: var(--text-color, #03045e);
+}
+
+.sidebar-league-item.active {
+  background-color: rgba(3, 4, 94, 0.06);
+  color: var(--text-color, #03045e);
+}
+
+.sidebar-league-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Sidebar Search filter box */
+.sidebar-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sidebar-search-wrapper .search-icon-svg {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.sidebar-search-input {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #e9ecef);
+  font-size: 0.88rem;
+  outline: none;
+  font-weight: 500;
+  background-color: #fafafa;
+  transition: all 0.2s ease;
+  color: #212529;
+}
+
+.sidebar-search-input:focus {
+  border-color: var(--text-color, #03045e);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(3, 4, 94, 0.08);
+}
+
+/* Leagues Scroll container */
+.sidebar-leagues-loading {
+  font-size: 0.85rem;
+  color: #64748b;
+  padding: 10px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.sidebar-leagues-scroll {
+  /* max-height: calc(100vh - 460px); */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 4px;
+  box-sizing: border-box;
+}
+
+.sidebar-leagues-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-leagues-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-leagues-scroll::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0;
+  border-radius: 2px;
+}
+
+.sidebar-country-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-country-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.sidebar-country-row:hover {
+  background-color: var(--secondary-bg, #f8f9fa);
+}
+
+.sidebar-country-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-country-flag {
+  width: 16px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-country-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.sidebar-chevron {
+  color: #94a3b8;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.sidebar-country-leagues {
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;
+  border-left: 2px solid var(--border-color, #e9ecef);
+  margin: 2px 0 6px 20px;
+  gap: 2px;
+}
+
+.sidebar-league-subitem {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.sidebar-league-subitem:hover {
+  background-color: var(--secondary-bg, #f8f9fa);
+  color: var(--text-color, #03045e);
+}
+
+.sidebar-league-subitem.active {
+  background-color: rgba(3, 4, 94, 0.05);
+  color: var(--text-color, #03045e);
+  font-weight: 600;
+}
+
+/* Hide vertical accordion when mobile sidebar is horizontal */
+@media screen and (max-width: 1200px) {
+  .sidebar-leagues-panel {
+    display: none !important;
   }
 }
