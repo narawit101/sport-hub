@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/th";
@@ -18,6 +19,7 @@ export default function PostCard({
   setSelectedImage,
   children,
 }) {
+  const router = useRouter();
   const [activeIdx, setActiveIdx] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -81,9 +83,16 @@ export default function PostCard({
             }
             alt={post.field_name}
             className="post-img-field-home"
+            onClick={() => router.push(`/profile/${post.field_id}`)}
+            style={{ cursor: "pointer" }}
           />
-          <div className="field-name-created-at-home">
-            <h2 className="post-field-name-home">{post.field_name}</h2>
+          <div>
+            <div
+              className="field-name-created-at-home hover:text-blue-500 hover:underline cursor-pointer"
+              onClick={() => router.push(`/profile/${post.field_id}`)}
+            >
+              <h2 className="post-field-name-home">{post.field_name}</h2>
+            </div>
             <div className="time-home">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

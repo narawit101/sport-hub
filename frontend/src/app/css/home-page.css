@@ -537,6 +537,7 @@
 }
 
 .time-home {
+  margin-top: 4px;
   font-size: 13px;
   color: #64748b;
   display: flex;
@@ -727,6 +728,12 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.field-name-created-at-home:hover .post-field-name-home {
+  cursor: pointer;
+  color: #3b82f6;
+  text-decoration: underline;
 }
 
 .post-field-name-home {
