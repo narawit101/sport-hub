@@ -161,25 +161,33 @@ router.get("/matches", async (req, res) => {
 // 3. League Standings Endpoint (Updated to use data/leagues and include seasons)
 router.get("/standings", async (req, res) => {
   const leagueId = req.query.leagueId || "47";
-  const cacheKey = `fotmob:standings:v3:${leagueId}`;
+  const season = req.query.season || "";
+  const cacheKey = `fotmob:standings:v3:${leagueId}:${season || "current"}`;
 
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
 
-    // Using the new data/leagues endpoint which is more robust
-    const response = await fetchFromFotmob(`https://www.fotmob.com/api/data/leagues?id=${leagueId}&ccode3=THA`);
+    let url = `https://www.fotmob.com/api/data/leagues?id=${leagueId}&ccode3=THA`;
+    if (season) {
+      url += `&season=${encodeURIComponent(season)}`;
+    }
+
+    const response = await fetchFromFotmob(url);
     if (!response.ok) throw new Error(`Status: ${response.status}`);
 
     const data = await response.json();
     
     // The table structure in data/leagues: overview -> table -> [0] -> data -> table -> all
     let rawTable = [];
+    let teamForm = {};
     try {
         if (data.overview?.table?.[0]?.data?.table?.all) {
             rawTable = data.overview.table[0].data.table.all;
+            teamForm = data.overview.table[0].teamForm || {};
         } else if (data.table?.[0]?.table?.all) {
             rawTable = data.table[0].table.all;
+            teamForm = data.table[0].teamForm || {};
         }
     } catch (e) {
         console.warn("Table structure unexpected, falling back");
@@ -195,7 +203,9 @@ router.get("/standings", async (req, res) => {
       losses: team.losses,
       pts: team.pts,
       goalConDiff: team.goalConDiff,
-      scoresStr: team.scoresStr
+      scoresStr: team.scoresStr,
+      qualColor: team.qualColor,
+      form: teamForm[team.id] || []
     }));
 
     const result = { 

@@ -15,6 +15,7 @@ export default function HomePage() {
   const [activeSidebarTab, setActiveSidebarTab] = useState("feed"); // feed | football
   const [activeFeedTab, setActiveFeedTab] = useState("general"); // general | following
   const [hideTabs, setHideTabs] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const feedScrollRef = useRef(null);
   const lastScrollTop = useRef(0);
 
@@ -122,9 +123,33 @@ export default function HomePage() {
 
           <div className="homepage-content-grid">
             {/* Unified Container: Sidebar + Feed */}
-            <div className="homepage-left-container">
+            <div className={`homepage-left-container ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
               {/* Column 1: Left Sidebar (TikTok style) */}
-              <div className="homepage-sidebar-left">
+              <div className={`homepage-sidebar-left ${sidebarCollapsed ? "collapsed" : ""}`}>
+                <button
+                  className="sidebar-toggle-button"
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  aria-label={sidebarCollapsed ? "ขยายเมนู" : "ย่อเมนู"}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {sidebarCollapsed ? (
+                      <polyline points="9 18 15 12 9 6" />
+                    ) : (
+                      <polyline points="15 18 9 12 15 6" />
+                    )}
+                  </svg>
+                </button>
+
                 <button
                   className={`sidebar-left-item ${activeSidebarTab === "feed" ? "active" : ""}`}
                   onClick={() => handleSidebarTabClick("feed")}
