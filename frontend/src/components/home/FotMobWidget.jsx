@@ -18,6 +18,56 @@ const POPULAR_LEAGUE_NAMES = {
   73: "Europa League",
 };
 
+const formatThaiFullDate = (d) => {
+  const dayNames = [
+    "วันอาทิตย์",
+    "วันจันทร์",
+    "วันอังคาร",
+    "วันพุธ",
+    "วันพฤหัสบดี",
+    "วันศุกร์",
+    "วันเสาร์",
+  ];
+  const monthNames = [
+    "มกราคม",
+    "กุมภาพันธ์",
+    "มีนาคม",
+    "เมษายน",
+    "พฤษภาคม",
+    "มิถุนายน",
+    "กรกฎาคม",
+    "สิงหาคม",
+    "กันยายน",
+    "ตุลาคม",
+    "พฤศจิกายน",
+    "ธันวาคม",
+  ];
+
+  const dayOfWeek = dayNames[d.day()];
+  const dateNum = d.date();
+  const monthName = monthNames[d.month()];
+
+  return `${dayOfWeek}ที่ ${dateNum} ${monthName}`;
+};
+
+const getThaiDisplayDate = (d) => {
+  const today = dayjs().startOf("day");
+  const target = d.startOf("day");
+  const diffDays = target.diff(today, "day");
+
+  const fullDate = formatThaiFullDate(d);
+
+  if (diffDays === 0) {
+    return `วันนี้ - ${fullDate}`;
+  } else if (diffDays === -1) {
+    return `เมื่อวาน - ${fullDate}`;
+  } else if (diffDays === 1) {
+    return `พรุ่งนี้ - ${fullDate}`;
+  } else {
+    return fullDate;
+  }
+};
+
 export default function FotMobWidget({ hideTabs }) {
   const [activeTab, setActiveTab] = useState("matches"); // matches | standings | news
   const [date, setDate] = useState(dayjs());
@@ -28,11 +78,20 @@ export default function FotMobWidget({ hideTabs }) {
   const [leagueId, setLeagueId] = useState("47"); // Default EPL (47)
   const [loading, setLoading] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [collapsedLeagues, setCollapsedLeagues] = useState({});
+
+  const toggleLeague = (leagueId) => {
+    setCollapsedLeagues((prev) => ({
+      ...prev,
+      [leagueId]: !prev[leagueId],
+    }));
+  };
 
   // Fetch matches when date changes
   useEffect(() => {
     if (activeTab === "matches") {
       fetchMatches();
+      setCollapsedLeagues({});
     }
   }, [date, activeTab]);
 
@@ -159,10 +218,9 @@ export default function FotMobWidget({ hideTabs }) {
               className="football-date-display-btn"
               onClick={() => setShowCalendar(true)}
               aria-label="เลือกวันที่"
+              style={{ minWidth: "220px" }}
             >
-              {date.isSame(dayjs(), "day")
-                ? "วันนี้"
-                : date.format("D MMM YYYY")}
+              {getThaiDisplayDate(date)}
             </button>
             <button className="football-date-btn" onClick={() => adjustDate(1)}>
               &gt;
@@ -260,65 +318,98 @@ export default function FotMobWidget({ hideTabs }) {
           ) : (
             matches.map((league) => (
               <div key={league.id} className="league-group">
-                <div className="league-header">
-                  <img
-                    src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
-                    alt={league.name}
-                    className="standings-team-logo"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
-                  />
-                  <span>{POPULAR_LEAGUE_NAMES[league.id] || league.name}</span>
+                <div
+                  className="league-header"
+                  onClick={() => toggleLeague(league.id)}
+                >
+                  <div className="league-header-left">
+                    <img
+                      src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                      alt={league.name}
+                      className="standings-team-logo"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                    <span>{POPULAR_LEAGUE_NAMES[league.id] || league.name}</span>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`league-chevron ${collapsedLeagues[league.id] ? "collapsed" : ""}`}
+                  >
+                    <polyline points="18 15 12 9 6 15" />
+                  </svg>
                 </div>
-                <div className="match-list">
-                  {league.matches.map((match) => {
-                    const status = getMatchStatusLabel(match.status);
-                    return (
-                      <div key={match.id} className="match-card">
-                        {/* Home Team */}
-                        <div className="match-team home">
-                          <span>{match.home.name}</span>
-                          <img
-                            src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}.png`}
-                            alt={match.home.name}
-                            className="match-team-logo"
-                            onError={(e) => {
-                              e.target.src = "/images/football-default.png";
-                            }}
-                          />
-                        </div>
+                {!collapsedLeagues[league.id] && (
+                  <div className="match-list">
+                    {league.matches.map((match) => {
+                      const status = getMatchStatusLabel(match.status);
+                      const isFinished = match.status.finished;
+                      const isCancelled = match.status.cancelled;
+                      const isStarted = match.status.started;
 
-                        {/* Center Score / Status */}
-                        <div className="match-info-center">
-                          <div className="match-score">
-                            {match.status.started || match.status.finished
-                              ? `${match.home.score} - ${match.away.score}`
-                              : "VS"}
+                      let statusText = status.text;
+                      if (isFinished) {
+                        statusText = "FT";
+                      } else if (isCancelled) {
+                        statusText = "CAN";
+                      }
+
+                      return (
+                        <div key={match.id} className="match-card">
+                          {/* Left side: Status badge */}
+                          <div className="match-status-col">
+                            <span className={`match-status-badge-flat ${status.class}`}>
+                              {statusText}
+                            </span>
                           </div>
-                          <span
-                            className={`match-status-badge ${status.class}`}
-                          >
-                            {status.text}
-                          </span>
-                        </div>
 
-                        {/* Away Team */}
-                        <div className="match-team away">
-                          <img
-                            src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.away.id}.png`}
-                            alt={match.away.name}
-                            className="match-team-logo"
-                            onError={(e) => {
-                              e.target.src = "/images/football-default.png";
-                            }}
-                          />
-                          <span>{match.away.name}</span>
+                          {/* Center: Teams and Score */}
+                          <div className="match-teams-score-col">
+                            <div className="match-team-home-flat">
+                              <span className="team-name-flat">{match.home.name}</span>
+                              <img
+                                src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}.png`}
+                                alt={match.home.name}
+                                className="team-logo-flat"
+                                onError={(e) => {
+                                  e.target.src = "/images/football-default.png";
+                                }}
+                              />
+                            </div>
+                            <div className="match-score-flat">
+                              {isStarted || isFinished
+                                ? `${match.home.score} - ${match.away.score}`
+                                : "VS"}
+                            </div>
+                            <div className="match-team-away-flat">
+                              <img
+                                src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.away.id}.png`}
+                                alt={match.away.name}
+                                className="team-logo-flat"
+                                onError={(e) => {
+                                  e.target.src = "/images/football-default.png";
+                                }}
+                              />
+                              <span className="team-name-flat">{match.away.name}</span>
+                            </div>
+                          </div>
+
+                          {/* Right side: spacer column to balance centering */}
+                          <div className="match-spacer-col"></div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))
           )}

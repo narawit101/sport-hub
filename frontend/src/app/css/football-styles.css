@@ -155,6 +155,11 @@
 /* League Section */
 .league-group {
   margin-bottom: 24px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #e9ecef);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.02);
 }
 
 .league-group:last-child {
@@ -164,102 +169,150 @@
 .league-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  background-color: var(--secondary-bg, #f8f9fa);
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
   font-size: 1rem;
   font-weight: 800;
   color: var(--text-color);
-  margin-bottom: 12px;
-  border-left: 4px solid var(--text-color);
-  padding-left: 8px;
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+  transition: background-color 0.2s ease;
+}
+
+.league-header:hover {
+  background-color: #f1f5f9;
+}
+
+.league-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.league-chevron {
+  transition: transform 0.25s ease;
+  color: #64748b;
+}
+
+.league-chevron.collapsed {
+  transform: rotate(-180deg);
 }
 
 /* Match Card */
 .match-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
+  background-color: #ffffff;
 }
 
 .match-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--input-radius);
-  padding: 12px 16px;
-  transition: all 0.2s ease;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+  padding: 16px 20px;
+  transition: background-color 0.2s ease;
+}
+
+.match-card:last-child {
+  border-bottom: none;
 }
 
 .match-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.05);
+  background-color: #f8fafc;
 }
 
-.match-team {
-  flex: 1;
+.match-status-col {
+  width: 80px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 700;
-  color: #1e293b;
-  font-size: 0.95rem;
-}
-
-.match-team.home {
-  justify-content: flex-end;
-  text-align: right;
-}
-
-.match-team.away {
   justify-content: flex-start;
-  text-align: left;
 }
 
-.match-team-logo {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-}
-
-.match-info-center {
-  min-width: 90px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.match-score {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--text-color);
-  letter-spacing: 2px;
-}
-
-.match-status-badge {
+.match-status-badge-flat {
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--pill-radius);
-  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-align: center;
+  display: inline-block;
+  min-width: 44px;
 }
 
-.match-status-badge.live {
-  background-color: #fee2e2;
-  color: #dc2626;
-  animation: pulseLive 1.5s infinite;
-}
-
-.match-status-badge.finished {
+.match-status-badge-flat.finished {
   background-color: #f1f5f9;
   color: #64748b;
 }
 
-.match-status-badge.upcoming {
-  background-color: #e0f2fe;
-  color: #0369a1;
+.match-status-badge-flat.live {
+  background-color: #fee2e2;
+  color: #dc2626;
+  font-weight: 800;
+  animation: pulseLive 1.5s infinite;
+}
+
+.match-status-badge-flat.upcoming {
+  background-color: #eff6ff;
+  color: #3b82f6;
+}
+
+.match-teams-score-col {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.match-team-home-flat {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 1;
+  text-align: right;
+}
+
+.match-team-away-flat {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex: 1;
+  text-align: left;
+}
+
+.team-name-flat {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1e293b;
+}
+
+.team-logo-flat {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.match-score-flat {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  min-width: 60px;
+  text-align: center;
+  background-color: #f8fafc;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #e9ecef);
+}
+
+.match-spacer-col {
+  width: 80px;
 }
 
 @keyframes pulseLive {
