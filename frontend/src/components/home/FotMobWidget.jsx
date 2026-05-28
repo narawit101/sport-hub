@@ -27,7 +27,6 @@ export default function FotMobWidget() {
   const [seasons, setSeasons] = useState([]);
   const [leagueId, setLeagueId] = useState("47"); // Default EPL (47)
   const [loading, setLoading] = useState(false);
-  const [showAllStandings, setShowAllStandings] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
 
   // Fetch matches when date changes
@@ -404,55 +403,47 @@ export default function FotMobWidget() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(showAllStandings ? standings : standings.slice(0, 8)).map(
-                    (team) => (
-                      <tr
-                        key={team.id}
-                        className={team.idx <= 4 ? "top-team" : ""}
+                  {standings.map((team) => (
+                    <tr
+                      key={team.id}
+                      className={team.idx <= 4 ? "top-team" : ""}
+                    >
+                      <td style={{ textAlign: "center", fontWeight: 700 }}>
+                        {team.idx}
+                      </td>
+                      <td>
+                        <div className="standings-team-cell">
+                          <img
+                            src={`https://images.fotmob.com/image_resources/logo/teamlogo/${team.id}.png`}
+                            alt={team.name}
+                            className="standings-team-logo"
+                            onError={(e) => {
+                              e.target.src = "/images/football-default.png";
+                            }}
+                          />
+                          <span>{team.name}</span>
+                        </div>
+                      </td>
+                      <td style={{ textAlign: "center" }}>{team.played}</td>
+                      <td style={{ textAlign: "center" }}>{team.wins}</td>
+                      <td style={{ textAlign: "center" }}>{team.draws}</td>
+                      <td style={{ textAlign: "center" }}>{team.losses}</td>
+                      <td style={{ textAlign: "center", color: "#64748b" }}>
+                        {team.goalConDiff}
+                      </td>
+                      <td
+                        style={{
+                          textAlign: "center",
+                          fontWeight: 800,
+                          color: "var(--text-color)",
+                        }}
                       >
-                        <td style={{ textAlign: "center", fontWeight: 700 }}>
-                          {team.idx}
-                        </td>
-                        <td>
-                          <div className="standings-team-cell">
-                            <img
-                              src={`https://images.fotmob.com/image_resources/logo/teamlogo/${team.id}.png`}
-                              alt={team.name}
-                              className="standings-team-logo"
-                              onError={(e) => {
-                                e.target.src = "/images/football-default.png";
-                              }}
-                            />
-                            <span>{team.name}</span>
-                          </div>
-                        </td>
-                        <td style={{ textAlign: "center" }}>{team.played}</td>
-                        <td style={{ textAlign: "center" }}>{team.wins}</td>
-                        <td style={{ textAlign: "center" }}>{team.draws}</td>
-                        <td style={{ textAlign: "center" }}>{team.losses}</td>
-                        <td style={{ textAlign: "center", color: "#64748b" }}>
-                          {team.goalConDiff}
-                        </td>
-                        <td
-                          style={{
-                            textAlign: "center",
-                            fontWeight: 800,
-                            color: "var(--text-color)",
-                          }}
-                        >
-                          {team.pts}
-                        </td>
-                      </tr>
-                    ),
-                  )}
+                        {team.pts}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
-              <button
-                className="standings-toggle-btn"
-                onClick={() => setShowAllStandings(!showAllStandings)}
-              >
-                {showAllStandings ? "แสดงน้อยลง" : "ดูอันดับทั้งหมด"}
-              </button>
             </div>
           )}
         </div>

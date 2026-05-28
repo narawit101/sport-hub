@@ -50,6 +50,10 @@
   overflow-x: auto;
   margin-bottom: 24px;
   height: auto;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .football-tab-btn {
@@ -511,3 +515,8 @@
 }
 
 /* Media query styling overrides removed because horizontal tabs are now default */
+@media screen and (max-width: 1200px) {
+  .football-tabs {
+    position: static;
+  }
+}
