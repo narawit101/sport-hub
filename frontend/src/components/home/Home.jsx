@@ -37,6 +37,7 @@ export default function HomePage() {
   const [leaguesLoading, setLeaguesLoading] = useState(false);
   const [leagueFilter, setLeagueFilter] = useState("");
   const [expandedCountries, setExpandedCountries] = useState({});
+  const [allLeaguesExpanded, setAllLeaguesExpanded] = useState(true);
 
   // Auth check status
   useEffect(() => {
@@ -367,8 +368,34 @@ export default function HomePage() {
                       ))}
                     </div>
 
-                    <div className="sidebar-section-title">ลีกทั้งหมด</div>
-                    <div className="sidebar-search-wrapper">
+                    <div
+                      className="sidebar-section-title collapsible"
+                      onClick={() => setAllLeaguesExpanded(!allLeaguesExpanded)}
+                      style={{
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center"
+                      }}
+                    >
+                      <span>ลีกทั้งหมด</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        className={`sidebar-chevron ${allLeaguesExpanded ? "expanded" : ""}`}
+                      >
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </div>
+
+                    {allLeaguesExpanded && (
+                      <>
+                        <div className="sidebar-search-wrapper">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="14"
@@ -526,7 +553,9 @@ export default function HomePage() {
                         })}
                       </div>
                     )}
-                  </div>
+                  </>
+                )}
+              </div>
                 )}
               </div>
 
