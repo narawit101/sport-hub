@@ -10,6 +10,7 @@ import "@/app/css/calendar-styles.css";
 const POPULAR_LEAGUE_NAMES = {
   47: "English Premier League",
   8984: "Thai League 1",
+  77: "World Cup",
   87: "La Liga",
   54: "Bundesliga",
   55: "Serie A",
@@ -24,10 +25,10 @@ const LEGEND_TRANSLATIONS = {
   "conference league qualification": "รอบคัดเลือกคอนเฟอเรนซ์ลีก",
   "europa conference league qualification": "รอบคัดเลือกยูโรปาคอนเฟอเรนซ์ลีก",
   "champions league qualification": "รอบคัดเลือกแชมเปียนส์ลีก",
-  "relegation": "การตกชั้น",
+  relegation: "การตกชั้น",
   "relegation play-off": "เพลย์ออฟตกชั้น",
-  "promotion": "การเลื่อนชั้น",
-  "promotion play-off": "เพลย์ออฟเลื่อนชั้น"
+  promotion: "การเลื่อนชั้น",
+  "promotion play-off": "เพลย์ออฟเลื่อนชั้น",
 };
 
 const translateLegendTitle = (title) => {
@@ -109,26 +110,28 @@ export default function FotMobWidget({
       55: { name: "อิตาลี", ccode: "ITA" },
       53: { name: "ฝรั่งเศส", ccode: "FRA" },
       42: { name: "นานาชาติ", ccode: "INT" },
-      73: { name: "นานาชาติ", ccode: "INT" }
+      73: { name: "นานาชาติ", ccode: "INT" },
     };
 
     if (!allLeagues) {
       return POPULAR_COUNTRY_MAP[id] || null;
     }
-    
+
     // Check international
-    const intLeague = allLeagues.international?.[0]?.leagues?.find(l => String(l.id) === String(id));
+    const intLeague = allLeagues.international?.[0]?.leagues?.find(
+      (l) => String(l.id) === String(id),
+    );
     if (intLeague) {
       return { name: "นานาชาติ", ccode: "INT" };
     }
-    
+
     // Check countries
     for (const country of allLeagues.countries || []) {
-      const found = country.leagues?.find(l => String(l.id) === String(id));
+      const found = country.leagues?.find((l) => String(l.id) === String(id));
       if (found) {
-        return { 
-          name: country.localizedName || country.name, 
-          ccode: country.ccode 
+        return {
+          name: country.localizedName || country.name,
+          ccode: country.ccode,
         };
       }
     }
@@ -562,9 +565,10 @@ export default function FotMobWidget({
                 {countryInfo && (
                   <div className="league-detail-country-row">
                     <img
-                      src={countryInfo.ccode === "INT" 
-                        ? "https://images.fotmob.com/image_resources/logo/teamlogo/int.png"
-                        : `https://images.fotmob.com/image_resources/logo/teamlogo/${countryInfo.ccode.toLowerCase()}.png`
+                      src={
+                        countryInfo.ccode === "INT"
+                          ? "https://images.fotmob.com/image_resources/logo/teamlogo/int.png"
+                          : `https://images.fotmob.com/image_resources/logo/teamlogo/${countryInfo.ccode.toLowerCase()}.png`
                       }
                       alt={countryInfo.name}
                       className="league-detail-country-flag"
@@ -589,7 +593,7 @@ export default function FotMobWidget({
                     setSelectedSeason(e.target.value);
                   }}
                 >
-                  <option value="">ฤดูกาลปัจจุบัน</option>
+                  {/* <option value="">ฤดูกาลปัจจุบัน</option> */}
                   {seasons.map((seasonStr) => (
                     <option key={seasonStr} value={seasonStr}>
                       {seasonStr}
@@ -613,7 +617,9 @@ export default function FotMobWidget({
                     <th style={{ width: "55px", textAlign: "center" }}>แพ้</th>
                     <th style={{ width: "75px", textAlign: "center" }}>+/-</th>
                     <th style={{ width: "55px", textAlign: "center" }}>=</th>
-                    <th style={{ width: "65px", textAlign: "center" }}>คะแนน</th>
+                    <th style={{ width: "65px", textAlign: "center" }}>
+                      คะแนน
+                    </th>
                     <th style={{ width: "195px", textAlign: "left" }}>ฟอร์ม</th>
                   </tr>
                 </thead>
@@ -621,23 +627,61 @@ export default function FotMobWidget({
                   {Array.from({ length: 12 }).map((_, idx) => (
                     <tr key={idx}>
                       <td style={{ textAlign: "center" }}>
-                        <div className="football-skeleton" style={{ height: "20px", width: "20px", margin: "0 auto" }} />
+                        <div
+                          className="football-skeleton"
+                          style={{
+                            height: "20px",
+                            width: "20px",
+                            margin: "0 auto",
+                          }}
+                        />
                       </td>
                       <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                          <div className="football-skeleton" style={{ height: "24px", width: "24px", borderRadius: "50%" }} />
-                          <div className="football-skeleton" style={{ height: "18px", width: "120px" }} />
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                          }}
+                        >
+                          <div
+                            className="football-skeleton"
+                            style={{
+                              height: "24px",
+                              width: "24px",
+                              borderRadius: "50%",
+                            }}
+                          />
+                          <div
+                            className="football-skeleton"
+                            style={{ height: "18px", width: "120px" }}
+                          />
                         </div>
                       </td>
                       {Array.from({ length: 7 }).map((_, sIdx) => (
                         <td key={sIdx} style={{ textAlign: "center" }}>
-                          <div className="football-skeleton" style={{ height: "18px", width: "30px", margin: "0 auto" }} />
+                          <div
+                            className="football-skeleton"
+                            style={{
+                              height: "18px",
+                              width: "30px",
+                              margin: "0 auto",
+                            }}
+                          />
                         </td>
                       ))}
                       <td>
                         <div className="standings-form-row">
                           {Array.from({ length: 5 }).map((_, fIdx) => (
-                            <div key={fIdx} className="football-skeleton" style={{ height: "24px", width: "24px", borderRadius: "6px" }} />
+                            <div
+                              key={fIdx}
+                              className="football-skeleton"
+                              style={{
+                                height: "24px",
+                                width: "24px",
+                                borderRadius: "6px",
+                              }}
+                            />
                           ))}
                         </div>
                       </td>
@@ -673,9 +717,23 @@ export default function FotMobWidget({
             </div>
           ) : (
             standingsTables.map((tableGroup, gIdx) => (
-              <div key={gIdx} className="standings-group-wrapper" style={{ marginBottom: "30px" }}>
+              <div
+                key={gIdx}
+                className="standings-group-wrapper"
+                style={{ marginBottom: "30px" }}
+              >
                 {tableGroup.groupName && (
-                  <h3 className="standings-group-title" style={{ fontSize: "1.15rem", fontWeight: 800, color: "var(--text-color)", marginBottom: "12px", marginTop: "16px", paddingLeft: "4px" }}>
+                  <h3
+                    className="standings-group-title"
+                    style={{
+                      fontSize: "1.15rem",
+                      fontWeight: 800,
+                      color: "var(--text-color)",
+                      marginBottom: "12px",
+                      marginTop: "16px",
+                      paddingLeft: "4px",
+                    }}
+                  >
                     {tableGroup.groupName}
                   </h3>
                 )}
@@ -683,21 +741,42 @@ export default function FotMobWidget({
                   <table className="standings-table">
                     <thead>
                       <tr>
-                        <th style={{ width: "60px", textAlign: "center" }}>#</th>
+                        <th style={{ width: "60px", textAlign: "center" }}>
+                          #
+                        </th>
                         <th style={{ textAlign: "left" }}>สโมสร</th>
-                        <th style={{ width: "55px", textAlign: "center" }}>แข่ง</th>
-                        <th style={{ width: "55px", textAlign: "center" }}>ชนะ</th>
-                        <th style={{ width: "55px", textAlign: "center" }}>เสมอ</th>
-                        <th style={{ width: "55px", textAlign: "center" }}>แพ้</th>
-                        <th style={{ width: "75px", textAlign: "center" }}>+/-</th>
-                        <th style={{ width: "55px", textAlign: "center" }}>=</th>
-                        <th style={{ width: "65px", textAlign: "center" }}>คะแนน</th>
-                        <th style={{ width: "195px", textAlign: "left" }}>ฟอร์ม</th>
+                        <th style={{ width: "55px", textAlign: "center" }}>
+                          แข่ง
+                        </th>
+                        <th style={{ width: "55px", textAlign: "center" }}>
+                          ชนะ
+                        </th>
+                        <th style={{ width: "55px", textAlign: "center" }}>
+                          เสมอ
+                        </th>
+                        <th style={{ width: "55px", textAlign: "center" }}>
+                          แพ้
+                        </th>
+                        <th style={{ width: "75px", textAlign: "center" }}>
+                          +/-
+                        </th>
+                        <th style={{ width: "55px", textAlign: "center" }}>
+                          =
+                        </th>
+                        <th style={{ width: "65px", textAlign: "center" }}>
+                          คะแนน
+                        </th>
+                        <th style={{ width: "195px", textAlign: "left" }}>
+                          ฟอร์ม
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {tableGroup.standings.map((team) => (
-                        <tr key={team.id} className={team.idx <= 4 ? "top-team" : ""}>
+                        <tr
+                          key={team.id}
+                          className={team.idx <= 4 ? "top-team" : ""}
+                        >
                           <td
                             className="standings-rank-cell"
                             style={{
@@ -760,7 +839,11 @@ export default function FotMobWidget({
                                   .slice(-5)
                                   .map((match) => renderFormBadge(match))
                               ) : (
-                                <span style={{ color: "#94a3b8", fontSize: "12px" }}>-</span>
+                                <span
+                                  style={{ color: "#94a3b8", fontSize: "12px" }}
+                                >
+                                  -
+                                </span>
                               )}
                             </div>
                           </td>
@@ -773,9 +856,19 @@ export default function FotMobWidget({
                   {tableGroup.legend && tableGroup.legend.length > 0 && (
                     <div className="standings-legend-container">
                       {tableGroup.legend.map((item, idx) => (
-                        <div className="standings-legend-item" key={item.tKey || idx}>
-                          <span className="legend-dot" style={{ backgroundColor: item.color || "transparent" }} />
-                          <span className="legend-text">{translateLegendTitle(item.title)}</span>
+                        <div
+                          className="standings-legend-item"
+                          key={item.tKey || idx}
+                        >
+                          <span
+                            className="legend-dot"
+                            style={{
+                              backgroundColor: item.color || "transparent",
+                            }}
+                          />
+                          <span className="legend-text">
+                            {translateLegendTitle(item.title)}
+                          </span>
                         </div>
                       ))}
                     </div>

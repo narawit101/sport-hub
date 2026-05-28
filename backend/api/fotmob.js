@@ -36,6 +36,7 @@ const POPULAR_LEAGUES = new Set([
   55,   // Italian Serie A
   53,   // French Ligue 1
   339,  // Thai League 1 (Verify ID)
+  77 // world cup
 ]);
 
 async function fetchFromFotmob(url) {
@@ -88,11 +89,11 @@ router.get("/news", async (req, res) => {
           imageUrl: item.imageUrl || (item.mainImage ? item.mainImage.url : null),
           source: item.sourceName || item.sourceStr || "FotMob",
           time: item.time || item.gmtTime || "",
-          pageUrl: (item.pageUrl || (item.page ? item.page.url : "")).startsWith("http") 
-            ? (item.pageUrl || item.page.url) 
+          pageUrl: (item.pageUrl || (item.page ? item.page.url : "")).startsWith("http")
+            ? (item.pageUrl || item.page.url)
             : `https://www.fotmob.com${item.pageUrl || item.page.url}`,
         })).slice(0, limit);
-        
+
         const result = { news: newsItems };
         await setCachedData(cacheKey, result, 3600);
         return res.status(200).json(result);
@@ -110,11 +111,11 @@ router.get("/news", async (req, res) => {
           imageUrl: item.imageUrl || (item.mainImage ? item.mainImage.url : null),
           source: item.sourceName || item.sourceStr || "FotMob",
           time: item.time || item.gmtTime || "",
-          pageUrl: (item.pageUrl || (item.page ? item.page.url : "")).startsWith("http") 
-            ? (item.pageUrl || item.page.url) 
+          pageUrl: (item.pageUrl || (item.page ? item.page.url : "")).startsWith("http")
+            ? (item.pageUrl || item.page.url)
             : `https://www.fotmob.com${item.pageUrl || item.page.url}`,
         })).slice(0, limit);
-        
+
         const result = { news: newsItems };
         await setCachedData(cacheKey, result, 3600);
         return res.status(200).json(result);
@@ -144,7 +145,7 @@ router.get("/news", async (req, res) => {
 
 // 2. Football Matches Endpoint
 router.get("/matches", async (req, res) => {
-  const date = req.query.date; 
+  const date = req.query.date;
   if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
   const cacheKey = `fotmob:matches:v2:${date}`;
@@ -227,13 +228,13 @@ router.get("/standings", async (req, res) => {
     if (!response.ok) throw new Error(`Status: ${response.status}`);
 
     const data = await response.json();
-    
+
     const tableObj = data.overview?.table?.[0] || data.table?.[0];
     let tablesResult = [];
 
     if (tableObj) {
       const teamForm = tableObj.teamForm || {};
-      
+
       const processTable = (rawTable) => {
         return rawTable.map(team => ({
           idx: team.idx,
@@ -280,7 +281,7 @@ router.get("/standings", async (req, res) => {
       }
     }
 
-    const result = { 
+    const result = {
       tables: tablesResult,
       allAvailableSeasons: data.allAvailableSeasons || [],
       leagueName: data.details?.name || data.overview?.leagueName || data.table?.[0]?.leagueName || ""
@@ -296,12 +297,12 @@ router.get("/standings", async (req, res) => {
 
 // 4. Get all leagues and countries grouped list
 router.get("/all-leagues", async (req, res) => {
-  const cacheKey = "fotmob:all-leagues:v1";
+  const cacheKey = "fotmob:all-leagues:v2";
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
 
-    const response = await fetchFromFotmob("https://www.fotmob.com/api/data/allLeagues");
+    const response = await fetchFromFotmob("https://www.fotmob.com/api/data/allLeagues?locale=th");
     if (!response.ok) throw new Error(`Status: ${response.status}`);
 
     const data = await response.json();

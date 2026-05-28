@@ -11,6 +11,7 @@ import apiClient from "@/lib/apiClient";
 
 const POPULAR_LEAGUES_LIST = [
   { id: 47, name: "Premier League" },
+  { id: 77, name: "World Cup" },
   { id: 8984, name: "Thai League" },
   { id: 87, name: "La Liga" },
   { id: 54, name: "Bundesliga" },
@@ -375,7 +376,7 @@ export default function HomePage() {
                         cursor: "pointer",
                         display: "flex",
                         justifyContent: "space-between",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span>ลีกทั้งหมด</span>
@@ -396,166 +397,168 @@ export default function HomePage() {
                     {allLeaguesExpanded && (
                       <>
                         <div className="sidebar-search-wrapper">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        className="search-icon-svg"
-                      >
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      </svg>
-                      <input
-                        type="text"
-                        placeholder="ตัวกรอง..."
-                        className="sidebar-search-input"
-                        value={leagueFilter}
-                        onChange={(e) => setLeagueFilter(e.target.value)}
-                      />
-                    </div>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            className="search-icon-svg"
+                          >
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                          </svg>
+                          <input
+                            type="text"
+                            placeholder="ตัวกรอง..."
+                            className="sidebar-search-input"
+                            value={leagueFilter}
+                            onChange={(e) => setLeagueFilter(e.target.value)}
+                          />
+                        </div>
 
-                    {leaguesLoading ? (
-                      <div className="sidebar-leagues-loading">
-                        กำลังโหลดรายชื่อลีก...
-                      </div>
-                    ) : (
-                      <div className="sidebar-leagues-scroll">
-                        {/* International List */}
-                        {filteredInternational.length > 0 && (
-                          <div className="sidebar-country-group">
-                            <div
-                              className="sidebar-country-row"
-                              onClick={() => toggleCountryExpand("INT")}
-                            >
-                              <div className="sidebar-country-left">
-                                <img
-                                  src="https://images.fotmob.com/image_resources/logo/teamlogo/int.png"
-                                  alt="International"
-                                  className="sidebar-country-flag"
-                                />
-                                <span className="sidebar-country-name">
-                                  นานาชาติ
-                                </span>
-                              </div>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                className={`sidebar-chevron ${expandedCountries["INT"] ? "expanded" : ""}`}
-                              >
-                                <polyline points="6 9 12 15 18 9" />
-                              </svg>
-                            </div>
-                            {expandedCountries["INT"] && (
-                              <div className="sidebar-country-leagues">
-                                {filteredInternational.map((league) => (
-                                  <div
-                                    key={league.id}
-                                    className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
-                                    onClick={() =>
-                                      handleLeagueSelect(league.id)
-                                    }
-                                  >
+                        {leaguesLoading ? (
+                          <div className="sidebar-leagues-loading">
+                            กำลังโหลดรายชื่อลีก...
+                          </div>
+                        ) : (
+                          <div className="sidebar-leagues-scroll">
+                            {/* International List */}
+                            {filteredInternational.length > 0 && (
+                              <div className="sidebar-country-group">
+                                <div
+                                  className="sidebar-country-row"
+                                  onClick={() => toggleCountryExpand("INT")}
+                                >
+                                  <div className="sidebar-country-left">
                                     <img
-                                      src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
-                                      alt={league.name}
-                                      className="subitem-logo"
-                                      onError={(e) => {
-                                        e.target.style.display = "none";
-                                      }}
+                                      src="https://images.fotmob.com/image_resources/logo/teamlogo/int.png"
+                                      alt="International"
+                                      className="sidebar-country-flag"
                                     />
-                                    <span className="sidebar-league-name">
-                                      {league.localizedName || league.name}
+                                    <span className="sidebar-country-name">
+                                      นานาชาติ
                                     </span>
                                   </div>
-                                ))}
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    className={`sidebar-chevron ${expandedCountries["INT"] ? "expanded" : ""}`}
+                                  >
+                                    <polyline points="6 9 12 15 18 9" />
+                                  </svg>
+                                </div>
+                                {expandedCountries["INT"] && (
+                                  <div className="sidebar-country-leagues">
+                                    {filteredInternational.map((league) => (
+                                      <div
+                                        key={league.id}
+                                        className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
+                                        onClick={() =>
+                                          handleLeagueSelect(league.id)
+                                        }
+                                      >
+                                        <img
+                                          src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                                          alt={league.name}
+                                          className="subitem-logo"
+                                          onError={(e) => {
+                                            e.target.style.display = "none";
+                                          }}
+                                        />
+                                        <span className="sidebar-league-name">
+                                          {league.localizedName || league.name}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             )}
-                          </div>
-                        )}
 
-                        {/* Country Groups */}
-                        {filteredCountries.map((country) => {
-                          const isExpanded = expandedCountries[country.ccode];
-                          return (
-                            <div
-                              key={country.ccode}
-                              className="sidebar-country-group"
-                            >
-                              <div
-                                className="sidebar-country-row"
-                                onClick={() =>
-                                  toggleCountryExpand(country.ccode)
-                                }
-                              >
-                                <div className="sidebar-country-left">
-                                  <img
-                                    src={`https://images.fotmob.com/image_resources/logo/teamlogo/${country.ccode.toLowerCase()}.png`}
-                                    alt={country.name}
-                                    className="sidebar-country-flag"
-                                    onError={(e) => {
-                                      e.target.src =
-                                        "/images/football-default.png";
-                                    }}
-                                  />
-                                  <span className="sidebar-country-name">
-                                    {country.localizedName || country.name}
-                                  </span>
-                                </div>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="14"
-                                  height="14"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
-                                  className={`sidebar-chevron ${isExpanded ? "expanded" : ""}`}
+                            {/* Country Groups */}
+                            {filteredCountries.map((country) => {
+                              const isExpanded =
+                                expandedCountries[country.ccode];
+                              return (
+                                <div
+                                  key={country.ccode}
+                                  className="sidebar-country-group"
                                 >
-                                  <polyline points="6 9 12 15 18 9" />
-                                </svg>
-                              </div>
-                              {isExpanded && (
-                                <div className="sidebar-country-leagues">
-                                  {country.leagues.map((league) => (
-                                    <div
-                                      key={league.id}
-                                      className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
-                                      onClick={() =>
-                                        handleLeagueSelect(league.id)
-                                      }
-                                    >
+                                  <div
+                                    className="sidebar-country-row"
+                                    onClick={() =>
+                                      toggleCountryExpand(country.ccode)
+                                    }
+                                  >
+                                    <div className="sidebar-country-left">
                                       <img
-                                        src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
-                                        alt={league.name}
-                                        className="subitem-logo"
+                                        src={`https://images.fotmob.com/image_resources/logo/teamlogo/${country.ccode.toLowerCase()}.png`}
+                                        alt={country.name}
+                                        className="sidebar-country-flag"
                                         onError={(e) => {
-                                          e.target.style.display = "none";
+                                          e.target.src =
+                                            "/images/football-default.png";
                                         }}
                                       />
-                                      <span className="sidebar-league-name">
-                                        {league.localizedName || league.name}
+                                      <span className="sidebar-country-name">
+                                        {country.localizedName || country.name}
                                       </span>
                                     </div>
-                                  ))}
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2.5"
+                                      className={`sidebar-chevron ${isExpanded ? "expanded" : ""}`}
+                                    >
+                                      <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                  </div>
+                                  {isExpanded && (
+                                    <div className="sidebar-country-leagues">
+                                      {country.leagues.map((league) => (
+                                        <div
+                                          key={league.id}
+                                          className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
+                                          onClick={() =>
+                                            handleLeagueSelect(league.id)
+                                          }
+                                        >
+                                          <img
+                                            src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                                            alt={league.name}
+                                            className="subitem-logo"
+                                            onError={(e) => {
+                                              e.target.style.display = "none";
+                                            }}
+                                          />
+                                          <span className="sidebar-league-name">
+                                            {league.localizedName ||
+                                              league.name}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </div>
+                  </div>
                 )}
               </div>
 
