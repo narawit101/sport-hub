@@ -537,16 +537,16 @@ export default function FotMobWidget({ hideTabs }) {
               <table className="standings-table">
                 <thead>
                   <tr>
-                    <th style={{ width: "55px", textAlign: "center" }}>#</th>
-                    <th>สโมสร</th>
-                    <th style={{ width: "45px", textAlign: "center" }}>แข่ง</th>
-                    <th style={{ width: "45px", textAlign: "center" }}>ชนะ</th>
-                    <th style={{ width: "45px", textAlign: "center" }}>เสมอ</th>
-                    <th style={{ width: "45px", textAlign: "center" }}>แพ้</th>
-                    <th style={{ width: "65px", textAlign: "center" }}>+/-</th>
-                    <th style={{ width: "45px", textAlign: "center" }}>=</th>
-                    <th style={{ width: "55px", textAlign: "center" }}>คะแนน</th>
-                    <th style={{ width: "185px", textAlign: "left" }}>ฟอร์ม</th>
+                    <th style={{ width: "60px", textAlign: "center" }}>#</th>
+                    <th style={{ textAlign: "left" }}>สโมสร</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>แข่ง</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>ชนะ</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>เสมอ</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>แพ้</th>
+                    <th style={{ width: "75px", textAlign: "center" }}>+/-</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>=</th>
+                    <th style={{ width: "65px", textAlign: "center" }}>คะแนน</th>
+                    <th style={{ width: "195px", textAlign: "left" }}>ฟอร์ม</th>
                   </tr>
                 </thead>
                 <tbody>
