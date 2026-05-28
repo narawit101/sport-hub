@@ -614,6 +614,26 @@ export default function FotMobWidget({ hideTabs }) {
                   ))}
                 </tbody>
               </table>
+
+              {/* Standings Qualification Legend */}
+              <div className="standings-legend-container">
+                <div className="standings-legend-item">
+                  <span className="legend-dot cl-dot" />
+                  <span className="legend-text">แชมเปียนส์ลีก</span>
+                </div>
+                <div className="standings-legend-item">
+                  <span className="legend-dot el-dot" />
+                  <span className="legend-text">ยูโรปาลีก</span>
+                </div>
+                <div className="standings-legend-item">
+                  <span className="legend-dot ecl-dot" />
+                  <span className="legend-text">รอบคัดเลือกยูโรปาคอนเฟอเรนซ์ลีก</span>
+                </div>
+                <div className="standings-legend-item">
+                  <span className="legend-dot rel-dot" />
+                  <span className="legend-text">การตกชั้น</span>
+                </div>
+              </div>
             </div>
           )}
         </div>

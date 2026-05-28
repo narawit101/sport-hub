@@ -701,3 +701,50 @@
     position: static;
   }
 }
+
+/* Standings Qualification Legend Styles */
+.standings-legend-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color, #e9ecef);
+  background-color: var(--secondary-bg, #f8f9fa);
+  align-items: center;
+}
+
+.standings-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.cl-dot {
+  background-color: #2AD572;
+}
+
+.legend-dot.el-dot {
+  background-color: #0046E2;
+}
+
+.legend-dot.ecl-dot {
+  background-color: #00A3E0;
+}
+
+.legend-dot.rel-dot {
+  background-color: #ef4444;
+}
+
+.legend-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
