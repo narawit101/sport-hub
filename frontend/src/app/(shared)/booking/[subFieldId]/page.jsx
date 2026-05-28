@@ -182,16 +182,7 @@ export default function Booking() {
         ) : (
           <div className="book-content">
             <div className="calendar-btn-select-date">
-              <div
-                className="date-picker-container"
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: "15px",
-                }}
-              >
+              <div className="date-picker-container">
                 <div style={{ position: "relative" }}>
                   <button
                     className="calendar-toggle-btn"
@@ -266,8 +257,7 @@ export default function Booking() {
                     </div>
                   )}
                 </div>
-
-                {/* <div
+                <div
                   className="server-time-reference-premium"
                   style={{ margin: "0" }}
                 >
@@ -297,7 +287,7 @@ export default function Booking() {
                         : "--:--"}
                     </span>
                   </div>
-                </div> */}
+                </div>
               </div>
             </div>
 
@@ -346,7 +336,7 @@ export default function Booking() {
         <div className="book-sider">
           <div className="book-sum-box">
             <div className="sidebar-card-premium">
-              <div className="server-time-reference-premium">
+              {/* <div className="server-time-reference-premium">
                 <div className="time-icon-wrapper">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -373,7 +363,7 @@ export default function Booking() {
                       : "--:--"}
                   </span>
                 </div>
-              </div>
+              </div> */}
               <h1 className="field-title-book">{fieldName}</h1>
               <h2 className="sub-field-title">
                 สนาม: {subFieldData.sub_field_name}
@@ -417,68 +407,36 @@ export default function Booking() {
                     </svg>
                     <span>เลือกประเภทแพ็กเกจ</span>
                   </div>
-                  <div className="package-grid-premium">
-                    <div
-                      className={`package-card-premium ${selectPrice === "subFieldPrice" ? "selected" : ""}`}
-                      onClick={() => handlePriceOnChange("subFieldPrice")}
+                  <div className="package-select-wrapper-premium">
+                    <select
+                      className="package-select-premium"
+                      value={selectPrice}
+                      onChange={(e) => handlePriceOnChange(e.target.value)}
                     >
-                      <div className="package-info-premium">
-                        <span className="package-name-premium">
-                          ราคาปกติ ({subFieldData.sport_name})
-                        </span>
-                        <span className="package-price-premium">
-                          {formatPrice(price)} บาท/ชม.
-                        </span>
-                      </div>
-                      <div className="package-check-icon">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      </div>
-                    </div>
-                    {addOns.map((addon) => (
-                      <div
-                        key={addon.add_on_id}
-                        className={`package-card-premium ${selectPrice === addon.add_on_id.toString() ? "selected" : ""}`}
-                        onClick={() =>
-                          handlePriceOnChange(addon.add_on_id.toString())
-                        }
+                      <option value="subFieldPrice">
+                        ราคาปกติ ({subFieldData.sport_name}) — {formatPrice(price)} บาท/ชม.
+                      </option>
+                      {addOns.map((addon) => (
+                        <option key={addon.add_on_id} value={addon.add_on_id.toString()}>
+                          {addon.content} — {formatPrice(addon.price)} บาท/ชม.
+                        </option>
+                      ))}
+                    </select>
+                    <div className="package-select-arrow-premium">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <div className="package-info-premium">
-                          <span className="package-name-premium">
-                            {addon.content}
-                          </span>
-                          <span className="package-price-premium">
-                            {formatPrice(addon.price)} บาท/ชม.
-                          </span>
-                        </div>
-                        <div className="package-check-icon">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        </div>
-                      </div>
-                    ))}
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </div>
                   </div>
                   <div
                     className="divider-premium"
