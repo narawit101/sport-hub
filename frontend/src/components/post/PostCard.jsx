@@ -50,34 +50,12 @@ export default function PostCard({
     });
   };
 
-  useEffect(() => {
-    if (!isHome || images.length <= 1) return;
-
-    const rotationMs = 15000;
-    const tickMs = 100;
-
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + tickMs;
-        if (next >= rotationMs) {
-          setActiveIdx((prevIdx) => (prevIdx + 1) % images.length);
-          return 0;
-        }
-        return next;
-      });
-    }, tickMs);
-
-    return () => clearInterval(interval);
-  }, [isHome, images.length]);
-
   const handlePrev = () => {
     setActiveIdx((prev) => (prev - 1 < 0 ? images.length - 1 : prev - 1));
-    setProgress(0);
   };
 
   const handleNext = () => {
     setActiveIdx((prev) => (prev + 1) % images.length);
-    setProgress(0);
   };
 
   if (children) {
@@ -167,43 +145,23 @@ export default function PostCard({
                 : "ig-carousel-track-wrapper"
             }
           >
-            {isHome ? (
-              <div className="ig-carousel-track-home">
+            <div
+              className={isHome ? "ig-carousel-track-home" : "ig-carousel-track"}
+              style={{
+                transform: `translateX(-${activeIdx * 100}%)`,
+              }}
+            >
+              {images.map((img, idx) => (
                 <img
-                  key={`img-${post.post_id}-${activeIdx}`}
-                  src={`${images[activeIdx]?.image_url}`}
+                  key={idx}
+                  src={`${img.image_url}`}
                   alt="รูปโพสต์"
-                  className="ig-carousel-image-home fade-swap"
+                  className={isHome ? "ig-carousel-image-home" : "ig-carousel-image"}
+                  onClick={() => setSelectedImage?.(`${img.image_url}`)}
+                  style={{ cursor: "zoom-in", flexShrink: 0, width: "100%" }}
                 />
-              </div>
-            ) : (
-              <div
-                className="ig-carousel-track"
-                style={{
-                  transform: `translateX(-${activeIdx * 100}%)`,
-                }}
-              >
-                {images.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={`${img.image_url}`}
-                    alt="รูปโพสต์"
-                    className="ig-carousel-image"
-                    onClick={() => setSelectedImage?.(`${img.image_url}`)}
-                    style={{ cursor: "zoom-in" }}
-                  />
-                ))}
-              </div>
-            )}
-
-            {isHome && images.length > 1 && (
-              <div className="carousel-progress" aria-hidden="true">
-                <div
-                  className="carousel-progress-bar"
-                  style={{ width: `${(progress / 15000) * 100}%` }}
-                />
-              </div>
-            )}
+              ))}
+            </div>
 
             {images.length > 1 && (
               <>
@@ -211,7 +169,7 @@ export default function PostCard({
                   className={isHome ? "arrow-btn left-home" : "arrow-btn left"}
                   onClick={handlePrev}
                 >
-                  ❮
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
                 <button
                   className={
@@ -219,7 +177,7 @@ export default function PostCard({
                   }
                   onClick={handleNext}
                 >
-                  ❯
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
               </>
             )}

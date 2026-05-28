@@ -25,6 +25,8 @@ export default function HomePage() {
 
   const [activeFeedTab, setActiveFeedTab] = useState("general"); // general | following
 
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const [postData, setPostData] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -193,7 +195,7 @@ export default function HomePage() {
         {/* Unified Dashboard Container */}
         <div className="homepage-dashboard-container">
           <div className="title-notice">
-            <span className="section-badge">News & Updates</span>
+            {/* <span className="section-badge">News & Updates</span> */}
             <h1>ความเคลื่อนไหวและโปรโมชัน</h1>
             <p className="section-subtitle">
               ติดตามข่าวสาร กิจกรรมพิเศษ และโปรโมชันล่าสุดส่งตรงจากสนามกีฬาที่คุณสนใจ พร้อมเกาะติดตารางคะแนนและผลบอลสดรอบโลก
@@ -366,6 +368,7 @@ export default function HomePage() {
                         key={post.post_id}
                         post={post}
                         mode="home"
+                        setSelectedImage={setSelectedImage}
                         onViewPost={(p) =>
                           router.push(
                             `/profile/${p.field_id}?highlight=${p.post_id}`,
@@ -401,6 +404,13 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Lightbox for zooming images */}
+      {selectedImage && (
+        <div className="lightbox-overlay" onClick={() => setSelectedImage(null)}>
+          <img src={selectedImage} alt="Zoomed" className="lightbox-image" />
+        </div>
+      )}
     </>
   );
 }
