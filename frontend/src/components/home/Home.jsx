@@ -5,8 +5,8 @@ import "@/app/css/home-page.css";
 import { useAuth } from "@/app/contexts/AuthContext";
 import Category from "@/components/admin/SportType";
 import { USER_STATUS } from "@/constants/status";
-import FotMobWidget from "@/components/home/FotMobWidget";
 import FieldFeed from "@/components/home/FieldFeed";
+import FotMobWidget from "@/components/home/FotMobWidget";
 
 export default function HomePage() {
   const router = useRouter();
@@ -74,10 +74,10 @@ export default function HomePage() {
               พร้อมเกาะติดตารางคะแนนและผลบอลสดรอบโลก
             </p>
           </div>
+          {/* Refactored Layout: Single Column for Football content */}
 
-          {/* Split Grid Layout */}
           <div className="homepage-content-grid">
-            {/* Left Unified Container: Sidebar + Feed */}
+            {/* Unified Container: Sidebar + Feed */}
             <div className="homepage-left-container">
               {/* Column 1: Left Sidebar (TikTok style) */}
               <div className="homepage-sidebar-left">
@@ -128,18 +128,42 @@ export default function HomePage() {
                     <span className="sidebar-label">กำลังติดตาม</span>
                   </button>
                 )}
+
+                <button
+                  className={`sidebar-left-item ${activeFeedTab === "football" ? "active" : ""}`}
+                  onClick={() => handleFeedTabClick("football")}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10s10-4.49 10-10S17.51 2 12 2m6.23 15H16l-1.25 2.5c-.86.32-1.78.5-2.75.5s-1.89-.18-2.75-.5L8 17H5.77a8 8 0 0 1-1.63-3.53L6 10.99L4.78 8.56a8.02 8.02 0 0 1 4.79-4.19L12 5.99l2.43-1.62c2.11.68 3.84 2.21 4.79 4.19L18 11l1.86 2.48A8.1 8.1 0 0 1 18.24 17Z"
+                    ></path>
+                    <path
+                      fill="currentColor"
+                      d="m8.5 11l1.5 4h4l1.5-4L12 8.5z"
+                    ></path>
+                  </svg>
+                  <span className="sidebar-label">ข่าวกีฬา & ผลบอล</span>
+                </button>
               </div>
-
-              {/* Column 2: Center Feed Column */}
-              <FieldFeed
-                activeFeedTab={activeFeedTab}
-                scrollRef={feedScrollRef}
-              />
-            </div>
-
-            {/* Column 3: Right Football Column */}
-            <div className="homepage-football-column">
-              <FotMobWidget />
+              {/* Column 2: Center Content Area (Conditional render) */}
+              <div className="homepage-main-content-column" ref={feedScrollRef}>
+                {activeFeedTab === "football" ? (
+                  <div className="homepage-football-column">
+                    <FotMobWidget />
+                  </div>
+                ) : (
+                  <FieldFeed
+                    activeFeedTab={activeFeedTab}
+                    scrollRef={feedScrollRef}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -24,6 +24,7 @@ export default function FotMobWidget() {
   const [matches, setMatches] = useState([]);
   const [news, setNews] = useState([]);
   const [standings, setStandings] = useState([]);
+  const [seasons, setSeasons] = useState([]);
   const [leagueId, setLeagueId] = useState("47"); // Default EPL (47)
   const [loading, setLoading] = useState(false);
   const [showAllStandings, setShowAllStandings] = useState(false);
@@ -82,9 +83,11 @@ export default function FotMobWidget() {
     try {
       const res = await apiClient.get(`/fotmob/standings?leagueId=${leagueId}`);
       setStandings(res.standings || []);
+      setSeasons(res.allAvailableSeasons || []);
     } catch (err) {
       console.error("Error fetching standings:", err);
       setStandings([]);
+      setSeasons([]);
     } finally {
       setLoading(false);
     }
@@ -98,7 +101,10 @@ export default function FotMobWidget() {
     if (status.cancelled) return { text: "ยกเลิก", class: "finished" };
     if (status.finished) return { text: "จบการแข่งขัน", class: "finished" };
     if (status.started) {
-      return { text: status.liveTime ? `สด ${status.liveTime}'` : "สด", class: "live" };
+      return {
+        text: status.liveTime ? `สด ${status.liveTime}'` : "สด",
+        class: "live",
+      };
     }
     // Convert UTC/Start time to Local Time if needed, or return original string
     return { text: status.startDateStr || "เร็วๆ นี้", class: "upcoming" };
@@ -107,13 +113,13 @@ export default function FotMobWidget() {
   return (
     <div className="football-widget-container">
       {/* Widget Header */}
-      <div className="football-widget-header">
+      {/* <div className="football-widget-header">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
           <path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10s10-4.49 10-10S17.51 2 12 2m6.23 15H16l-1.25 2.5c-.86.32-1.78.5-2.75.5s-1.89-.18-2.75-.5L8 17H5.77a8 8 0 0 1-1.63-3.53L6 10.99L4.78 8.56a8.02 8.02 0 0 1 4.79-4.19L12 5.99l2.43-1.62c2.11.68 3.84 2.21 4.79 4.19L18 11l1.86 2.48A8.1 8.1 0 0 1 18.24 17Z"></path>
           <path fill="currentColor" d="m8.5 11l1.5 4h4l1.5-4L12 8.5z"></path>
         </svg>
         <h2 className="football-widget-title">ข่าวกีฬา & ผลบอลสด</h2>
-      </div>
+      </div> */}
 
       {/* Header Tabs */}
       <div className="football-tabs">
@@ -145,7 +151,10 @@ export default function FotMobWidget() {
       {activeTab === "matches" && (
         <div>
           <div className="football-date-selector">
-            <button className="football-date-btn" onClick={() => adjustDate(-1)}>
+            <button
+              className="football-date-btn"
+              onClick={() => adjustDate(-1)}
+            >
               &lt;
             </button>
             <button
@@ -162,52 +171,59 @@ export default function FotMobWidget() {
             </button>
           </div>
 
-          {showCalendar && typeof document !== 'undefined' && document.body && createPortal(
-            <div
-              className="calendar-popup-overlay"
-              onClick={() => setShowCalendar(false)}
-            >
+          {showCalendar &&
+            typeof document !== "undefined" &&
+            document.body &&
+            createPortal(
               <div
-                className="calendar-popup"
-                onClick={(e) => e.stopPropagation()}
+                className="calendar-popup-overlay"
+                onClick={() => setShowCalendar(false)}
               >
-                <button
-                  className="btn-close-calendar-premium"
-                  onClick={() => setShowCalendar(false)}
-                  aria-label="ปิดปฏิทิน"
+                <div
+                  className="calendar-popup"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                  <button
+                    className="btn-close-calendar-premium"
+                    onClick={() => setShowCalendar(false)}
+                    aria-label="ปิดปฏิทิน"
                   >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
-                <Calendar
-                  locale="th-TH"
-                  onChange={(selectedDate) => {
-                    setDate(dayjs(selectedDate));
-                    setShowCalendar(false);
-                  }}
-                  value={date.toDate()}
-                  showNeighboringMonth={false}
-                />
-              </div>
-            </div>
-            , document.body)}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                  <Calendar
+                    locale="th-TH"
+                    onChange={(selectedDate) => {
+                      setDate(dayjs(selectedDate));
+                      setShowCalendar(false);
+                    }}
+                    value={date.toDate()}
+                    showNeighboringMonth={false}
+                  />
+                </div>
+              </div>,
+              document.body,
+            )}
 
           {loading ? (
             <div className="football-loading-view">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="football-skeleton football-skeleton-card" />
+                <div
+                  key={i}
+                  className="football-skeleton football-skeleton-card"
+                />
               ))}
             </div>
           ) : matches.length === 0 ? (
@@ -236,7 +252,9 @@ export default function FotMobWidget() {
                   <path d="M16 18h.01" />
                 </svg>
               </div>
-              <h3 className="football-empty-title">ไม่มีโปรแกรมการแข่งขันยอดนิยมในวันนี้</h3>
+              <h3 className="football-empty-title">
+                ไม่มีโปรแกรมการแข่งขันยอดนิยมในวันนี้
+              </h3>
               <p className="football-empty-description">
                 ลองสลับดูวันอื่น หรือกลับมาตรวจสอบข้อมูลใหม่อีกครั้งภายหลังนะ
               </p>
@@ -280,7 +298,9 @@ export default function FotMobWidget() {
                               ? `${match.home.score} - ${match.away.score}`
                               : "VS"}
                           </div>
-                          <span className={`match-status-badge ${status.class}`}>
+                          <span
+                            className={`match-status-badge ${status.class}`}
+                          >
                             {status.text}
                           </span>
                         </div>
@@ -312,7 +332,9 @@ export default function FotMobWidget() {
         <div>
           {/* League Selector */}
           <div className="standings-header-section">
-            <span style={{ fontWeight: 800, color: "var(--text-color)" }}>ลีกยอดนิยม</span>
+            <span style={{ fontWeight: 800, color: "var(--text-color)" }}>
+              ลีกยอดนิยม
+            </span>
             <select
               className="standings-league-select"
               value={leagueId}
@@ -333,7 +355,10 @@ export default function FotMobWidget() {
           {loading ? (
             <div className="football-loading-view">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="football-skeleton football-skeleton-card" />
+                <div
+                  key={i}
+                  className="football-skeleton football-skeleton-card"
+                />
               ))}
             </div>
           ) : standings.length === 0 ? (
@@ -357,7 +382,8 @@ export default function FotMobWidget() {
               </div>
               <h3 className="football-empty-title">ไม่มีข้อมูลตารางคะแนน</h3>
               <p className="football-empty-description">
-                ขณะนี้ไม่สามารถดึงข้อมูลตารางคะแนนของลีกที่เลือกได้ ลองกลับมาดูอีกครั้งนะ
+                ขณะนี้ไม่สามารถดึงข้อมูลตารางคะแนนของลีกที่เลือกได้
+                ลองกลับมาดูอีกครั้งนะ
               </p>
             </div>
           ) : (
@@ -365,41 +391,60 @@ export default function FotMobWidget() {
               <table className="standings-table">
                 <thead>
                   <tr>
-                    <th style={{ width: "50px", textAlign: "center" }}>อันดับ</th>
+                    <th style={{ width: "50px", textAlign: "center" }}>
+                      อันดับ
+                    </th>
                     <th>สโมสร</th>
                     <th style={{ width: "50px", textAlign: "center" }}>แข่ง</th>
-                    <th style={{ width: "50px", textAlign: "center" }}>ได้/เสีย</th>
+                    <th style={{ width: "50px", textAlign: "center" }}>ชนะ</th>
+                    <th style={{ width: "50px", textAlign: "center" }}>เสมอ</th>
+                    <th style={{ width: "50px", textAlign: "center" }}>แพ้</th>
+                    <th style={{ width: "50px", textAlign: "center" }}>+/-</th>
                     <th style={{ width: "60px", textAlign: "center" }}>แต้ม</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(showAllStandings ? standings : standings.slice(0, 8)).map((team) => (
-                    <tr key={team.id} className={team.idx <= 4 ? "top-team" : ""}>
-                      <td style={{ textAlign: "center", fontWeight: 700 }}>{team.idx}</td>
-                      <td>
-                        <div className="standings-team-cell">
-                          <img
-                            src={`https://images.fotmob.com/image_resources/logo/teamlogo/${team.id}.png`}
-                            alt={team.name}
-                            className="standings-team-logo"
-                            onError={(e) => {
-                              e.target.src = "/images/football-default.png";
-                            }}
-                          />
-                          <span>{team.name}</span>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" }}>{team.played}</td>
-                      <td style={{ textAlign: "center", color: "#64748b" }}>
-                        {Array.isArray(team.goalConDiff)
-                          ? `${team.goalConDiff[0] || 0}-${team.goalConDiff[1] || 0}`
-                          : team.goalConDiff}
-                      </td>
-                      <td style={{ textAlign: "center", fontWeight: 800, color: "var(--text-color)" }}>
-                        {team.pts}
-                      </td>
-                    </tr>
-                  ))}
+                  {(showAllStandings ? standings : standings.slice(0, 8)).map(
+                    (team) => (
+                      <tr
+                        key={team.id}
+                        className={team.idx <= 4 ? "top-team" : ""}
+                      >
+                        <td style={{ textAlign: "center", fontWeight: 700 }}>
+                          {team.idx}
+                        </td>
+                        <td>
+                          <div className="standings-team-cell">
+                            <img
+                              src={`https://images.fotmob.com/image_resources/logo/teamlogo/${team.id}.png`}
+                              alt={team.name}
+                              className="standings-team-logo"
+                              onError={(e) => {
+                                e.target.src = "/images/football-default.png";
+                              }}
+                            />
+                            <span>{team.name}</span>
+                          </div>
+                        </td>
+                        <td style={{ textAlign: "center" }}>{team.played}</td>
+                        <td style={{ textAlign: "center" }}>{team.wins}</td>
+                        <td style={{ textAlign: "center" }}>{team.draws}</td>
+                        <td style={{ textAlign: "center" }}>{team.losses}</td>
+                        <td style={{ textAlign: "center", color: "#64748b" }}>
+                          {team.goalConDiff}
+                        </td>
+                        <td
+                          style={{
+                            textAlign: "center",
+                            fontWeight: 800,
+                            color: "var(--text-color)",
+                          }}
+                        >
+                          {team.pts}
+                        </td>
+                      </tr>
+                    ),
+                  )}
                 </tbody>
               </table>
               <button
@@ -419,7 +464,10 @@ export default function FotMobWidget() {
           {loading ? (
             <div className="football-loading-view">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="football-skeleton football-skeleton-news" />
+                <div
+                  key={i}
+                  className="football-skeleton football-skeleton-news"
+                />
               ))}
             </div>
           ) : news.length === 0 ? (
@@ -443,9 +491,12 @@ export default function FotMobWidget() {
                   <path d="M6 8h6v8H6z" />
                 </svg>
               </div>
-              <h3 className="football-empty-title">ไม่มีข่าวสารล่าสุดในขณะนี้</h3>
+              <h3 className="football-empty-title">
+                ไม่มีข่าวสารล่าสุดในขณะนี้
+              </h3>
               <p className="football-empty-description">
-                ขณะนี้ไม่มีหัวข้อข่าวกีฬาฟุตบอลต่างประเทศอัปเดต ลองกลับมาอ่านอีกครั้งในภายหลังนะ
+                ขณะนี้ไม่มีหัวข้อข่าวกีฬาฟุตบอลต่างประเทศอัปเดต
+                ลองกลับมาอ่านอีกครั้งในภายหลังนะ
               </p>
             </div>
           ) : (

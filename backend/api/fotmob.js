@@ -110,12 +110,13 @@ router.get("/matches", async (req, res) => {
   const date = req.query.date; 
   if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
-  const cacheKey = `fotmob:matches:${date}`;
+  const cacheKey = `fotmob:matches:v2:${date}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
 
-    const response = await fetchFromFotmob(`https://www.fotmob.com/api/matches?date=${date}`);
+    // Using the new data/matches endpoint discovered
+    const response = await fetchFromFotmob(`https://www.fotmob.com/api/data/matches?date=${date}&timezone=Asia/Bangkok&ccode3=THA&includeNextDayLateNight=true`);
     if (!response.ok) throw new Error(`Status: ${response.status}`);
 
     const data = await response.json();
@@ -157,10 +158,10 @@ router.get("/matches", async (req, res) => {
   }
 });
 
-// 3. League Standings Endpoint (Updated to use data/leagues)
+// 3. League Standings Endpoint (Updated to use data/leagues and include seasons)
 router.get("/standings", async (req, res) => {
   const leagueId = req.query.leagueId || "47";
-  const cacheKey = `fotmob:standings:v2:${leagueId}`;
+  const cacheKey = `fotmob:standings:v3:${leagueId}`;
 
   try {
     const cached = await getCachedData(cacheKey);
@@ -172,7 +173,7 @@ router.get("/standings", async (req, res) => {
 
     const data = await response.json();
     
-    // The table structure in data/leagues is deeper: overview -> table -> [0] -> data -> table -> all
+    // The table structure in data/leagues: overview -> table -> [0] -> data -> table -> all
     let rawTable = [];
     try {
         if (data.overview?.table?.[0]?.data?.table?.all) {
@@ -197,7 +198,10 @@ router.get("/standings", async (req, res) => {
       scoresStr: team.scoresStr
     }));
 
-    const result = { standings };
+    const result = { 
+      standings,
+      allAvailableSeasons: data.allAvailableSeasons || []
+    };
     await setCachedData(cacheKey, result, 3600);
 
     res.status(200).json(result);

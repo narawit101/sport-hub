@@ -137,7 +137,7 @@ export default function FieldFeed({ activeFeedTab, scrollRef }) {
   };
 
   return (
-    <div className="homepage-feed-column" ref={scrollRef}>
+    <div className="homepage-feed-column">
       <div className="news-section" style={{ margin: "0 auto", padding: 0 }}>
         {dataLoading && (
           <div className="news-skeleton-wrapper" aria-hidden="true">

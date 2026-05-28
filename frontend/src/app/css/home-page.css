@@ -1525,7 +1525,7 @@
 
 .homepage-content-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr;
   gap: 0;
   width: 100%;
   margin: 0;
@@ -1595,20 +1595,29 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow-y: visible;
+  max-height: none;
+  padding-right: 0;
+}
+
+.homepage-main-content-column {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
   overflow-y: auto;
   max-height: calc(100vh - 150px);
   padding-right: 8px;
 }
 
-.homepage-feed-column::-webkit-scrollbar {
+.homepage-main-content-column::-webkit-scrollbar {
   width: 6px;
 }
 
-.homepage-feed-column::-webkit-scrollbar-track {
+.homepage-main-content-column::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.homepage-feed-column::-webkit-scrollbar-thumb {
+.homepage-main-content-column::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 3px;
 }
@@ -1618,16 +1627,16 @@
 }
 
 .homepage-football-column {
-  position: sticky;
-  top: 90px;
+  position: static;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 30px;
-  border-left: 1px solid var(--border-color, #e9ecef);
+  max-height: none;
+  overflow-y: visible;
+  overflow-x: visible;
+  padding: 0 0 20px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .homepage-football-column::-webkit-scrollbar {
@@ -1737,6 +1746,14 @@
     white-space: nowrap !important;
   }
 
+  .homepage-main-content-column {
+    padding: 0 !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
   .homepage-feed-column {
     padding: 20px !important;
     max-height: none !important;
@@ -1752,12 +1769,7 @@
   }
 
   .homepage-football-column {
-    position: static;
-    max-height: none;
-    overflow-y: visible;
-    border-left: none !important;
-    border-top: 1px solid var(--border-color, #e9ecef);
-    padding: 35px 20px 20px 20px;
+    padding: 0 20px 20px 20px;
     width: 100%;
     box-sizing: border-box;
   }

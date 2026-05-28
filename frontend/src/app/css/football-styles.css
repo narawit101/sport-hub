@@ -41,39 +41,45 @@
 /* Tabs */
 .football-tabs {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px 0px 10px 0;
-  height: auto;
+  flex-direction: row;
+  gap: 4px;
+  padding: 6px;
+  background-color: var(--secondary-bg, #f8f9fa);
+  border-radius: var(--pill-radius, 30px);
+  border: 1px solid var(--border-color, #e9ecef);
+  overflow-x: auto;
   margin-bottom: 24px;
+  height: auto;
 }
 
 .football-tab-btn {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
-  border-radius: var(--border-radius, 12px);
+  flex: 1;
+  justify-content: center;
+  border-radius: var(--pill-radius, 30px);
+  padding: 10px 16px;
+  text-align: center;
+  white-space: nowrap;
+  gap: 8px;
   background: transparent;
   border: none;
   color: #1e293b;
   font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
-  width: 100%;
   transition: all 0.2s ease;
-  text-align: left;
 }
 
 .football-tab-btn:hover {
-  background-color: var(--secondary-bg, #f8f9fa);
+  background-color: rgba(3, 4, 94, 0.04);
   color: var(--text-color, #03045e);
 }
 
 .football-tab-btn.active {
-  background-color: rgba(3, 4, 94, 0.06);
+  background-color: #ffffff;
   color: var(--text-color, #03045e);
-  box-shadow: none;
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.12), 0 1px 3px rgba(3, 4, 94, 0.04);
 }
 
 /* Date Selector */
@@ -504,29 +510,4 @@
   font-weight: 500;
 }
 
-@media screen and (max-width: 1200px) {
-  .football-tabs {
-    flex-direction: row;
-    gap: 4px;
-    padding: 6px;
-    background-color: var(--secondary-bg, #f8f9fa);
-    border-radius: var(--pill-radius, 30px);
-    border: 1px solid var(--border-color, #e9ecef);
-    overflow-x: auto;
-  }
-
-  .football-tab-btn {
-    flex: 1;
-    justify-content: center;
-    border-radius: var(--pill-radius, 30px);
-    padding: 10px 16px;
-    text-align: center;
-    white-space: nowrap;
-    gap: 8px;
-  }
-
-  .football-tab-btn.active {
-    background-color: #ffffff;
-    box-shadow: 0 4px 12px rgba(3, 4, 94, 0.12), 0 1px 3px rgba(3, 4, 94, 0.04);
-  }
-}
+/* Media query styling overrides removed because horizontal tabs are now default */
