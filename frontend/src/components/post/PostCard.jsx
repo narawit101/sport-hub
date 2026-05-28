@@ -227,7 +227,7 @@ export default function PostCard({
         </div>
       )}
 
-      {post.content.length > 100 ? (
+      {post.content.length > 200 ? (
         <p className={isHome ? "post-text-home" : "post-text"}>
           {renderTextWithLinks(
             expanded

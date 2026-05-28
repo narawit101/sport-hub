@@ -153,29 +153,31 @@ export default function FotMobWidget() {
             ))
           )}
         </div>
+
       ) : (
         <>
+          <div className="football-date-selector">
+            <button className="football-date-btn" onClick={() => adjustDate(-1)}>
+              &lt;
+            </button>
+            <button
+              className="football-date-display-btn"
+              onClick={() => setShowCalendar(true)}
+              aria-label="เลือกวันที่"
+            >
+              {date.isSame(dayjs(), "day")
+                ? "วันนี้"
+                : date.format("D MMM YYYY")}
+            </button>
+            <button className="football-date-btn" onClick={() => adjustDate(1)}>
+              &gt;
+            </button>
+          </div>
           {/* Matches Tab */}
           {activeTab === "matches" && (
             <div>
               {/* Date Switcher */}
-              <div className="football-date-selector">
-                <button className="football-date-btn" onClick={() => adjustDate(-1)}>
-                  &lt;
-                </button>
-                <button
-                  className="football-date-display-btn"
-                  onClick={() => setShowCalendar(true)}
-                  aria-label="เลือกวันที่"
-                >
-                  {date.isSame(dayjs(), "day")
-                    ? "วันนี้"
-                    : date.format("D MMM YYYY")}
-                </button>
-                <button className="football-date-btn" onClick={() => adjustDate(1)}>
-                  &gt;
-                </button>
-              </div>
+
 
               {showCalendar && typeof document !== 'undefined' && document.body && createPortal(
                 <div
