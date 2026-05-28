@@ -9,7 +9,7 @@ import "@/app/css/calendar-styles.css";
 
 const POPULAR_LEAGUE_NAMES = {
   47: "English Premier League",
-  339: "Thai League 1",
+  8984: "Thai League 1",
   87: "La Liga",
   54: "Bundesliga",
   55: "Serie A",
@@ -330,7 +330,7 @@ export default function FotMobWidget({
 
           {loading ? (
             <div className="football-loading-view">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: 10 }).map((_, i) => (
                 <div
                   key={i}
                   className="football-skeleton football-skeleton-card"
@@ -374,108 +374,110 @@ export default function FotMobWidget({
             <div className="football-matches-scroll-container">
               {matches.map((league) => (
                 <div key={league.id} className="league-group">
-                <div
-                  className="league-header"
-                  onClick={() => toggleLeague(league.id)}
-                >
-                  <div className="league-header-left">
-                    <img
-                      src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
-                      alt={league.name}
-                      className="standings-team-logo"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                      }}
-                    />
-                    <span>
-                      {POPULAR_LEAGUE_NAMES[league.id] || league.name}
-                    </span>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={`league-chevron ${collapsedLeagues[league.id] ? "collapsed" : ""}`}
+                  <div
+                    className="league-header"
+                    onClick={() => toggleLeague(league.id)}
                   >
-                    <polyline points="18 15 12 9 6 15" />
-                  </svg>
-                </div>
-                {!collapsedLeagues[league.id] && (
-                  <div className="match-list">
-                    {league.matches.map((match) => {
-                      const status = getMatchStatusLabel(match.status);
-                      const isFinished = match.status.finished;
-                      const isCancelled = match.status.cancelled;
-                      const isStarted = match.status.started;
-
-                      let statusText = status.text;
-                      if (isFinished) {
-                        statusText = "FT";
-                      } else if (isCancelled) {
-                        statusText = "CAN";
-                      }
-
-                      return (
-                        <div key={match.id} className="match-card">
-                          {/* Left side: Status badge */}
-                          <div className="match-status-col">
-                            <span
-                              className={`match-status-badge-flat ${status.class}`}
-                            >
-                              {statusText}
-                            </span>
-                          </div>
-
-                          {/* Center: Teams and Score */}
-                          <div className="match-teams-score-col">
-                            <div className="match-team-home-flat">
-                              <span className="team-name-flat">
-                                {match.home.name}
-                              </span>
-                              <img
-                                src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}.png`}
-                                alt={match.home.name}
-                                className="team-logo-flat"
-                                onError={(e) => {
-                                  e.target.src = "/images/football-default.png";
-                                }}
-                              />
-                            </div>
-                            <div className="match-score-flat">
-                              {isStarted || isFinished
-                                ? `${match.home.score} - ${match.away.score}`
-                                : "VS"}
-                            </div>
-                            <div className="match-team-away-flat">
-                              <img
-                                src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.away.id}.png`}
-                                alt={match.away.name}
-                                className="team-logo-flat"
-                                onError={(e) => {
-                                  e.target.src = "/images/football-default.png";
-                                }}
-                              />
-                              <span className="team-name-flat">
-                                {match.away.name}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Right side: spacer col */}
-                          <div className="match-spacer-col"></div>
-                        </div>
-                      );
-                    })}
+                    <div className="league-header-left">
+                      <img
+                        src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                        alt={league.name}
+                        className="standings-team-logo"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                      <span>
+                        {POPULAR_LEAGUE_NAMES[league.id] || league.name}
+                      </span>
+                    </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`league-chevron ${collapsedLeagues[league.id] ? "collapsed" : ""}`}
+                    >
+                      <polyline points="18 15 12 9 6 15" />
+                    </svg>
                   </div>
-                )}
-              </div>
-            ))}
+                  {!collapsedLeagues[league.id] && (
+                    <div className="match-list">
+                      {league.matches.map((match) => {
+                        const status = getMatchStatusLabel(match.status);
+                        const isFinished = match.status.finished;
+                        const isCancelled = match.status.cancelled;
+                        const isStarted = match.status.started;
+
+                        let statusText = status.text;
+                        if (isFinished) {
+                          statusText = "FT";
+                        } else if (isCancelled) {
+                          statusText = "CAN";
+                        }
+
+                        return (
+                          <div key={match.id} className="match-card">
+                            {/* Left side: Status badge */}
+                            <div className="match-status-col">
+                              <span
+                                className={`match-status-badge-flat ${status.class}`}
+                              >
+                                {statusText}
+                              </span>
+                            </div>
+
+                            {/* Center: Teams and Score */}
+                            <div className="match-teams-score-col">
+                              <div className="match-team-home-flat">
+                                <span className="team-name-flat">
+                                  {match.home.name}
+                                </span>
+                                <img
+                                  src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}.png`}
+                                  alt={match.home.name}
+                                  className="team-logo-flat"
+                                  onError={(e) => {
+                                    e.target.src =
+                                      "/images/football-default.png";
+                                  }}
+                                />
+                              </div>
+                              <div className="match-score-flat">
+                                {isStarted || isFinished
+                                  ? `${match.home.score} - ${match.away.score}`
+                                  : "VS"}
+                              </div>
+                              <div className="match-team-away-flat">
+                                <img
+                                  src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.away.id}.png`}
+                                  alt={match.away.name}
+                                  className="team-logo-flat"
+                                  onError={(e) => {
+                                    e.target.src =
+                                      "/images/football-default.png";
+                                  }}
+                                />
+                                <span className="team-name-flat">
+                                  {match.away.name}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Right side: spacer col */}
+                            <div className="match-spacer-col"></div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -511,7 +513,7 @@ export default function FotMobWidget({
 
           {loading ? (
             <div className="football-loading-view">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: 15 }).map((_, i) => (
                 <div
                   key={i}
                   className="football-skeleton football-skeleton-card"

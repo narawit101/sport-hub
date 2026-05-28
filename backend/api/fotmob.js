@@ -54,38 +54,75 @@ async function fetchFromFotmob(url) {
 
 // 1. Football News Endpoint (Updated with tlnews and pagination)
 router.get("/news", async (req, res) => {
-  const startIndex = req.query.startIndex || 0;
-  const cacheKey = `fotmob:news:v3:${startIndex}`;
+  const startIndex = parseInt(req.query.startIndex || "0", 10);
+  const limit = startIndex === 0 ? 25 : 20;
+  const cacheKey = `fotmob:news:v6:${startIndex}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
 
-    // Using the official-looking data/tlnews endpoint discovered
-    const response = await fetchFromFotmob(`https://www.fotmob.com/api/data/tlnews?id=47&type=league&language=th&startIndex=${startIndex}`);
-    
-    if (!response.ok) {
-      // Fallback to worldnews if tlnews fails
-      const fbResponse = await fetchFromFotmob("https://www.fotmob.com/api/worldnews?page=1");
-      const fbData = await fbResponse.json();
-      const newsItems = (fbData || []).map(item => ({
-        id: item.id,
-        title: item.title || item.heading,
-        imageUrl: item.imageUrl || (item.mainImage ? item.mainImage.url : null),
-        source: item.sourceName || item.sourceStr || "FotMob",
-        time: item.time || item.gmtTime || "",
-        pageUrl: (item.pageUrl || (item.page ? item.page.url : "")).startsWith("http") 
-          ? (item.pageUrl || item.page.url) 
-          : `https://www.fotmob.com${item.pageUrl || item.page.url}`,
-      })).slice(0, 20);
-      
-      const result = { news: newsItems };
-      await setCachedData(cacheKey, result, 3600);
-      return res.status(200).json(result);
+    let rawNews = [];
+    if (startIndex === 0) {
+      // Fetch both page 1 and page 2 concurrently to obtain enough items for 25
+      const [res1, res2] = await Promise.all([
+        fetchFromFotmob("https://www.fotmob.com/api/data/tlnews?id=47&type=league&language=th&startIndex=0"),
+        fetchFromFotmob("https://www.fotmob.com/api/data/tlnews?id=47&type=league&language=th&startIndex=20")
+      ]);
+
+      if (res1.ok) {
+        const json1 = await res1.json();
+        rawNews = rawNews.concat(json1.data || []);
+      }
+      if (res2.ok) {
+        const json2 = await res2.json();
+        rawNews = rawNews.concat(json2.data || []);
+      }
+
+      if (!res1.ok && rawNews.length === 0) {
+        // Fallback to worldnews if both fail or if page 1 fails
+        const fbResponse = await fetchFromFotmob("https://www.fotmob.com/api/worldnews?page=1");
+        const fbData = await fbResponse.json();
+        const newsItems = (fbData || []).map(item => ({
+          id: item.id,
+          title: item.title || item.heading,
+          imageUrl: item.imageUrl || (item.mainImage ? item.mainImage.url : null),
+          source: item.sourceName || item.sourceStr || "FotMob",
+          time: item.time || item.gmtTime || "",
+          pageUrl: (item.pageUrl || (item.page ? item.page.url : "")).startsWith("http") 
+            ? (item.pageUrl || item.page.url) 
+            : `https://www.fotmob.com${item.pageUrl || item.page.url}`,
+        })).slice(0, limit);
+        
+        const result = { news: newsItems };
+        await setCachedData(cacheKey, result, 3600);
+        return res.status(200).json(result);
+      }
+    } else {
+      const response = await fetchFromFotmob(`https://www.fotmob.com/api/data/tlnews?id=47&type=league&language=th&startIndex=${startIndex}`);
+      if (!response.ok) {
+        // Fallback to worldnews
+        const pageNum = Math.floor(startIndex / 20) + 1;
+        const fbResponse = await fetchFromFotmob(`https://www.fotmob.com/api/worldnews?page=${pageNum}`);
+        const fbData = await fbResponse.json();
+        const newsItems = (fbData || []).map(item => ({
+          id: item.id,
+          title: item.title || item.heading,
+          imageUrl: item.imageUrl || (item.mainImage ? item.mainImage.url : null),
+          source: item.sourceName || item.sourceStr || "FotMob",
+          time: item.time || item.gmtTime || "",
+          pageUrl: (item.pageUrl || (item.page ? item.page.url : "")).startsWith("http") 
+            ? (item.pageUrl || item.page.url) 
+            : `https://www.fotmob.com${item.pageUrl || item.page.url}`,
+        })).slice(0, limit);
+        
+        const result = { news: newsItems };
+        await setCachedData(cacheKey, result, 3600);
+        return res.status(200).json(result);
+      }
+      const json = await response.json();
+      rawNews = json.data || [];
     }
 
-    const json = await response.json();
-    const rawNews = json.data || [];
-    
     const newsItems = rawNews.map(item => ({
       id: item.id,
       title: item.title,
@@ -95,7 +132,7 @@ router.get("/news", async (req, res) => {
       pageUrl: item.page.url.startsWith("http") ? item.page.url : `https://www.fotmob.com${item.page.url}`,
     }));
 
-    const result = { news: newsItems.slice(0, 20) };
+    const result = { news: newsItems.slice(0, limit) };
     await setCachedData(cacheKey, result, 3600);
 
     res.status(200).json(result);

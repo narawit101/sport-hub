@@ -11,7 +11,7 @@ import apiClient from "@/lib/apiClient";
 
 const POPULAR_LEAGUES_LIST = [
   { id: 47, name: "Premier League" },
-  { id: 339, name: "Thai League 1" },
+  { id: 8984, name: "Thai League" },
   { id: 87, name: "La Liga" },
   { id: 54, name: "Bundesliga" },
   { id: 55, name: "Serie A" },
@@ -141,23 +141,27 @@ export default function HomePage() {
 
   // Filter leagues
   const query = leagueFilter.trim().toLowerCase();
-  
-  const filteredInternational = allLeagues?.international?.filter(
-    (league) =>
-      league.name.toLowerCase().includes(query) ||
-      (league.localizedName && league.localizedName.toLowerCase().includes(query))
-  ) || [];
+
+  const filteredInternational =
+    allLeagues?.international?.filter(
+      (league) =>
+        league.name.toLowerCase().includes(query) ||
+        (league.localizedName &&
+          league.localizedName.toLowerCase().includes(query)),
+    ) || [];
 
   const filteredCountries = (allLeagues?.countries || [])
     .map((country) => {
       const countryMatches =
         country.name.toLowerCase().includes(query) ||
-        (country.localizedName && country.localizedName.toLowerCase().includes(query));
-      
+        (country.localizedName &&
+          country.localizedName.toLowerCase().includes(query));
+
       const matchingLeagues = country.leagues.filter(
         (league) =>
           league.name.toLowerCase().includes(query) ||
-          (league.localizedName && league.localizedName.toLowerCase().includes(query))
+          (league.localizedName &&
+            league.localizedName.toLowerCase().includes(query)),
       );
 
       if (countryMatches) {
@@ -202,9 +206,13 @@ export default function HomePage() {
           </div>
 
           <div className="homepage-content-grid">
-            <div className={`homepage-left-container ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
+            <div
+              className={`homepage-left-container ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
+            >
               {/* Column 1: Left Sidebar */}
-              <div className={`homepage-sidebar-left ${sidebarCollapsed ? "collapsed" : ""}`}>
+              <div
+                className={`homepage-sidebar-left ${sidebarCollapsed ? "collapsed" : ""}`}
+              >
                 <button
                   className="sidebar-toggle-button"
                   onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -343,16 +351,29 @@ export default function HomePage() {
                             src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
                             alt={league.name}
                             className="sidebar-league-logo"
-                            onError={(e) => { e.target.style.display = "none"; }}
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
                           />
-                          <span className="sidebar-league-name">{league.name}</span>
+                          <span className="sidebar-league-name">
+                            {league.name}
+                          </span>
                         </div>
                       ))}
                     </div>
 
                     <div className="sidebar-section-title">ลีกทั้งหมด</div>
                     <div className="sidebar-search-wrapper">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="search-icon-svg">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        className="search-icon-svg"
+                      >
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                       </svg>
@@ -366,7 +387,9 @@ export default function HomePage() {
                     </div>
 
                     {leaguesLoading ? (
-                      <div className="sidebar-leagues-loading">กำลังโหลดรายชื่อลีก...</div>
+                      <div className="sidebar-leagues-loading">
+                        กำลังโหลดรายชื่อลีก...
+                      </div>
                     ) : (
                       <div className="sidebar-leagues-scroll">
                         {/* International List */}
@@ -382,7 +405,9 @@ export default function HomePage() {
                                   alt="International"
                                   className="sidebar-country-flag"
                                 />
-                                <span className="sidebar-country-name">นานาชาติ</span>
+                                <span className="sidebar-country-name">
+                                  นานาชาติ
+                                </span>
                               </div>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -403,9 +428,13 @@ export default function HomePage() {
                                   <div
                                     key={league.id}
                                     className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
-                                    onClick={() => handleLeagueSelect(league.id)}
+                                    onClick={() =>
+                                      handleLeagueSelect(league.id)
+                                    }
                                   >
-                                    <span className="sidebar-league-name">{league.localizedName || league.name}</span>
+                                    <span className="sidebar-league-name">
+                                      {league.localizedName || league.name}
+                                    </span>
                                   </div>
                                 ))}
                               </div>
@@ -417,19 +446,29 @@ export default function HomePage() {
                         {filteredCountries.map((country) => {
                           const isExpanded = expandedCountries[country.ccode];
                           return (
-                            <div key={country.ccode} className="sidebar-country-group">
+                            <div
+                              key={country.ccode}
+                              className="sidebar-country-group"
+                            >
                               <div
                                 className="sidebar-country-row"
-                                onClick={() => toggleCountryExpand(country.ccode)}
+                                onClick={() =>
+                                  toggleCountryExpand(country.ccode)
+                                }
                               >
                                 <div className="sidebar-country-left">
                                   <img
                                     src={`https://images.fotmob.com/image_resources/logo/teamlogo/${country.ccode.toLowerCase()}.png`}
                                     alt={country.name}
                                     className="sidebar-country-flag"
-                                    onError={(e) => { e.target.src = "/images/football-default.png"; }}
+                                    onError={(e) => {
+                                      e.target.src =
+                                        "/images/football-default.png";
+                                    }}
                                   />
-                                  <span className="sidebar-country-name">{country.localizedName || country.name}</span>
+                                  <span className="sidebar-country-name">
+                                    {country.localizedName || country.name}
+                                  </span>
                                 </div>
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -450,9 +489,13 @@ export default function HomePage() {
                                     <div
                                       key={league.id}
                                       className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
-                                      onClick={() => handleLeagueSelect(league.id)}
+                                      onClick={() =>
+                                        handleLeagueSelect(league.id)
+                                      }
                                     >
-                                      <span className="sidebar-league-name">{league.localizedName || league.name}</span>
+                                      <span className="sidebar-league-name">
+                                        {league.localizedName || league.name}
+                                      </span>
                                     </div>
                                   ))}
                                 </div>
