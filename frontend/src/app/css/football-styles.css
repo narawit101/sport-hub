@@ -1155,3 +1155,87 @@
   font-weight: 600;
   color: #64748b;
 }
+
+/* Matches UI Enhancements (Phase 9) */
+.league-header-flag {
+  width: 22px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.league-live-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #22c55e; /* Vibrant Green */
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border-radius: 12px;
+  padding: 2px 8px;
+  min-width: 32px;
+  height: 22px;
+  box-shadow: 0 1px 3px rgba(34, 197, 94, 0.3);
+}
+
+.score-row-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.score-digits-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.score-digit-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+}
+
+.red-card-indicator {
+  position: absolute;
+  top: -8px; /* Offset to float nicely above the score */
+  right: -3px;
+  width: 6px;
+  height: 9px;
+  background-color: #ef4444; /* Clean solid red card color */
+  border-radius: 1px;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
+  z-index: 5;
+}
+
+@keyframes pulseRedcard {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 1px 6px rgba(239, 68, 68, 0.7);
+  }
+}
+
+.animate-redcard {
+  animation: pulseRedcard 2.5s infinite ease-in-out;
+}
+
+.penalty-shootout-score {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 3px;
+  line-height: 1;
+}

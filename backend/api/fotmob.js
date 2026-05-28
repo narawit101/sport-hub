@@ -164,8 +164,20 @@ router.get("/matches", async (req, res) => {
     leagues.forEach(league => {
       const matches = (league.matches || []).map(match => ({
         id: match.id,
-        home: { id: match.home.id, name: match.home.name, score: match.home.score },
-        away: { id: match.away.id, name: match.away.name, score: match.away.score },
+        home: { 
+          id: match.home.id, 
+          name: match.home.name, 
+          score: match.home.score,
+          redCards: match.home.redCards,
+          penScore: match.home.penScore
+        },
+        away: { 
+          id: match.away.id, 
+          name: match.away.name, 
+          score: match.away.score,
+          redCards: match.away.redCards,
+          penScore: match.away.penScore
+        },
         status: {
           finished: match.status?.finished || false,
           started: match.status?.started || false,
