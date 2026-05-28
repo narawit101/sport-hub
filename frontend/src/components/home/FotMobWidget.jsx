@@ -87,6 +87,14 @@ const getThaiDisplayDate = (d) => {
   }
 };
 
+const getMatchTimeOnly = (matchItem) => {
+  const timeStr = matchItem.status?.startDateStr || matchItem.time || "";
+  if (timeStr.includes(" ")) {
+    return timeStr.split(" ")[1];
+  }
+  return timeStr || "VS";
+};
+
 export default function FotMobWidget({
   hideTabs,
   activeTab: externalActiveTab,
@@ -158,6 +166,20 @@ export default function FotMobWidget({
       ...prev,
       [leagueId]: !prev[leagueId],
     }));
+  };
+
+  const isAnyLeagueExpanded = matches.some((league) => !collapsedLeagues[league.id]);
+
+  const handleToggleAllLeagues = () => {
+    if (isAnyLeagueExpanded) {
+      const newCollapsed = {};
+      matches.forEach((league) => {
+        newCollapsed[league.id] = true;
+      });
+      setCollapsedLeagues(newCollapsed);
+    } else {
+      setCollapsedLeagues({});
+    }
   };
 
   const handleLeagueChange = (newLeagueId) => {
@@ -309,8 +331,19 @@ export default function FotMobWidget({
     if (status.cancelled) return { text: "ยกเลิก", class: "finished" };
     if (status.finished) return { text: "จบการแข่งขัน", class: "finished" };
     if (status.started) {
+      let liveTimeStr = "";
+      if (status.liveTime) {
+        if (typeof status.liveTime === "object" && status.liveTime !== null) {
+          liveTimeStr = status.liveTime.short || status.liveTime.long || "";
+        } else {
+          liveTimeStr = String(status.liveTime);
+        }
+      }
+      if (liveTimeStr.endsWith("'")) {
+        liveTimeStr = liveTimeStr.slice(0, -1);
+      }
       return {
-        text: status.liveTime ? `สด ${status.liveTime}'` : "สด",
+        text: liveTimeStr ? `สด ${liveTimeStr}'` : "สด",
         class: "live",
       };
     }
@@ -340,6 +373,39 @@ export default function FotMobWidget({
             </button>
             <button className="football-date-btn" onClick={() => adjustDate(1)}>
               &gt;
+            </button>
+            <button
+              className="expand-toggle-all-btn"
+              onClick={handleToggleAllLeagues}
+              title={isAnyLeagueExpanded ? "ย่อรายการทั้งหมด" : "ขยายรายการทั้งหมด"}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                background: "#f1f5f9",
+                border: "1px solid #e2e8f0",
+                cursor: "pointer",
+                color: "#64748b",
+                transition: "all 0.2s ease"
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="7 15 12 20 17 15" />
+                <polyline points="7 9 12 4 17 9" />
+              </svg>
             </button>
           </div>
 
@@ -452,20 +518,38 @@ export default function FotMobWidget({
                         {POPULAR_LEAGUE_NAMES[league.id] || league.name}
                       </span>
                     </div>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className={`league-chevron ${collapsedLeagues[league.id] ? "collapsed" : ""}`}
-                    >
-                      <polyline points="18 15 12 9 6 15" />
-                    </svg>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "#cbd5e1",
+                          color: "#475569",
+                          fontSize: "0.78rem",
+                          fontWeight: 800,
+                          borderRadius: "50%",
+                          width: "22px",
+                          height: "22px",
+                        }}
+                      >
+                        {league.matches.length}
+                      </span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`league-chevron ${collapsedLeagues[league.id] ? "collapsed" : ""}`}
+                      >
+                        <polyline points="18 15 12 9 6 15" />
+                      </svg>
+                    </div>
                   </div>
                   {!collapsedLeagues[league.id] && (
                     <div className="match-list">
@@ -480,17 +564,21 @@ export default function FotMobWidget({
                           statusText = "FT";
                         } else if (isCancelled) {
                           statusText = "CAN";
+                        } else if (!isStarted) {
+                          statusText = "";
                         }
 
                         return (
                           <div key={match.id} className="match-card">
                             {/* Left side: Status badge */}
                             <div className="match-status-col">
-                              <span
-                                className={`match-status-badge-flat ${status.class}`}
-                              >
-                                {statusText}
-                              </span>
+                              {statusText && (
+                                <span
+                                  className={`match-status-badge-flat ${status.class}`}
+                                >
+                                  {statusText}
+                                </span>
+                              )}
                             </div>
 
                             {/* Center: Teams and Score */}
@@ -512,7 +600,7 @@ export default function FotMobWidget({
                               <div className="match-score-flat">
                                 {isStarted || isFinished
                                   ? `${match.home.score} - ${match.away.score}`
-                                  : "VS"}
+                                  : getMatchTimeOnly(match)}
                               </div>
                               <div className="match-team-away-flat">
                                 <img
