@@ -18,6 +18,24 @@ const POPULAR_LEAGUE_NAMES = {
   73: "Europa League",
 };
 
+const LEGEND_TRANSLATIONS = {
+  "champions league": "แชมเปียนส์ลีก",
+  "europa league": "ยูโรปาลีก",
+  "conference league qualification": "รอบคัดเลือกคอนเฟอเรนซ์ลีก",
+  "europa conference league qualification": "รอบคัดเลือกยูโรปาคอนเฟอเรนซ์ลีก",
+  "champions league qualification": "รอบคัดเลือกแชมเปียนส์ลีก",
+  "relegation": "การตกชั้น",
+  "relegation play-off": "เพลย์ออฟตกชั้น",
+  "promotion": "การเลื่อนชั้น",
+  "promotion play-off": "เพลย์ออฟเลื่อนชั้น"
+};
+
+const translateLegendTitle = (title) => {
+  if (!title) return "";
+  const lower = title.toLowerCase().trim();
+  return LEGEND_TRANSLATIONS[lower] || title;
+};
+
 const formatThaiFullDate = (d) => {
   const dayNames = [
     "วันอาทิตย์",
@@ -85,6 +103,7 @@ export default function FotMobWidget({
   const [news, setNews] = useState([]);
   const [standings, setStandings] = useState([]);
   const [leagueName, setLeagueName] = useState("");
+  const [legend, setLegend] = useState([]);
   const [seasons, setSeasons] = useState([]);
   const [selectedSeason, setSelectedSeason] = useState("");
   const [loading, setLoading] = useState(false);
@@ -230,11 +249,13 @@ export default function FotMobWidget({
       setStandings(res.standings || []);
       setSeasons(res.allAvailableSeasons || []);
       setLeagueName(res.leagueName || "");
+      setLegend(res.legend || []);
     } catch (err) {
       console.error("Error fetching standings:", err);
       setStandings([]);
       setSeasons([]);
       setLeagueName("");
+      setLegend([]);
     } finally {
       setLoading(false);
     }
@@ -683,26 +704,16 @@ export default function FotMobWidget({
               </table>
 
               {/* Standings Qualification Legend */}
-              <div className="standings-legend-container">
-                <div className="standings-legend-item">
-                  <span className="legend-dot cl-dot" />
-                  <span className="legend-text">แชมเปียนส์ลีก</span>
+              {legend && legend.length > 0 && (
+                <div className="standings-legend-container">
+                  {legend.map((item, idx) => (
+                    <div className="standings-legend-item" key={item.tKey || idx}>
+                      <span className="legend-dot" style={{ backgroundColor: item.color || "transparent" }} />
+                      <span className="legend-text">{translateLegendTitle(item.title)}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="standings-legend-item">
-                  <span className="legend-dot el-dot" />
-                  <span className="legend-text">ยูโรปาลีก</span>
-                </div>
-                <div className="standings-legend-item">
-                  <span className="legend-dot ecl-dot" />
-                  <span className="legend-text">
-                    รอบคัดเลือกยูโรปาคอนเฟอเรนซ์ลีก
-                  </span>
-                </div>
-                <div className="standings-legend-item">
-                  <span className="legend-dot rel-dot" />
-                  <span className="legend-text">การตกชั้น</span>
-                </div>
-              </div>
+              )}
             </div>
           )}
         </div>

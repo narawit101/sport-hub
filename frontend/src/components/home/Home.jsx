@@ -437,6 +437,14 @@ export default function HomePage() {
                                       handleLeagueSelect(league.id)
                                     }
                                   >
+                                    <img
+                                      src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                                      alt={league.name}
+                                      className="subitem-logo"
+                                      onError={(e) => {
+                                        e.target.style.display = "none";
+                                      }}
+                                    />
                                     <span className="sidebar-league-name">
                                       {league.localizedName || league.name}
                                     </span>
@@ -498,6 +506,14 @@ export default function HomePage() {
                                         handleLeagueSelect(league.id)
                                       }
                                     >
+                                      <img
+                                        src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                                        alt={league.name}
+                                        className="subitem-logo"
+                                        onError={(e) => {
+                                          e.target.style.display = "none";
+                                        }}
+                                      />
                                       <span className="sidebar-league-name">
                                         {league.localizedName || league.name}
                                       </span>

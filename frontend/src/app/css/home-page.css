@@ -2164,6 +2164,7 @@
 .sidebar-league-subitem {
   display: flex;
   align-items: center;
+  gap: 8px;
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
@@ -2171,6 +2172,12 @@
   color: #64748b;
   font-weight: 500;
   font-size: 0.85rem;
+}
+
+.subitem-logo {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .sidebar-league-subitem:hover {
