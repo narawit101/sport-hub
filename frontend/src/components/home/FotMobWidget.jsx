@@ -512,13 +512,50 @@ export default function FotMobWidget({
           </div>
 
           {loading ? (
-            <div className="football-loading-view">
-              {Array.from({ length: 15 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="football-skeleton football-skeleton-card"
-                />
-              ))}
+            <div className="standings-table-container">
+              <table className="standings-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: "60px", textAlign: "center" }}>#</th>
+                    <th style={{ textAlign: "left" }}>สโมสร</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>แข่ง</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>ชนะ</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>เสมอ</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>แพ้</th>
+                    <th style={{ width: "75px", textAlign: "center" }}>+/-</th>
+                    <th style={{ width: "55px", textAlign: "center" }}>=</th>
+                    <th style={{ width: "65px", textAlign: "center" }}>คะแนน</th>
+                    <th style={{ width: "195px", textAlign: "left" }}>ฟอร์ม</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 12 }).map((_, idx) => (
+                    <tr key={idx}>
+                      <td style={{ textAlign: "center" }}>
+                        <div className="football-skeleton" style={{ height: "20px", width: "20px", margin: "0 auto" }} />
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                          <div className="football-skeleton" style={{ height: "24px", width: "24px", borderRadius: "50%" }} />
+                          <div className="football-skeleton" style={{ height: "18px", width: "120px" }} />
+                        </div>
+                      </td>
+                      {Array.from({ length: 7 }).map((_, sIdx) => (
+                        <td key={sIdx} style={{ textAlign: "center" }}>
+                          <div className="football-skeleton" style={{ height: "18px", width: "30px", margin: "0 auto" }} />
+                        </td>
+                      ))}
+                      <td>
+                        <div className="standings-form-row">
+                          {Array.from({ length: 5 }).map((_, fIdx) => (
+                            <div key={fIdx} className="football-skeleton" style={{ height: "24px", width: "24px", borderRadius: "6px" }} />
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : standings.length === 0 ? (
             <div className="football-empty-container">

@@ -120,10 +120,15 @@ export default function HomePage() {
     setSelectedLeagueId(String(leagueId));
     setActiveSidebarTab("standings");
     setTimeout(() => {
-      if (feedScrollRef.current) {
+      const targetElement =
+        document.querySelector(".title-notice") ||
+        document.querySelector(".football-widget-container");
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (feedScrollRef.current) {
         feedScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
       }
-    }, 50);
+    }, 100);
   };
 
   const toggleCountryExpand = (ccode) => {
