@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useParams } from "next/navigation";
 import "@/app/css/booking-slot.css";
 import { useAuth } from "@/app/contexts/AuthContext";
@@ -209,7 +210,7 @@ export default function Booking() {
                         : "เลือกวันที่"}
                     </span>
                   </button>
-                  {showCalendar && (
+                  {showCalendar && typeof document !== 'undefined' && document.body && createPortal(
                     <div
                       className="calendar-popup-overlay"
                       onClick={() => setShowCalendar(false)}
@@ -255,7 +256,7 @@ export default function Booking() {
                         />
                       </div>
                     </div>
-                  )}
+                  , document.body)}
                 </div>
                 <div
                   className="server-time-reference-premium"

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import dayjs from "dayjs";
 import apiClient from "@/lib/apiClient";
 import Calendar from "react-calendar";
@@ -188,7 +189,7 @@ export default function FotMobWidget() {
                 </button>
               </div>
 
-              {showCalendar && (
+              {showCalendar && typeof document !== 'undefined' && document.body && createPortal(
                 <div
                   className="calendar-popup-overlay"
                   onClick={() => setShowCalendar(false)}
@@ -228,7 +229,7 @@ export default function FotMobWidget() {
                     />
                   </div>
                 </div>
-              )}
+              , document.body)}
 
               {matches.length === 0 ? (
                 <div className="football-empty-container">

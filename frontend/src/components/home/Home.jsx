@@ -196,7 +196,7 @@ export default function HomePage() {
         <div className="homepage-dashboard-container">
           <div className="title-notice">
             {/* <span className="section-badge">News & Updates</span> */}
-            <h1>ความเคลื่อนไหวและโปรโมชัน</h1>
+            <h1>ความเคลื่อนไหวและข่าวสารต่าง ๆ</h1>
             <p className="section-subtitle">
               ติดตามข่าวสาร กิจกรรมพิเศษ และโปรโมชันล่าสุดส่งตรงจากสนามกีฬาที่คุณสนใจ พร้อมเกาะติดตารางคะแนนและผลบอลสดรอบโลก
             </p>
