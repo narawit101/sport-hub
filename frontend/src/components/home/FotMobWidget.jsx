@@ -117,7 +117,7 @@ export default function FotMobWidget({
     }
     
     // Check international
-    const intLeague = allLeagues.international?.find(l => String(l.id) === String(id));
+    const intLeague = allLeagues.international?.[0]?.leagues?.find(l => String(l.id) === String(id));
     if (intLeague) {
       return { name: "นานาชาติ", ccode: "INT" };
     }
@@ -141,9 +141,8 @@ export default function FotMobWidget({
   const [date, setDate] = useState(dayjs());
   const [matches, setMatches] = useState([]);
   const [news, setNews] = useState([]);
-  const [standings, setStandings] = useState([]);
+  const [standingsTables, setStandingsTables] = useState([]);
   const [leagueName, setLeagueName] = useState("");
-  const [legend, setLegend] = useState([]);
   const [seasons, setSeasons] = useState([]);
   const [selectedSeason, setSelectedSeason] = useState("");
   const [loading, setLoading] = useState(false);
@@ -286,16 +285,14 @@ export default function FotMobWidget({
       const res = await apiClient.get(
         `/fotmob/standings?leagueId=${leagueId}${seasonParam}`,
       );
-      setStandings(res.standings || []);
+      setStandingsTables(res.tables || []);
       setSeasons(res.allAvailableSeasons || []);
       setLeagueName(res.leagueName || "");
-      setLegend(res.legend || []);
     } catch (err) {
       console.error("Error fetching standings:", err);
-      setStandings([]);
+      setStandingsTables([]);
       setSeasons([]);
       setLeagueName("");
-      setLegend([]);
     } finally {
       setLoading(false);
     }
@@ -649,7 +646,7 @@ export default function FotMobWidget({
                 </tbody>
               </table>
             </div>
-          ) : standings.length === 0 ? (
+          ) : standingsTables.length === 0 ? (
             <div className="football-empty-container">
               <div className="football-empty-icon-wrapper">
                 <svg
@@ -675,117 +672,117 @@ export default function FotMobWidget({
               </p>
             </div>
           ) : (
-            <div className="standings-table-container">
-              <table className="standings-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: "60px", textAlign: "center" }}>#</th>
-                    <th style={{ textAlign: "left" }}>สโมสร</th>
-                    <th style={{ width: "55px", textAlign: "center" }}>แข่ง</th>
-                    <th style={{ width: "55px", textAlign: "center" }}>ชนะ</th>
-                    <th style={{ width: "55px", textAlign: "center" }}>เสมอ</th>
-                    <th style={{ width: "55px", textAlign: "center" }}>แพ้</th>
-                    <th style={{ width: "75px", textAlign: "center" }}>+/-</th>
-                    <th style={{ width: "55px", textAlign: "center" }}>=</th>
-                    <th style={{ width: "65px", textAlign: "center" }}>
-                      คะแนน
-                    </th>
-                    <th style={{ width: "195px", textAlign: "left" }}>ฟอร์ม</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.map((team) => (
-                    <tr
-                      key={team.id}
-                      className={team.idx <= 4 ? "top-team" : ""}
-                    >
-                      <td
-                        className="standings-rank-cell"
-                        style={{
-                          borderLeft: team.qualColor
-                            ? `4px solid ${team.qualColor}`
-                            : "4px solid transparent",
-                        }}
-                      >
-                        {team.idx}
-                      </td>
-                      <td>
-                        <div className="standings-team-cell">
-                          <img
-                            src={`https://images.fotmob.com/image_resources/logo/teamlogo/${team.id}.png`}
-                            alt={team.name}
-                            className="standings-team-logo"
-                            onError={(e) => {
-                              e.target.src = "/images/football-default.png";
+            standingsTables.map((tableGroup, gIdx) => (
+              <div key={gIdx} className="standings-group-wrapper" style={{ marginBottom: "30px" }}>
+                {tableGroup.groupName && (
+                  <h3 className="standings-group-title" style={{ fontSize: "1.15rem", fontWeight: 800, color: "var(--text-color)", marginBottom: "12px", marginTop: "16px", paddingLeft: "4px" }}>
+                    {tableGroup.groupName}
+                  </h3>
+                )}
+                <div className="standings-table-container">
+                  <table className="standings-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: "60px", textAlign: "center" }}>#</th>
+                        <th style={{ textAlign: "left" }}>สโมสร</th>
+                        <th style={{ width: "55px", textAlign: "center" }}>แข่ง</th>
+                        <th style={{ width: "55px", textAlign: "center" }}>ชนะ</th>
+                        <th style={{ width: "55px", textAlign: "center" }}>เสมอ</th>
+                        <th style={{ width: "55px", textAlign: "center" }}>แพ้</th>
+                        <th style={{ width: "75px", textAlign: "center" }}>+/-</th>
+                        <th style={{ width: "55px", textAlign: "center" }}>=</th>
+                        <th style={{ width: "65px", textAlign: "center" }}>คะแนน</th>
+                        <th style={{ width: "195px", textAlign: "left" }}>ฟอร์ม</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tableGroup.standings.map((team) => (
+                        <tr key={team.id} className={team.idx <= 4 ? "top-team" : ""}>
+                          <td
+                            className="standings-rank-cell"
+                            style={{
+                              borderLeft: team.qualColor
+                                ? `4px solid ${team.qualColor}`
+                                : "4px solid transparent",
                             }}
-                          />
-                          <span>{team.name}</span>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" }}>{team.played}</td>
-                      <td style={{ textAlign: "center" }}>{team.wins}</td>
-                      <td style={{ textAlign: "center" }}>{team.draws}</td>
-                      <td style={{ textAlign: "center" }}>{team.losses}</td>
-                      <td style={{ textAlign: "center", color: "#64748b" }}>
-                        {team.scoresStr || "-"}
-                      </td>
-                      <td
-                        style={{
-                          textAlign: "center",
-                          fontWeight: 700,
-                          color:
-                            team.goalConDiff > 0
-                              ? "#10b981"
-                              : team.goalConDiff < 0
-                                ? "#ef4444"
-                                : "#64748b",
-                        }}
-                      >
-                        {team.goalConDiff > 0
-                          ? `+${team.goalConDiff}`
-                          : team.goalConDiff}
-                      </td>
-                      <td
-                        style={{
-                          textAlign: "center",
-                          fontWeight: 800,
-                          color: "var(--text-color)",
-                        }}
-                      >
-                        {team.pts}
-                      </td>
-                      <td>
-                        <div className="standings-form-row">
-                          {team.form && team.form.length > 0 ? (
-                            team.form
-                              .slice(-5)
-                              .map((match) => renderFormBadge(match))
-                          ) : (
-                            <span
-                              style={{ color: "#94a3b8", fontSize: "12px" }}
-                            >
-                              -
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          >
+                            {team.idx}
+                          </td>
+                          <td>
+                            <div className="standings-team-cell">
+                              <img
+                                src={`https://images.fotmob.com/image_resources/logo/teamlogo/${team.id}.png`}
+                                alt={team.name}
+                                className="standings-team-logo"
+                                onError={(e) => {
+                                  e.target.src = "/images/football-default.png";
+                                }}
+                              />
+                              <span>{team.name}</span>
+                            </div>
+                          </td>
+                          <td style={{ textAlign: "center" }}>{team.played}</td>
+                          <td style={{ textAlign: "center" }}>{team.wins}</td>
+                          <td style={{ textAlign: "center" }}>{team.draws}</td>
+                          <td style={{ textAlign: "center" }}>{team.losses}</td>
+                          <td style={{ textAlign: "center", color: "#64748b" }}>
+                            {team.scoresStr || "-"}
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "center",
+                              fontWeight: 700,
+                              color:
+                                team.goalConDiff > 0
+                                  ? "#10b981"
+                                  : team.goalConDiff < 0
+                                    ? "#ef4444"
+                                    : "#64748b",
+                            }}
+                          >
+                            {team.goalConDiff > 0
+                              ? `+${team.goalConDiff}`
+                              : team.goalConDiff}
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "center",
+                              fontWeight: 800,
+                              color: "var(--text-color)",
+                            }}
+                          >
+                            {team.pts}
+                          </td>
+                          <td>
+                            <div className="standings-form-row">
+                              {team.form && team.form.length > 0 ? (
+                                team.form
+                                  .slice(-5)
+                                  .map((match) => renderFormBadge(match))
+                              ) : (
+                                <span style={{ color: "#94a3b8", fontSize: "12px" }}>-</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
 
-              {/* Standings Qualification Legend */}
-              {legend && legend.length > 0 && (
-                <div className="standings-legend-container">
-                  {legend.map((item, idx) => (
-                    <div className="standings-legend-item" key={item.tKey || idx}>
-                      <span className="legend-dot" style={{ backgroundColor: item.color || "transparent" }} />
-                      <span className="legend-text">{translateLegendTitle(item.title)}</span>
+                  {/* Standings Qualification Legend */}
+                  {tableGroup.legend && tableGroup.legend.length > 0 && (
+                    <div className="standings-legend-container">
+                      {tableGroup.legend.map((item, idx) => (
+                        <div className="standings-legend-item" key={item.tKey || idx}>
+                          <span className="legend-dot" style={{ backgroundColor: item.color || "transparent" }} />
+                          <span className="legend-text">{translateLegendTitle(item.title)}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            ))
           )}
         </div>
       )}

@@ -148,7 +148,7 @@ export default function HomePage() {
   const query = leagueFilter.trim().toLowerCase();
 
   const filteredInternational =
-    allLeagues?.international?.filter(
+    allLeagues?.international?.[0]?.leagues?.filter(
       (league) =>
         league.name.toLowerCase().includes(query) ||
         (league.localizedName &&

@@ -212,7 +212,7 @@ router.get("/matches", async (req, res) => {
 router.get("/standings", async (req, res) => {
   const leagueId = req.query.leagueId || "47";
   const season = req.query.season || "";
-  const cacheKey = `fotmob:standings:v4:${leagueId}:${season || "current"}`;
+  const cacheKey = `fotmob:standings:v5:${leagueId}:${season || "current"}`;
 
   try {
     const cached = await getCachedData(cacheKey);
@@ -228,44 +228,62 @@ router.get("/standings", async (req, res) => {
 
     const data = await response.json();
     
-    // The table structure in data/leagues: overview -> table -> [0] -> data -> table -> all
-    let rawTable = [];
-    let teamForm = {};
-    let legend = [];
-    try {
-        if (data.overview?.table?.[0]?.data?.table?.all) {
-            rawTable = data.overview.table[0].data.table.all;
-            teamForm = data.overview.table[0].teamForm || {};
-            legend = data.overview.table[0].data.legend || [];
-        } else if (data.table?.[0]?.table?.all) {
-            rawTable = data.table[0].table.all;
-            teamForm = data.table[0].teamForm || {};
-            legend = data.table[0].legend || [];
-        }
-    } catch (e) {
-        console.warn("Table structure unexpected, falling back");
+    const tableObj = data.overview?.table?.[0] || data.table?.[0];
+    let tablesResult = [];
+
+    if (tableObj) {
+      const teamForm = tableObj.teamForm || {};
+      
+      const processTable = (rawTable) => {
+        return rawTable.map(team => ({
+          idx: team.idx,
+          id: team.id,
+          name: team.name,
+          played: team.played,
+          wins: team.wins,
+          draws: team.draws,
+          losses: team.losses,
+          pts: team.pts,
+          goalConDiff: team.goalConDiff,
+          scoresStr: team.scoresStr,
+          qualColor: team.qualColor,
+          form: teamForm[team.id] || []
+        }));
+      };
+
+      // Handle composite table structures (multiple zones/groups)
+      if (tableObj.data?.tables) {
+        tableObj.data.tables.forEach(tGroup => {
+          const rawTable = tGroup.table?.all || [];
+          tablesResult.push({
+            groupName: tGroup.leagueName || "",
+            standings: processTable(rawTable),
+            legend: tGroup.legend || []
+          });
+        });
+      } else if (tableObj.data?.table?.all) {
+        const rawTable = tableObj.data.table.all;
+        const legendArr = tableObj.data.legend || [];
+        tablesResult.push({
+          groupName: "",
+          standings: processTable(rawTable),
+          legend: legendArr
+        });
+      } else if (tableObj.table?.all) {
+        const rawTable = tableObj.table.all;
+        const legendArr = tableObj.legend || [];
+        tablesResult.push({
+          groupName: "",
+          standings: processTable(rawTable),
+          legend: legendArr
+        });
+      }
     }
 
-    const standings = rawTable.map(team => ({
-      idx: team.idx,
-      id: team.id,
-      name: team.name,
-      played: team.played,
-      wins: team.wins,
-      draws: team.draws,
-      losses: team.losses,
-      pts: team.pts,
-      goalConDiff: team.goalConDiff,
-      scoresStr: team.scoresStr,
-      qualColor: team.qualColor,
-      form: teamForm[team.id] || []
-    }));
-
     const result = { 
-      standings,
+      tables: tablesResult,
       allAvailableSeasons: data.allAvailableSeasons || [],
-      leagueName: data.details?.name || data.overview?.leagueName || data.table?.[0]?.leagueName || "",
-      legend: legend || []
+      leagueName: data.details?.name || data.overview?.leagueName || data.table?.[0]?.leagueName || ""
     };
     await setCachedData(cacheKey, result, 3600);
 

@@ -1144,9 +1144,9 @@
 
 .league-detail-country-flag {
   width: 18px;
-  height: 12px;
+  height: 18px;
   object-fit: cover;
-  border-radius: 2px;
+  border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
