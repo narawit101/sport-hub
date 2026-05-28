@@ -18,7 +18,7 @@ const POPULAR_LEAGUE_NAMES = {
   73: "Europa League",
 };
 
-export default function FotMobWidget() {
+export default function FotMobWidget({ hideTabs }) {
   const [activeTab, setActiveTab] = useState("matches"); // matches | standings | news
   const [date, setDate] = useState(dayjs());
   const [matches, setMatches] = useState([]);
@@ -121,7 +121,7 @@ export default function FotMobWidget() {
       </div> */}
 
       {/* Header Tabs */}
-      <div className="football-tabs">
+      <div className={`football-tabs ${hideTabs ? "scroll-hide" : ""}`}>
         <button
           className={`football-tab-btn ${activeTab === "matches" ? "active" : ""}`}
           onClick={() => setActiveTab("matches")}
@@ -132,7 +132,6 @@ export default function FotMobWidget() {
           className={`football-tab-btn ${activeTab === "standings" ? "active" : ""}`}
           onClick={() => {
             setActiveTab("standings");
-            setShowAllStandings(false);
           }}
         >
           ตารางคะแนน
@@ -339,7 +338,6 @@ export default function FotMobWidget() {
               value={leagueId}
               onChange={(e) => {
                 setLeagueId(e.target.value);
-                setShowAllStandings(false);
               }}
             >
               <option value="47">English Premier League</option>

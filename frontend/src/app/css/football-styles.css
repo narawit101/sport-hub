@@ -48,12 +48,19 @@
   border-radius: var(--pill-radius, 30px);
   border: 1px solid var(--border-color, #e9ecef);
   overflow-x: auto;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   height: auto;
   position: sticky;
   top: 0;
   z-index: 10;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+}
+
+.football-tabs.scroll-hide {
+  transform: translateY(-80px);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .football-tab-btn {

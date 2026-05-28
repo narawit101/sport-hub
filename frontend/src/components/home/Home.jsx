@@ -12,8 +12,11 @@ export default function HomePage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
 
+  const [activeSidebarTab, setActiveSidebarTab] = useState("feed"); // feed | football
   const [activeFeedTab, setActiveFeedTab] = useState("general"); // general | following
+  const [hideTabs, setHideTabs] = useState(false);
   const feedScrollRef = useRef(null);
+  const lastScrollTop = useRef(0);
 
   // Auth check status
   useEffect(() => {
@@ -25,6 +28,47 @@ export default function HomePage() {
       }
     }
   }, [user, isLoading, router]);
+
+  // Reset tab hide state when switching sidebar tabs
+  useEffect(() => {
+    setHideTabs(false);
+    lastScrollTop.current = 0;
+  }, [activeSidebarTab]);
+
+  // Detect scroll direction to hide/show sticky headers
+  useEffect(() => {
+    const scrollContainer = feedScrollRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const scrollTop = scrollContainer.scrollTop;
+      if (scrollTop < 0) return; // Prevent bounce trigger
+
+      if (Math.abs(scrollTop - lastScrollTop.current) > 5) {
+        if (scrollTop > lastScrollTop.current && scrollTop > 40) {
+          setHideTabs(true);
+        } else {
+          setHideTabs(false);
+        }
+      }
+      lastScrollTop.current = scrollTop;
+    };
+
+    scrollContainer.addEventListener("scroll", handleScroll);
+    return () => {
+      scrollContainer.removeEventListener("scroll", handleScroll);
+    };
+  }, [activeSidebarTab]);
+
+  const handleSidebarTabClick = (tab) => {
+    if (activeSidebarTab === tab) {
+      if (feedScrollRef.current) {
+        feedScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else {
+      setActiveSidebarTab(tab);
+    }
+  };
 
   const handleFeedTabClick = (tab) => {
     if (activeFeedTab === tab) {
@@ -82,8 +126,8 @@ export default function HomePage() {
               {/* Column 1: Left Sidebar (TikTok style) */}
               <div className="homepage-sidebar-left">
                 <button
-                  className={`sidebar-left-item ${activeFeedTab === "general" ? "active" : ""}`}
-                  onClick={() => handleFeedTabClick("general")}
+                  className={`sidebar-left-item ${activeSidebarTab === "feed" ? "active" : ""}`}
+                  onClick={() => handleSidebarTabClick("feed")}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -97,47 +141,25 @@ export default function HomePage() {
                     strokeLinejoin="round"
                     className="sidebar-icon"
                   >
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                    <polyline points="9 22 9 12 15 12 15 22" />
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <path d="M16 8h2" />
+                    <path d="M16 12h2" />
+                    <path d="M16 16h2" />
+                    <path d="M6 8h6v8H6z" />
                   </svg>
-                  <span className="sidebar-label">สำหรับคุณ</span>
+                  <span className="sidebar-label">ข่าวสารระบบ</span>
                 </button>
 
-                {user && (
-                  <button
-                    className={`sidebar-left-item ${activeFeedTab === "following" ? "active" : ""}`}
-                    onClick={() => handleFeedTabClick("following")}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="sidebar-icon"
-                    >
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    <span className="sidebar-label">กำลังติดตาม</span>
-                  </button>
-                )}
-
                 <button
-                  className={`sidebar-left-item ${activeFeedTab === "football" ? "active" : ""}`}
-                  onClick={() => handleFeedTabClick("football")}
+                  className={`sidebar-left-item ${activeSidebarTab === "football" ? "active" : ""}`}
+                  onClick={() => handleSidebarTabClick("football")}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="1em"
                     height="1em"
                     viewBox="0 0 24 24"
+                    className="sidebar-icon"
                   >
                     <path
                       fill="currentColor"
@@ -153,15 +175,35 @@ export default function HomePage() {
               </div>
               {/* Column 2: Center Content Area (Conditional render) */}
               <div className="homepage-main-content-column" ref={feedScrollRef}>
-                {activeFeedTab === "football" ? (
+                {activeSidebarTab === "football" ? (
                   <div className="homepage-football-column">
-                    <FotMobWidget />
+                    <FotMobWidget hideTabs={hideTabs} />
                   </div>
                 ) : (
-                  <FieldFeed
-                    activeFeedTab={activeFeedTab}
-                    scrollRef={feedScrollRef}
-                  />
+                  <div className="homepage-feed-wrapper">
+                    {user && (
+                      <div
+                        className={`football-tabs feed-sub-tabs ${hideTabs ? "scroll-hide" : ""}`}
+                      >
+                        <button
+                          className={`football-tab-btn ${activeFeedTab === "general" ? "active" : ""}`}
+                          onClick={() => handleFeedTabClick("general")}
+                        >
+                          สำหรับคุณ
+                        </button>
+                        <button
+                          className={`football-tab-btn ${activeFeedTab === "following" ? "active" : ""}`}
+                          onClick={() => handleFeedTabClick("following")}
+                        >
+                          กำลังติดตาม
+                        </button>
+                      </div>
+                    )}
+                    <FieldFeed
+                      activeFeedTab={activeFeedTab}
+                      scrollRef={feedScrollRef}
+                    />
+                  </div>
                 )}
               </div>
             </div>
