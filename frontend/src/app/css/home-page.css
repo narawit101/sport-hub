@@ -131,19 +131,19 @@
 }
 
 .title-notice {
-  background: linear-gradient(135deg, rgba(3, 4, 94, 0.03) 0%, rgba(0, 119, 182, 0.01) 100%), #ffffff;
-  border: 1px solid var(--border-color, #e9ecef);
-  border-radius: var(--border-radius, 16px);
-  padding: 30px 40px;
-  margin: 30px auto 10px auto;
+  background: linear-gradient(135deg, rgba(3, 4, 94, 0.04) 0%, rgba(0, 119, 182, 0.01) 100%), #ffffff;
+  border: none;
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+  border-radius: 0;
+  padding: 25px 20px;
+  margin: 0;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  box-shadow: var(--shadow);
+  box-shadow: none;
   width: 100%;
-  max-width: 1400px;
   box-sizing: border-box;
 }
 
@@ -180,7 +180,7 @@
 @media (max-width: 640px) {
   .title-notice {
     padding: 20px 24px;
-    margin: 15px auto;
+    margin: 0;
   }
 }
 
@@ -353,16 +353,16 @@
   .search-filter-section {
     padding: 20px 20px 10px;
   }
-  
+
   .filter-grid-home {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
   .clear-filters-wrapper-home {
     justify-content: center;
   }
-  
+
   .no-fields-message {
     margin: 20px;
   }
@@ -878,7 +878,7 @@
   }
 
   .container-home {
-    max-width: 1200px;
+    /* max-width: 1200px; */
     width: 100%;
     padding: 10px 0px;
     margin: 0px auto 10px auto;
@@ -1077,7 +1077,7 @@
 
   .container-home {
     width: 100%;
-    max-width: 800px;
+    /* max-width: 800px; */
     margin-top: 0px;
   }
 
@@ -1487,13 +1487,26 @@
 }
 
 /* Home Grid & TikTok Sidebar Styling */
-.homepage-content-grid {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 30px;
+/* Home Grid & TikTok Sidebar Styling */
+.homepage-dashboard-container {
+  background: #ffffff;
+  border: 1px solid var(--border-color, #e9ecef);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px -10px rgba(3, 4, 94, 0.05), 0 1px 3px rgba(3, 4, 94, 0.01);
   width: 100%;
   max-width: 1400px;
   margin: 30px auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.homepage-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 0;
+  width: 100%;
+  margin: 0;
   align-items: flex-start;
 }
 
@@ -1501,10 +1514,10 @@
   display: grid;
   grid-template-columns: 220px 1fr;
   gap: 30px;
-  background: var(--primary-bg, #ffffff);
-  border-radius: var(--border-radius, 16px);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border-color, #e9ecef);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
   padding: 30px;
   align-items: start;
 }
@@ -1568,9 +1581,11 @@
 .homepage-feed-column::-webkit-scrollbar {
   width: 6px;
 }
+
 .homepage-feed-column::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .homepage-feed-column::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 3px;
@@ -1588,18 +1603,30 @@
   gap: 16px;
   max-height: calc(100vh - 120px);
   overflow-y: auto;
-  padding-right: 4px;
+  overflow-x: hidden;
+  padding: 30px;
+  border-left: 1px solid var(--border-color, #e9ecef);
 }
 
 .homepage-football-column::-webkit-scrollbar {
   width: 6px;
 }
+
 .homepage-football-column::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .homepage-football-column::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 3px;
+}
+
+.homepage-football-column .football-widget-container {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+  margin-bottom: 0;
 }
 
 .football-column-title {
@@ -1612,6 +1639,7 @@
   padding-bottom: 8px;
 }
 
+/* Mobile styles removed - layout is stacked vertically */
 .btn-load-more-home {
   padding: 10px 28px;
   border-radius: var(--input-radius, 8px);
@@ -1629,66 +1657,97 @@
 }
 
 @media screen and (max-width: 1200px) {
-  .homepage-content-grid {
-    grid-template-columns: 1fr 350px;
-    gap: 24px;
-  }
-  .homepage-left-container {
-    grid-template-columns: 200px 1fr;
-    gap: 24px;
-    padding: 24px;
-  }
-}
-
-@media screen and (max-width: 1000px) {
-  .homepage-content-grid {
-    grid-template-columns: 1fr;
-    gap: 30px;
+  .homepage {
+    margin: 20px 0 10px 0;
+    width: 100%;
   }
 
+  .homepage-dashboard-container {
+    margin: 10px 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .homepage-content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    align-items: stretch;
+  }
+
   .homepage-left-container {
-    grid-template-columns: 200px 1fr;
-    background: var(--primary-bg, #ffffff);
-    border-radius: var(--border-radius, 16px);
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border-color, #e9ecef);
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    align-items: stretch;
   }
 
   .homepage-sidebar-left {
-    display: flex;
-    padding: 10px 12px 10px 0;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    padding: 10px 20px !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color, #e9ecef);
+    gap: 15px !important;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .sidebar-left-item {
+    width: auto !important;
+    padding: 8px 16px !important;
+    font-size: 0.95rem !important;
+    flex-shrink: 0;
+    white-space: nowrap !important;
+  }
+
+  .homepage-feed-column {
+    padding: 20px !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .post-card-home {
+    max-width: 100% !important;
+    margin: 10px 0 !important;
+    border-radius: 12px !important;
   }
 
   .homepage-football-column {
     position: static;
     max-height: none;
     overflow-y: visible;
+    border-left: none !important;
+    border-top: 1px solid var(--border-color, #e9ecef);
+    padding: 35px 20px 20px 20px;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
 @media screen and (max-width: 600px) {
   .homepage-left-container {
-    grid-template-columns: 65px 1fr;
-    gap: 15px;
-    padding: 12px;
-  }
-  
-  .homepage-sidebar-left {
-    padding: 10px 0;
-    align-items: center;
-    border-right: none;
+    padding: 15px 10px;
   }
 
-  .sidebar-left-item {
-    justify-content: center;
-    padding: 12px 0;
-    width: 44px;
-    border-radius: 50%;
-  }
-
-  .sidebar-label {
-    display: none;
+  .homepage-football-column {
+    padding: 25px 10px 15px 10px;
   }
 }
 

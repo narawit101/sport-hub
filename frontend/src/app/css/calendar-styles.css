@@ -16,13 +16,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2500;
+  z-index: 2000;
   animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Modal Content Container */
@@ -39,8 +44,15 @@
 }
 
 @keyframes calendarAppear {
-  from { opacity: 0; transform: scale(0.9) translateY(30px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* New Premium Close Button */
@@ -59,7 +71,7 @@
   color: #64748b;
   cursor: pointer;
   transition: all 0.25s ease;
-  z-index: 100;
+  z-index: 2000;
 }
 
 .btn-close-calendar-premium:hover {
@@ -134,7 +146,8 @@
 }
 
 .react-calendar__tile {
-  width: 14.2857% !important; /* Proper 7 columns calculation */
+  width: 14.2857% !important;
+  /* Proper 7 columns calculation */
   aspect-ratio: 1/1;
   display: flex !important;
   align-items: center;
@@ -207,7 +220,8 @@
 }
 
 .react-calendar__tile--now.react-calendar__tile--active::after {
-  background: #ffffff; /* White dot when selected */
+  background: #ffffff;
+  /* White dot when selected */
 }
 
 /* Disabled dates */
@@ -251,7 +265,7 @@
     width: 95%;
     padding: 55px 16px 25px 16px;
   }
-  
+
   .react-calendar__tile {
     font-size: 0.95rem;
   }
