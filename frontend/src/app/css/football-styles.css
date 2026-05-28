@@ -1,0 +1,428 @@
+/* Football Widget Styling */
+
+.football-widget-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.football-header-icon {
+  color: var(--text-color, #03045e);
+  flex-shrink: 0;
+}
+
+.football-widget-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-color, #03045e);
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.football-widget-container {
+  background: var(--primary-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* Tabs */
+.football-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.football-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: var(--input-radius);
+  transition: all 0.2s ease;
+}
+
+.football-tab-btn:hover {
+  background-color: var(--secondary-bg);
+  color: var(--text-color);
+}
+
+.football-tab-btn.active {
+  background-color: var(--text-color);
+  color: #ffffff;
+}
+
+/* Date Selector */
+.football-date-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.football-date-btn {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.football-date-btn:hover {
+  background: var(--text-color);
+  color: white;
+  border-color: var(--text-color);
+}
+
+.football-date-display {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-color);
+  min-width: 140px;
+  text-align: center;
+}
+
+.football-date-display-btn {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-color);
+  min-width: 140px;
+  text-align: center;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--input-radius);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.football-date-display-btn:hover {
+  background-color: var(--secondary-bg);
+  color: #0077b6;
+}
+
+/* League Section */
+.league-group {
+  margin-bottom: 24px;
+}
+
+.league-group:last-child {
+  margin-bottom: 0;
+}
+
+.league-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-bottom: 12px;
+  border-left: 4px solid var(--text-color);
+  padding-left: 8px;
+}
+
+/* Match Card */
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.match-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-radius);
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.match-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(3, 4, 94, 0.05);
+}
+
+.match-team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.match-team.home {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.match-team.away {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.match-team-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.match-info-center {
+  min-width: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.match-score {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-color);
+  letter-spacing: 2px;
+}
+
+.match-status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--pill-radius);
+  margin-top: 4px;
+}
+
+.match-status-badge.live {
+  background-color: #fee2e2;
+  color: #dc2626;
+  animation: pulseLive 1.5s infinite;
+}
+
+.match-status-badge.finished {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.match-status-badge.upcoming {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+@keyframes pulseLive {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Standings */
+.standings-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.standings-league-select {
+  padding: 8px 12px;
+  border-radius: var(--input-radius);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-weight: 700;
+  background: white;
+  outline: none;
+  cursor: pointer;
+}
+
+.standings-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-radius);
+  background: white;
+}
+
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.standings-table th, 
+.standings-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.standings-table th {
+  background-color: var(--secondary-bg);
+  font-weight: 800;
+  color: var(--text-color);
+}
+
+.standings-table tr:last-child td {
+  border-bottom: none;
+}
+
+.standings-team-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.standings-team-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.standings-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.standings-table tbody tr:hover {
+  background-color: var(--secondary-bg);
+}
+
+.standings-table tr.top-team td {
+  font-weight: 700;
+}
+
+.standings-toggle-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--input-radius) var(--input-radius);
+  font-weight: 700;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.standings-toggle-btn:hover {
+  background-color: #f1f5f9;
+}
+
+/* News List */
+.football-news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.football-news-card {
+  display: flex;
+  gap: 16px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-radius);
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.football-news-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  border-color: #cbd5e1;
+}
+
+.football-news-thumb {
+  width: 100px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background-color: #f1f5f9;
+}
+
+.football-news-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.football-news-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-color);
+  line-height: 1.4;
+  margin: 0 0 6px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.football-news-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.football-news-source {
+  color: var(--text-color);
+}
+
+/* Skeletons */
+.football-skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: loadingSkeleton 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes loadingSkeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.football-skeleton-card {
+  height: 60px;
+  width: 100%;
+  margin-bottom: 10px;
+  border-radius: var(--input-radius);
+}
+
+.football-skeleton-news {
+  height: 100px;
+  width: 100%;
+  margin-bottom: 16px;
+  border-radius: var(--input-radius);
+}
+
+/* Empty view */
+.football-empty-view {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.95rem;
+}

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
-const { getCache, setCache, invalidateCache } = require("../config/cache");
+const { getCache, setCache, invalidateCache, invalidatePattern } = require("../config/cache");
 
 router.post("/add-following", async (req, res) => {
   const { fieldId, userId } = req.body;
@@ -49,6 +49,7 @@ router.post("/add-following", async (req, res) => {
     }
 
     await invalidateCache(`following:status:${userId}:${fieldId}`, `following:field:${fieldId}`);
+    await invalidatePattern(`posts:following:${userId}:*`);
 
     res.status(200).json({
       message: "Following added successfully",
@@ -84,6 +85,7 @@ router.delete("/cancel-following", async (req, res) => {
     const fieldOwnerId = dataField.rows[0]?.user_id;
 
     await invalidateCache(`following:status:${userId}:${fieldId}`, `following:field:${fieldId}`);
+    await invalidatePattern(`posts:following:${userId}:*`);
 
     res.status(200).json({
       message: "Following removed successfully",

@@ -60,6 +60,7 @@ const statistics = require("./api/statistics");
 const search = require("./api/search");
 const notification = require("./api/notification");
 const following = require("./api/following");
+const fotmob = require("./api/fotmob");
 app.get("/", (req, res) => {
   res.send("Welcome to the API");
 });
@@ -80,6 +81,7 @@ app.use("/statistics", statistics);
 app.use("/search", search);
 app.use("/notification", notification);
 app.use("/following", following);
+app.use("/fotmob", fotmob);
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 

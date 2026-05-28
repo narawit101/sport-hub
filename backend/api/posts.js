@@ -4,7 +4,7 @@ const pool = require("../config/db");
 const authMiddleware = require("../middlewares/auth");
 const { createUploader } = require("../utils/upload");
 const { deleteCloudinaryFile } = require("../utils/delete");
-const { getCache, setCache, invalidateCache } = require("../config/cache");
+const { getCache, setCache, invalidateCache, invalidatePattern } = require("../config/cache");
 const { USER_ROLE } = require("../utils/constants");
 
 const upload = createUploader(
@@ -134,7 +134,9 @@ router.post(
         );
       }
       await client.query("COMMIT");
-      await invalidateCache(`posts:field:${field_id}`, "posts:latest");
+      await invalidateCache(`posts:field:${field_id}`);
+      await invalidatePattern("posts:latest:*");
+      await invalidatePattern("posts:following:*");
       res.status(201).json({
         message: "Post created successfully",
         post: insertedPost.rows[0],
@@ -148,6 +150,57 @@ router.post(
     }
   }
 );
+
+router.get("/feed/following", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const offset = (page - 1) * limit;
+
+    const cacheKey = `posts:following:${userId}:${page}:${limit}`;
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.status(200).json({ data: cached });
+    }
+
+    const result = await pool.query(
+      `SELECT 
+          p.post_id,
+          p.field_id,
+          p.title,
+          p.content,
+          f.field_name,
+          f.img_field,
+          p.created_at,
+          COALESCE(
+            json_agg(
+              json_build_object('image_url', pi.image_url)
+            ) FILTER (WHERE pi.image_url IS NOT NULL), '[]'
+          ) AS images
+        FROM posts p
+        JOIN following fo ON p.field_id = fo.field_id
+        LEFT JOIN field f ON p.field_id = f.field_id
+        LEFT JOIN post_images pi ON p.post_id = pi.post_id
+        WHERE fo.user_id = $1
+        GROUP BY p.post_id, f.field_name, f.img_field
+        ORDER BY p.created_at DESC
+        LIMIT $2 OFFSET $3;`,
+      [userId, limit, offset]
+    );
+
+    const data = result.rows || [];
+    if (data.length === 0) {
+      return res.status(200).json({ message: "ไม่มีโพส" });
+    }
+
+    await setCache(cacheKey, data, 300);
+    res.status(200).json({ data });
+  } catch (error) {
+    console.error("Database Error:", error);
+    res.status(500).json({ error: "เกิดข้อผิดพลาดในการดึงข้อมูลโพสที่ติดตาม" });
+  }
+});
 
 router.get("/:field_id", async (req, res) => {
   try {
@@ -193,7 +246,11 @@ router.get("/:field_id", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const cacheKey = "posts:latest";
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const offset = (page - 1) * limit;
+
+    const cacheKey = `posts:latest:${page}:${limit}`;
     const cached = await getCache(cacheKey);
     if (cached) {
       return res.status(200).json({ data: cached });
@@ -218,7 +275,8 @@ router.get("/", async (req, res) => {
         LEFT JOIN post_images pi ON p.post_id = pi.post_id
         GROUP BY p.post_id, f.field_name, f.img_field
         ORDER BY p.created_at DESC
-        LIMIT 5;`
+        LIMIT $1 OFFSET $2;`,
+      [limit, offset]
     );
 
     const data = result.rows || [];
@@ -289,7 +347,9 @@ router.patch(
       }
 
       await client.query("COMMIT");
-      await invalidateCache(`posts:field:${post.field_id}`, "posts:latest");
+      await invalidateCache(`posts:field:${post.field_id}`);
+      await invalidatePattern("posts:latest:*");
+      await invalidatePattern("posts:following:*");
       const updated = await client.query(
         `
       SELECT 
@@ -375,7 +435,9 @@ router.delete("/delete/:post_id", authMiddleware, async (req, res) => {
       console.log("ไม่พบ io socket connection สำหรับการลบโพส");
     }
 
-    await invalidateCache(`posts:field:${post.field_id}`, "posts:latest");
+    await invalidateCache(`posts:field:${post.field_id}`);
+    await invalidatePattern("posts:latest:*");
+    await invalidatePattern("posts:following:*");
     res.status(200).json({ message: "Post deleted" });
   } catch (err) {
     console.error(err);
