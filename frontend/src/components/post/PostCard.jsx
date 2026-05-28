@@ -117,25 +117,39 @@ export default function PostCard({
 
       {!isHome ? (
         <>
-          <h2 className="post-title">{renderTextWithLinks(post.title)}</h2>
-          <div className="time">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="time-icon-profile"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            <span>{dayjs(post.created_at).fromNow()}</span>
+          <div className="inline-name-field mb-3">
+            <img
+              src={
+                post.img_field
+                  ? `${post.img_field}`
+                  : "https://www.nstru.ac.th/resources/news/thumbnail/221.jpg"
+              }
+              alt={post.field_name}
+              className="post-img-field-home"
+            />
+            <div className="field-name-created-at-home">
+              <h2 className="post-field-name-home text-lg">{post.field_name}</h2>
+              <div className="time text-sm text-gray-500 mt-1 flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="time-icon-profile"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <span>{dayjs(post.created_at).fromNow()}</span>
+              </div>
+            </div>
           </div>
+          <h2 className="post-title">{renderTextWithLinks(post.title)}</h2>
         </>
       ) : (
         <h2 className="post-title-home">{renderTextWithLinks(post.title)}</h2>

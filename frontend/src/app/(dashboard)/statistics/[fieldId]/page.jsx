@@ -397,9 +397,6 @@ export default function Statistics() {
               currentPage={currentPage}
               totalPages={Math.ceil(filteredBookings.length / bookingPerPage)}
               onPageChange={setCurrentPage}
-              containerClassName="pagination-container-stat"
-              activeClassName="active-page-stat"
-              dotsClassName="pagination-dots-stat"
             />
           </div>
         ) : (

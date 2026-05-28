@@ -207,47 +207,7 @@ color: #155724;
   font-size: 13px;
 }
 
-.pagination-container-stat {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
 
-.pagination-container-stat button {
-  padding: 6px 12px;
-  background-color: var(--text-color);
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s;
-}
-
-.pagination-container-stat button:hover {
-  background: #2778ae;
-}
-
-.pagination-container-stat button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
-
-.pagination-container-stat .active-page-stat {
-  background: #3498db;
-
-  color: white;
-  font-weight: bold;
-}
-
-.pagination-dots-stat {
-  padding: 6px 10px;
-  color: #555;
-  font-weight: bold;
-}
 
 @media (max-width: 1200px) {
   .table-stat {

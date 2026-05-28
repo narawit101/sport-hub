@@ -536,11 +536,11 @@ export default function CheckFieldDetail() {
         averageRating={
           reviewData && reviewData.length > 0
             ? (
-                reviewData.reduce(
-                  (acc, curr) => acc + (Number(curr.rating) || 0),
-                  0,
-                ) / reviewData.length
-              ).toFixed(1)
+              reviewData.reduce(
+                (acc, curr) => acc + (Number(curr.rating) || 0),
+                0,
+              ) / reviewData.length
+            ).toFixed(1)
             : null
         }
         totalReviews={reviewData ? reviewData.length : 0}
@@ -754,9 +754,6 @@ export default function CheckFieldDetail() {
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
-              containerClassName="pagination-container-profile"
-              activeClassName="active-page-profile"
-              dotsClassName="pagination-dots-profile"
             />
           </div>
 
@@ -808,9 +805,8 @@ export default function CheckFieldDetail() {
                             {[1, 2, 3, 4, 5].map((num) => (
                               <span
                                 key={num}
-                                className={`star-profile ${
-                                  num <= review.rating ? "active" : ""
-                                }`}
+                                className={`star-profile ${num <= review.rating ? "active" : ""
+                                  }`}
                               >
                                 ★
                               </span>
@@ -1004,7 +1000,7 @@ export default function CheckFieldDetail() {
                             <p className="facility-quantity-profile-vertical">
                               รายละเอียด:{" "}
                               {facility.description &&
-                              facility.description !== "undefined"
+                                facility.description !== "undefined"
                                 ? facility.description
                                 : "ไม่มีรายละเอียด"}
                             </p>

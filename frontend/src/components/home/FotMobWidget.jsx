@@ -108,22 +108,10 @@ export default function FotMobWidget() {
     <div className="football-widget-container">
       {/* Widget Header */}
       <div className="football-widget-header">
-        {/* <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="football-header-icon"
-        >
-          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-          <path d="M12 6v12" />
-          <path d="M6 12h12" />
-        </svg> */}
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10s10-4.49 10-10S17.51 2 12 2m6.23 15H16l-1.25 2.5c-.86.32-1.78.5-2.75.5s-1.89-.18-2.75-.5L8 17H5.77a8 8 0 0 1-1.63-3.53L6 10.99L4.78 8.56a8.02 8.02 0 0 1 4.79-4.19L12 5.99l2.43-1.62c2.11.68 3.84 2.21 4.79 4.19L18 11l1.86 2.48A8.1 8.1 0 0 1 18.24 17Z"></path>
+          <path fill="currentColor" d="m8.5 11l1.5 4h4l1.5-4L12 8.5z"></path>
+        </svg>
         <h2 className="football-widget-title">ข่าวกีฬา & ผลบอลสด</h2>
       </div>
 
@@ -229,7 +217,7 @@ export default function FotMobWidget() {
                     />
                   </div>
                 </div>
-              , document.body)}
+                , document.body)}
 
               {matches.length === 0 ? (
                 <div className="football-empty-container">
