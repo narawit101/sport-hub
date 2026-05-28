@@ -6,11 +6,9 @@ const { getCache, setCache } = require("../config/cache");
 const memoryCache = new Map();
 
 async function getCachedData(key) {
-  // 1. Try Redis first
   const redisVal = await getCache(key);
   if (redisVal) return redisVal;
 
-  // 2. Try in-memory fallback
   const cached = memoryCache.get(key);
   if (cached) {
     if (Date.now() < cached.expireAt) {
@@ -22,17 +20,13 @@ async function getCachedData(key) {
 }
 
 async function setCachedData(key, value, ttlSeconds) {
-  // 1. Set to Redis
   await setCache(key, value, ttlSeconds);
-
-  // 2. Set to in-memory fallback
   memoryCache.set(key, {
     value,
     expireAt: Date.now() + ttlSeconds * 1000,
   });
 }
 
-// Popular leagues to filter matches (so we don't display hundreds of unknown leagues)
 const POPULAR_LEAGUES = new Set([
   42,   // Champions League
   73,   // Europa League
@@ -41,60 +35,68 @@ const POPULAR_LEAGUES = new Set([
   54,   // German Bundesliga
   55,   // Italian Serie A
   53,   // French Ligue 1
-  339,  // Thai League 1
-  9224, // Thai League (alternative ID if applicable)
+  339,  // Thai League 1 (Verify ID)
 ]);
 
 async function fetchFromFotmob(url) {
   return fetch(url, {
     headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
       "Accept": "application/json, text/plain, */*",
       "Accept-Language": "th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7",
+      "Referer": "https://www.fotmob.com/",
+      "Origin": "https://www.fotmob.com",
       "Cache-Control": "no-cache",
       "Pragma": "no-cache"
     }
   });
 }
 
-// 1. Football News Endpoint
+// 1. Football News Endpoint (Updated with tlnews)
 router.get("/news", async (req, res) => {
-  const cacheKey = "fotmob:news";
+  const cacheKey = "fotmob:news:v2";
   try {
     const cached = await getCachedData(cacheKey);
-    if (cached) {
-      return res.status(200).json(cached);
-    }
+    if (cached) return res.status(200).json(cached);
 
-    const response = await fetchFromFotmob("https://www.fotmob.com/api/worldnews");
+    // Using the official-looking data/tlnews endpoint discovered
+    // We fetch global news and specific league news if needed
+    const response = await fetchFromFotmob("https://www.fotmob.com/api/data/tlnews?id=47&type=league&language=th&startIndex=0");
+    
     if (!response.ok) {
-      throw new Error(`FotMob News returned status: ${response.status}`);
+      // Fallback to worldnews if tlnews fails
+      const fbResponse = await fetchFromFotmob("https://www.fotmob.com/api/worldnews?page=1");
+      const fbData = await fbResponse.json();
+      const newsItems = (fbData || []).map(item => ({
+        id: item.id,
+        title: item.title || item.heading,
+        imageUrl: item.imageUrl || (item.mainImage ? item.mainImage.url : null),
+        source: item.sourceName || item.sourceStr || "FotMob",
+        time: item.time || item.gmtTime || "",
+        pageUrl: (item.pageUrl || (item.page ? item.page.url : "")).startsWith("http") 
+          ? (item.pageUrl || item.page.url) 
+          : `https://www.fotmob.com${item.pageUrl || item.page.url}`,
+      })).slice(0, 20);
+      
+      const result = { news: newsItems };
+      await setCachedData(cacheKey, result, 3600);
+      return res.status(200).json(result);
     }
 
-    const data = await response.json();
+    const json = await response.json();
+    const rawNews = json.data || [];
     
-    // Parse news items
-    // FotMob structure can have direct array or nested items (e.g. data.news or data.main)
-    const newsItems = [];
-    const rawNews = data.news || data.main || [];
-    
-    // Flatten and normalize news structure
-    if (Array.isArray(rawNews)) {
-      rawNews.forEach(item => {
-        if (item.title && item.pageUrl) {
-          newsItems.push({
-            title: item.title,
-            imageUrl: item.imageUrl || item.image || null,
-            source: item.sourceName || item.source || "FotMob",
-            time: item.time || item.relativeTime || "",
-            pageUrl: item.pageUrl.startsWith("http") ? item.pageUrl : `https://www.fotmob.com${item.pageUrl}`,
-          });
-        }
-      });
-    }
+    const newsItems = rawNews.map(item => ({
+      id: item.id,
+      title: item.title,
+      imageUrl: item.imageUrl,
+      source: item.sourceStr || "FotMob",
+      time: item.gmtTime || "",
+      pageUrl: item.page.url.startsWith("http") ? item.page.url : `https://www.fotmob.com${item.page.url}`,
+    }));
 
-    const result = { news: newsItems.slice(0, 10) };
-    await setCachedData(cacheKey, result, 3600); // Cache for 1 hour
+    const result = { news: newsItems.slice(0, 30) };
+    await setCachedData(cacheKey, result, 3600);
 
     res.status(200).json(result);
   } catch (error) {
@@ -105,42 +107,27 @@ router.get("/news", async (req, res) => {
 
 // 2. Football Matches Endpoint
 router.get("/matches", async (req, res) => {
-  const date = req.query.date; // Expecting YYYYMMDD
-  if (!date) {
-    return res.status(400).json({ message: "Date parameter is required (format: YYYYMMDD)" });
-  }
+  const date = req.query.date; 
+  if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
   const cacheKey = `fotmob:matches:${date}`;
   try {
     const cached = await getCachedData(cacheKey);
-    if (cached) {
-      return res.status(200).json(cached);
-    }
+    if (cached) return res.status(200).json(cached);
 
     const response = await fetchFromFotmob(`https://www.fotmob.com/api/matches?date=${date}`);
-    if (!response.ok) {
-      throw new Error(`FotMob Matches returned status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Status: ${response.status}`);
 
     const data = await response.json();
     const leagues = data.leagues || [];
     const filteredLeagues = [];
 
-    // Filter leagues to only show matches from popular leagues
     leagues.forEach(league => {
       if (POPULAR_LEAGUES.has(league.id)) {
         const matches = (league.matches || []).map(match => ({
           id: match.id,
-          home: {
-            id: match.home.id,
-            name: match.home.name,
-            score: match.home.score,
-          },
-          away: {
-            id: match.away.id,
-            name: match.away.name,
-            score: match.away.score,
-          },
+          home: { id: match.home.id, name: match.home.name, score: match.home.score },
+          away: { id: match.away.id, name: match.away.name, score: match.away.score },
           status: {
             finished: match.status?.finished || false,
             started: match.status?.started || false,
@@ -153,20 +140,12 @@ router.get("/matches", async (req, res) => {
         }));
 
         if (matches.length > 0) {
-          filteredLeagues.push({
-            id: league.id,
-            name: league.name,
-            ccode: league.ccode,
-            matches,
-          });
+          filteredLeagues.push({ id: league.id, name: league.name, ccode: league.ccode, matches });
         }
       }
     });
 
     const result = { leagues: filteredLeagues };
-
-    // Determine cache TTL:
-    // If date is today, cache for 2 minutes (live updates). If not today, cache for 1 hour.
     const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const ttl = (date === todayStr) ? 120 : 3600;
 
@@ -178,33 +157,31 @@ router.get("/matches", async (req, res) => {
   }
 });
 
-// 3. League Standings Endpoint
+// 3. League Standings Endpoint (Updated to use data/leagues)
 router.get("/standings", async (req, res) => {
-  const leagueId = req.query.leagueId || "47"; // Default Premier League
-  const cacheKey = `fotmob:standings:${leagueId}`;
+  const leagueId = req.query.leagueId || "47";
+  const cacheKey = `fotmob:standings:v2:${leagueId}`;
 
   try {
     const cached = await getCachedData(cacheKey);
-    if (cached) {
-      return res.status(200).json(cached);
-    }
+    if (cached) return res.status(200).json(cached);
 
-    const response = await fetchFromFotmob(`https://www.fotmob.com/api/leagues?id=${leagueId}`);
-    if (!response.ok) {
-      throw new Error(`FotMob League returned status: ${response.status}`);
-    }
+    // Using the new data/leagues endpoint which is more robust
+    const response = await fetchFromFotmob(`https://www.fotmob.com/api/data/leagues?id=${leagueId}&ccode3=THA`);
+    if (!response.ok) throw new Error(`Status: ${response.status}`);
 
     const data = await response.json();
-    const tableData = data.table || {};
     
-    // Find the standard table list (usually it is inside table.all or table[0].table.all)
+    // The table structure in data/leagues is deeper: overview -> table -> [0] -> data -> table -> all
     let rawTable = [];
-    if (tableData.all) {
-      rawTable = tableData.all;
-    } else if (Array.isArray(tableData.tables) && tableData.tables[0]?.table?.all) {
-      rawTable = tableData.tables[0].table.all;
-    } else if (Array.isArray(tableData) && tableData[0]?.table?.all) {
-      rawTable = tableData[0].table.all;
+    try {
+        if (data.overview?.table?.[0]?.data?.table?.all) {
+            rawTable = data.overview.table[0].data.table.all;
+        } else if (data.table?.[0]?.table?.all) {
+            rawTable = data.table[0].table.all;
+        }
+    } catch (e) {
+        console.warn("Table structure unexpected, falling back");
     }
 
     const standings = rawTable.map(team => ({
@@ -216,11 +193,12 @@ router.get("/standings", async (req, res) => {
       draws: team.draws,
       losses: team.losses,
       pts: team.pts,
-      goalConDiff: team.goalConDiff || (team.scoresStr || "").split("-"),
+      goalConDiff: team.goalConDiff,
+      scoresStr: team.scoresStr
     }));
 
     const result = { standings };
-    await setCachedData(cacheKey, result, 3600); // Cache for 1 hour
+    await setCachedData(cacheKey, result, 3600);
 
     res.status(200).json(result);
   } catch (error) {
