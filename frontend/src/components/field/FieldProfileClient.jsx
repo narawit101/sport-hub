@@ -791,11 +791,14 @@ export default function CheckFieldDetail() {
                         <img
                           className="user-profile-review-profile"
                           src={
-                            review?.user_profile
+                            review?.user_profile && review.user_profile !== "null"
                               ? review.user_profile
                               : "https://res.cloudinary.com/dlwfuul9o/image/upload/v1755157542/qlementine-icons--user-24_zre8k9.png"
                           }
-                          alt="รีวิว"
+                          alt={`${review.first_name || "User"} profile`}
+                          onError={(e) => {
+                            e.target.src = "https://res.cloudinary.com/dlwfuul9o/image/upload/v1755157542/qlementine-icons--user-24_zre8k9.png";
+                          }}
                         />
                         <div className="review-user-details">
                           <strong className="review-name-profile">
