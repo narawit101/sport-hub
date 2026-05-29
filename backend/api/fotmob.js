@@ -99,7 +99,7 @@ function shouldGroupLeague(league) {
     league?.parentLeagueId &&
     league?.primaryId &&
     league.parentLeagueId === league.primaryId &&
-    /\sGrp\.\s+[A-Z0-9]+$/i.test(league.name || "")
+    /\sGrp\.\s+[A-Z0-9]+$/i.test(league.originalName || league.name || "")
   );
 }
 
@@ -122,7 +122,7 @@ function groupMatchLeagues(leagues) {
         ...league,
         id: league.parentLeagueId,
         logoId: league.parentLeagueId,
-        name: league.parentLeagueName || getGroupedLeagueName(league.name),
+        name: league.parentLeagueName || getGroupedLeagueName(league.originalName || league.name),
         childLeagueIds: [league.id],
       });
       continue;
@@ -233,7 +233,7 @@ router.get("/matches", async (req, res) => {
   const date = req.query.date;
   if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
-  const cacheKey = `fotmob:matches:v10:${date}`;
+  const cacheKey = `fotmob:matches:v12:${date}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
@@ -294,6 +294,7 @@ router.get("/matches", async (req, res) => {
           primaryId: league.primaryId,
           parentLeagueId: league.parentLeagueId,
           logoId: league.parentLeagueId || league.primaryId || league.id,
+          originalName: league.name,
           name: league.parentLeagueId
             ? leagueNameLookup.get(String(league.parentLeagueId)) || league.name
             : leagueNameLookup.get(String(league.id)) || league.name,
@@ -310,7 +311,14 @@ router.get("/matches", async (req, res) => {
       }
     });
 
-    const result = { leagues: groupMatchLeagues(filteredLeagues) };
+    const groupedLeagues = groupMatchLeagues(filteredLeagues);
+    groupedLeagues.sort((a, b) => {
+      const rankA = a.localRank !== undefined ? a.localRank : 99999;
+      const rankB = b.localRank !== undefined ? b.localRank : 99999;
+      return rankA - rankB;
+    });
+
+    const result = { leagues: groupedLeagues };
     const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const ttl = (date === todayStr) ? 120 : 3600;
 
