@@ -2216,7 +2216,8 @@
 
 /* Mobile League Selector Styles */
 .mobile-league-selector-container {
-  display: none; /* Hidden by default on desktop */
+  display: none;
+  /* Hidden by default on desktop */
 }
 
 @media screen and (max-width: 1200px) {
@@ -2224,7 +2225,7 @@
     display: block;
     margin: 15px 20px 0 20px;
     position: relative;
-    z-index: 100;
+    z-index: 10;
   }
 
   .mobile-league-selector-trigger {
@@ -2283,7 +2284,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(15, 23, 42, 0.5); /* Modern slate backdrop */
+    background-color: rgba(15, 23, 42, 0.5);
+    /* Modern slate backdrop */
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     display: flex;
@@ -2312,6 +2314,7 @@
       transform: translateY(20px);
       opacity: 0;
     }
+
     to {
       transform: translateY(0);
       opacity: 1;
@@ -2382,10 +2385,11 @@
   .mobile-league-selector-container {
     margin: 15px 10px 0 10px;
   }
-  
+
   .mobile-league-dropdown-overlay {
     padding: 10px;
-    align-items: flex-end; /* Bottom sheet style on small mobile */
+    align-items: flex-end;
+    /* Bottom sheet style on small mobile */
   }
 
   .mobile-league-dropdown-card {
@@ -2400,6 +2404,7 @@
     from {
       transform: translateY(100%);
     }
+
     to {
       transform: translateY(0);
     }

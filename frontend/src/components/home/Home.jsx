@@ -481,7 +481,9 @@ export default function HomePage() {
                                     <polyline points="6 9 12 15 18 9" />
                                   </svg>
                                 </div>
-                                <div className={`sidebar-country-leagues-wrapper ${expandedCountries["INT"] ? "expanded" : ""}`}>
+                                <div
+                                  className={`sidebar-country-leagues-wrapper ${expandedCountries["INT"] ? "expanded" : ""}`}
+                                >
                                   <div className="sidebar-country-leagues">
                                     {filteredInternational.map((league) => (
                                       <div
@@ -551,7 +553,9 @@ export default function HomePage() {
                                       <polyline points="6 9 12 15 18 9" />
                                     </svg>
                                   </div>
-                                  <div className={`sidebar-country-leagues-wrapper ${isExpanded ? "expanded" : ""}`}>
+                                  <div
+                                    className={`sidebar-country-leagues-wrapper ${isExpanded ? "expanded" : ""}`}
+                                  >
                                     <div className="sidebar-country-leagues">
                                       {country.leagues.map((league) => (
                                         <div
@@ -776,7 +780,9 @@ export default function HomePage() {
                                               <polyline points="6 9 12 15 18 9" />
                                             </svg>
                                           </div>
-                                          <div className={`sidebar-country-leagues-wrapper ${expandedCountries["INT"] ? "expanded" : ""}`}>
+                                          <div
+                                            className={`sidebar-country-leagues-wrapper ${expandedCountries["INT"] ? "expanded" : ""}`}
+                                          >
                                             <div className="sidebar-country-leagues">
                                               {filteredInternational.map(
                                                 (league) => (
@@ -858,7 +864,9 @@ export default function HomePage() {
                                                 <polyline points="6 9 12 15 18 9" />
                                               </svg>
                                             </div>
-                                            <div className={`sidebar-country-leagues-wrapper ${isExpanded ? "expanded" : ""}`}>
+                                            <div
+                                              className={`sidebar-country-leagues-wrapper ${isExpanded ? "expanded" : ""}`}
+                                            >
                                               <div className="sidebar-country-leagues">
                                                 {country.leagues.map(
                                                   (league) => (
