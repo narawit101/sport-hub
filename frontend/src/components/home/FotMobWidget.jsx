@@ -88,20 +88,33 @@ const getThaiDisplayDate = (d) => {
 };
 
 const getMatchTimeOnly = (matchItem) => {
+  let timeStr = "";
   if (matchItem.status?.utcTime) {
-    return new Intl.DateTimeFormat("th-TH", {
+    timeStr = new Intl.DateTimeFormat("th-TH", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
       timeZone: "Asia/Bangkok",
     }).format(new Date(matchItem.status.utcTime));
+  } else {
+    timeStr = matchItem.status?.startDateStr || matchItem.time || "";
+    if (timeStr.includes(" ")) {
+      timeStr = timeStr.split(" ")[1];
+    }
   }
 
-  const timeStr = matchItem.status?.startDateStr || matchItem.time || "";
-  if (timeStr.includes(" ")) {
-    return timeStr.split(" ")[1];
+  if (!timeStr) timeStr = "VS";
+
+  if (matchItem.isNextDayLateNight) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
+        <span style={{ fontSize: '10px', color: '#6d737a' }}>+1 วัน</span>
+        <span>{timeStr}</span>
+      </div>
+    );
   }
-  return timeStr || "VS";
+
+  return timeStr;
 };
 
 export default function FotMobWidget({
@@ -682,10 +695,16 @@ export default function FotMobWidget({
                           const isCancelled = match.status.cancelled;
                           const isStarted = match.status.started;
                           const scoreNotes = getScoreNotes(match);
-                          const previousStage =
-                            league.matches[matchIndex - 1]?.stageName;
+                          const previousMatch = league.matches[matchIndex - 1];
+                          const previousStage = previousMatch?.stageName;
                           const shouldShowStage =
                             match.stageName && match.stageName !== previousStage;
+
+                          const isNextDay = match.isNextDayLateNight;
+                          const shouldShowNextDaySeparator = isNextDay && (!previousMatch || !previousMatch.isNextDayLateNight);
+                          const nextDayMatchesCount = shouldShowNextDaySeparator 
+                             ? league.matches.slice(matchIndex).filter(m => m.isNextDayLateNight).length 
+                             : 0;
 
                           let statusText = status.text;
                           if (isFinished) {
@@ -698,6 +717,21 @@ export default function FotMobWidget({
 
                           return (
                             <div key={match.id} className="match-block">
+                              {shouldShowNextDaySeparator && (
+                                <div style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  textAlign: 'center', 
+                                  color: '#7a858f', 
+                                  fontSize: '12px',
+                                  margin: '12px 0 4px',
+                                  fontWeight: 500
+                                }}>
+                                  <div style={{ flex: 1, borderBottom: '1px solid #e0e4e8', marginRight: '16px' }}></div>
+                                  <span>{nextDayMatchesCount} นัดเริ่มหลังเที่ยงคืน <span style={{ fontSize: '10px' }}>▲</span></span>
+                                  <div style={{ flex: 1, borderBottom: '1px solid #e0e4e8', marginLeft: '16px' }}></div>
+                                </div>
+                              )}
                               {shouldShowStage && (
                                 <div className="match-stage-row">
                                   <span>{match.stageName}</span>

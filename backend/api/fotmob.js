@@ -257,8 +257,27 @@ router.get("/matches", async (req, res) => {
       const leagueStageName = getLeagueStageName(
         league.matches?.[0]?.tournamentStage,
       );
-      const matches = (league.matches || []).map(match => ({
+      const matches = (league.matches || []).map(match => {
+        let isNextDayLateNight = false;
+        const timeTs = match.status?.utcTime ? new Date(match.status.utcTime).getTime() : match.timeTS;
+        if (timeTs) {
+          const formatter = new Intl.DateTimeFormat("en-US", {
+            timeZone: "Asia/Bangkok",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          });
+          const parts = formatter.formatToParts(new Date(timeTs));
+          const m = parts.find(p => p.type === 'month').value;
+          const d = parts.find(p => p.type === 'day').value;
+          const y = parts.find(p => p.type === 'year').value;
+          const matchDateStr = `${y}${m}${d}`;
+          isNextDayLateNight = (matchDateStr > date);
+        }
+
+        return {
         id: match.id,
+        isNextDayLateNight,
         stageName: getMatchStageName(league.name),
         home: { 
           id: match.home.id, 
@@ -286,7 +305,8 @@ router.get("/matches", async (req, res) => {
           startDateStr: match.status?.startDateStr || match.time || "",
           aggregatedStr: match.status?.aggregatedStr || null,
         }
-      }));
+      };
+    });
 
       if (matches.length > 0) {
         filteredLeagues.push(enrichLeagueCountry({
@@ -322,7 +342,8 @@ router.get("/matches", async (req, res) => {
     const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const ttl = (date === todayStr) ? 120 : 3600;
 
-    await setCachedData(cacheKey, result, ttl);
+    const cacheKeyV13 = `fotmob:matches:v14:${date}`;
+    await setCachedData(cacheKeyV13, result, ttl);
     res.status(200).json(result);
   } catch (error) {
     console.error("[FotMob Matches Error]:", error.message);
