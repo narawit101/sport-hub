@@ -107,8 +107,15 @@ const getMatchTimeOnly = (matchItem) => {
 
   if (matchItem.isNextDayLateNight) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
-        <span style={{ fontSize: '10px', color: '#6d737a' }}>+1 วัน</span>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          lineHeight: "1.2",
+        }}
+      >
+        <span style={{ fontSize: "10px", color: "#6d737a" }}>+1 วัน</span>
         <span>{timeStr}</span>
       </div>
     );
@@ -116,6 +123,86 @@ const getMatchTimeOnly = (matchItem) => {
 
   return timeStr;
 };
+
+const MatchCard = ({ match, status, statusText, scoreNotes }) => (
+  <div className="match-card">
+    {/* Left side: Status badge */}
+    <div className="match-status-col">
+      {statusText && (
+        <span className={`match-status-badge-flat ${status.class}`}>
+          {statusText}
+        </span>
+      )}
+    </div>
+
+    {/* Center: Teams and Score */}
+    <div className="match-teams-score-col">
+      <div className="match-team-home-flat">
+        <span className="team-name-flat">{match.home.name}</span>
+        <img
+          src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}.png`}
+          alt={match.home.name}
+          className="team-logo-flat"
+          onError={(e) => {
+            e.target.src = "/images/football-default.png";
+          }}
+        />
+      </div>
+      <div className="match-score-flat">
+        {match.status.started || match.status.finished ? (
+          <div className="score-row-wrapper">
+            <div className="score-digits-line">
+              <span className="score-digit-wrapper">
+                {match.home.score}
+                {match.home.redCards > 0 && (
+                  <span
+                    className="red-card-indicator animate-redcard"
+                    title={`${match.home.redCards} ใบแดง`}
+                  />
+                )}
+              </span>
+              <span className="score-separator">-</span>
+              <span className="score-digit-wrapper">
+                {match.away.score}
+                {match.away.redCards > 0 && (
+                  <span
+                    className="red-card-indicator animate-redcard"
+                    title={`${match.away.redCards} ใบแดง`}
+                  />
+                )}
+              </span>
+            </div>
+            {scoreNotes.length > 0 ? (
+              <div className="score-note-list">
+                {scoreNotes.map((note) => (
+                  <span key={note} className="score-note">
+                    {note}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          getMatchTimeOnly(match)
+        )}
+      </div>
+      <div className="match-team-away-flat">
+        <img
+          src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.away.id}.png`}
+          alt={match.away.name}
+          className="team-logo-flat"
+          onError={(e) => {
+            e.target.src = "/images/football-default.png";
+          }}
+        />
+        <span className="team-name-flat">{match.away.name}</span>
+      </div>
+    </div>
+
+    {/* Right side: spacer col */}
+    <div className="match-spacer-col"></div>
+  </div>
+);
 
 export default function FotMobWidget({
   hideTabs,
@@ -214,6 +301,7 @@ export default function FotMobWidget({
   const [newsLoadingMore, setNewsLoadingMore] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [collapsedLeagues, setCollapsedLeagues] = useState({});
+  const [collapsedLateNights, setCollapsedLateNights] = useState({});
 
   const toggleLeague = (leagueId) => {
     setCollapsedLeagues((prev) => ({
@@ -222,20 +310,27 @@ export default function FotMobWidget({
     }));
   };
 
-  const isAnyLeagueExpanded = matches.some(
-    (league) => !collapsedLeagues[league.id],
-  );
+  const toggleLateNight = (leagueId) => {
+    setCollapsedLateNights((prev) => ({
+      ...prev,
+      [leagueId]: !prev[leagueId],
+    }));
+  };
+
+  const isAnyLeagueExpanded =
+    matches.length > 0 &&
+    matches.some((league) => !collapsedLeagues[league.id]);
 
   const handleToggleAllLeagues = () => {
-    if (isAnyLeagueExpanded) {
-      const newCollapsed = {};
+    const shouldCollapse = isAnyLeagueExpanded;
+    const newCollapsed = {};
+    if (shouldCollapse) {
       matches.forEach((league) => {
         newCollapsed[league.id] = true;
       });
-      setCollapsedLeagues(newCollapsed);
-    } else {
-      setCollapsedLeagues({});
     }
+    setCollapsedLeagues(newCollapsed);
+    localStorage.setItem("fotmob_expand_all", String(!shouldCollapse));
   };
 
   const handleLeagueChange = (newLeagueId) => {
@@ -298,9 +393,31 @@ export default function FotMobWidget({
   useEffect(() => {
     if (activeTab === "matches") {
       fetchMatches();
-      setCollapsedLeagues({});
     }
   }, [date, activeTab]);
+
+  // Handle auto-expansion/collapse based on preference when matches are loaded
+  useEffect(() => {
+    if (matches.length > 0) {
+      const storedPreference = localStorage.getItem("fotmob_expand_all");
+      // Default to expanded (true) if not set
+      const shouldExpand =
+        storedPreference === null ? true : storedPreference === "true";
+
+      const initialCollapsed = {};
+      const initialLateNightCollapsed = {};
+
+      matches.forEach((league) => {
+        if (!shouldExpand) {
+          initialCollapsed[league.id] = true;
+        }
+        initialLateNightCollapsed[league.id] = true; // Late nights still default to collapsed
+      });
+
+      setCollapsedLeagues(initialCollapsed);
+      setCollapsedLateNights(initialLateNightCollapsed);
+    }
+  }, [matches]);
 
   // Fetch news
   useEffect(() => {
@@ -503,9 +620,12 @@ export default function FotMobWidget({
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                style={{
+                  transform: isAnyLeagueExpanded ? "none" : "rotate(180deg)",
+                  transition: "transform 0.3s ease",
+                }}
               >
-                <polyline points="7 15 12 20 17 15" />
-                <polyline points="7 9 12 4 17 9" />
+                <polyline points="18 15 12 9 6 15" />
               </svg>
             </button>
           </div>
@@ -608,6 +728,7 @@ export default function FotMobWidget({
                     !m.status.finished &&
                     !m.status.cancelled,
                 ).length;
+                const isCollapsed = collapsedLeagues[league.id];
 
                 return (
                   <div key={league.id} className="league-group">
@@ -619,10 +740,7 @@ export default function FotMobWidget({
                         {leagueCountryInfo ? (
                           <>
                             <img
-                              src={getLeagueLogoUrl(
-                                league,
-                                leagueCountryInfo,
-                              )}
+                              src={getLeagueLogoUrl(league, leagueCountryInfo)}
                               alt={getLeagueDisplayName(
                                 league,
                                 leagueCountryInfo,
@@ -633,10 +751,7 @@ export default function FotMobWidget({
                               }}
                             />
                             <span>
-                              {getLeagueDisplayName(
-                                league,
-                                leagueCountryInfo,
-                              )}
+                              {getLeagueDisplayName(league, leagueCountryInfo)}
                             </span>
                           </>
                         ) : (
@@ -681,157 +796,144 @@ export default function FotMobWidget({
                           strokeWidth="2.5"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className={`league-chevron ${collapsedLeagues[league.id] ? "collapsed" : ""}`}
+                          className={`league-chevron ${isCollapsed ? "collapsed" : ""}`}
                         >
                           <polyline points="18 15 12 9 6 15" />
                         </svg>
                       </div>
                     </div>
-                    {!collapsedLeagues[league.id] && (
-                      <div className="match-list">
-                        {league.matches.map((match, matchIndex) => {
-                          const status = getMatchStatusLabel(match.status);
-                          const isFinished = match.status.finished;
-                          const isCancelled = match.status.cancelled;
-                          const isStarted = match.status.started;
-                          const scoreNotes = getScoreNotes(match);
-                          const previousMatch = league.matches[matchIndex - 1];
-                          const previousStage = previousMatch?.stageName;
-                          const shouldShowStage =
-                            match.stageName && match.stageName !== previousStage;
 
-                          const isNextDay = match.isNextDayLateNight;
-                          const shouldShowNextDaySeparator = isNextDay && (!previousMatch || !previousMatch.isNextDayLateNight);
-                          const nextDayMatchesCount = shouldShowNextDaySeparator 
-                             ? league.matches.slice(matchIndex).filter(m => m.isNextDayLateNight).length 
-                             : 0;
+                    <div
+                      className={`match-list-container ${isCollapsed ? "collapsed" : ""}`}
+                    >
+                      <div className="match-list-inner">
+                        <div className="match-list">
+                          {league.matches.map((match, matchIndex) => {
+                            const status = getMatchStatusLabel(match.status);
+                            const isFinished = match.status.finished;
+                            const isCancelled = match.status.cancelled;
+                            const isStarted = match.status.started;
+                            const scoreNotes = getScoreNotes(match);
+                            const previousMatch =
+                              league.matches[matchIndex - 1];
+                            const previousStage = previousMatch?.stageName;
+                            const shouldShowStage =
+                              match.stageName &&
+                              match.stageName !== previousStage;
 
-                          let statusText = status.text;
-                          if (isFinished) {
-                            statusText = "FT";
-                          } else if (isCancelled) {
-                            statusText = "CAN";
-                          } else if (!isStarted) {
-                            statusText = "";
-                          }
+                            const isNextDay = match.isNextDayLateNight;
+                            const shouldShowNextDaySeparator =
+                              isNextDay &&
+                              (!previousMatch ||
+                                !previousMatch.isNextDayLateNight);
+                            const nextDayMatchesCount =
+                              shouldShowNextDaySeparator
+                                ? league.matches
+                                    .slice(matchIndex)
+                                    .filter((m) => m.isNextDayLateNight).length
+                                : 0;
 
-                          return (
-                            <div key={match.id} className="match-block">
-                              {shouldShowNextDaySeparator && (
-                                <div style={{ 
-                                  display: 'flex', 
-                                  alignItems: 'center', 
-                                  textAlign: 'center', 
-                                  color: '#7a858f', 
-                                  fontSize: '12px',
-                                  margin: '12px 0 4px',
-                                  fontWeight: 500
-                                }}>
-                                  <div style={{ flex: 1, borderBottom: '1px solid #e0e4e8', marginRight: '16px' }}></div>
-                                  <span>{nextDayMatchesCount} นัดเริ่มหลังเที่ยงคืน <span style={{ fontSize: '10px' }}>▲</span></span>
-                                  <div style={{ flex: 1, borderBottom: '1px solid #e0e4e8', marginLeft: '16px' }}></div>
-                                </div>
-                              )}
-                              {shouldShowStage && (
-                                <div className="match-stage-row">
-                                  <span>{match.stageName}</span>
-                                </div>
-                              )}
-                              <div className="match-card">
-                              {/* Left side: Status badge */}
-                              <div className="match-status-col">
-                                {statusText && (
-                                  <span
-                                    className={`match-status-badge-flat ${status.class}`}
+                            let statusText = status.text;
+                            if (isFinished) {
+                              statusText = "FT";
+                            } else if (isCancelled) {
+                              statusText = "CAN";
+                            } else if (!isStarted) {
+                              statusText = "";
+                            }
+
+                            const isLateNightCollapsed =
+                              collapsedLateNights[league.id];
+
+                            return (
+                              <div key={match.id} className="match-block">
+                                {shouldShowNextDaySeparator && (
+                                  <div
+                                    onClick={() => toggleLateNight(league.id)}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      textAlign: "center",
+                                      color: "#7a858f",
+                                      fontSize: "12px",
+                                      padding: "12px 20px 4px",
+                                      fontWeight: 500,
+                                      cursor: "pointer",
+                                      backgroundColor: "#f8fafc",
+                                    }}
                                   >
-                                    {statusText}
-                                  </span>
+                                    <div
+                                      style={{
+                                        flex: 1,
+                                        borderBottom: "1px solid #e0e4e8",
+                                        marginRight: "16px",
+                                      }}
+                                    ></div>
+                                    <span
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                      }}
+                                    >
+                                      {nextDayMatchesCount}{" "}
+                                      นัดเริ่มหลังเที่ยงคืน
+                                      <span
+                                        style={{
+                                          fontSize: "10px",
+                                          transform: isLateNightCollapsed
+                                            ? "none"
+                                            : "rotate(180deg)",
+                                          transition: "transform 0.3s ease",
+                                        }}
+                                      >
+                                        ▼
+                                      </span>
+                                    </span>
+                                    <div
+                                      style={{
+                                        flex: 1,
+                                        borderBottom: "1px solid #e0e4e8",
+                                        marginLeft: "16px",
+                                      }}
+                                    ></div>
+                                  </div>
+                                )}
+
+                                {isNextDay ? (
+                                  <div
+                                    className={`late-night-section-container ${isLateNightCollapsed ? "collapsed" : ""}`}
+                                  >
+                                    <div className="late-night-inner">
+                                      <MatchCard
+                                        match={match}
+                                        status={status}
+                                        statusText={statusText}
+                                        scoreNotes={scoreNotes}
+                                      />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <>
+                                    {shouldShowStage && (
+                                      <div className="match-stage-row">
+                                        <span>{match.stageName}</span>
+                                      </div>
+                                    )}
+                                    <MatchCard
+                                      match={match}
+                                      status={status}
+                                      statusText={statusText}
+                                      scoreNotes={scoreNotes}
+                                    />
+                                  </>
                                 )}
                               </div>
-
-                              {/* Center: Teams and Score */}
-                              <div className="match-teams-score-col">
-                                <div className="match-team-home-flat">
-                                  <span className="team-name-flat">
-                                    {match.home.name}
-                                  </span>
-                                  <img
-                                    src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.home.id}.png`}
-                                    alt={match.home.name}
-                                    className="team-logo-flat"
-                                    onError={(e) => {
-                                      e.target.src =
-                                        "/images/football-default.png";
-                                    }}
-                                  />
-                                </div>
-                                <div className="match-score-flat">
-                                  {isStarted || isFinished ? (
-                                    <div className="score-row-wrapper">
-                                      <div className="score-digits-line">
-                                        <span className="score-digit-wrapper">
-                                          {match.home.score}
-                                          {match.home.redCards > 0 && (
-                                            <span
-                                              className="red-card-indicator animate-redcard"
-                                              title={`${match.home.redCards} ใบแดง`}
-                                            />
-                                          )}
-                                        </span>
-                                        <span className="score-separator">
-                                          -
-                                        </span>
-                                        <span className="score-digit-wrapper">
-                                          {match.away.score}
-                                          {match.away.redCards > 0 && (
-                                            <span
-                                              className="red-card-indicator animate-redcard"
-                                              title={`${match.away.redCards} ใบแดง`}
-                                            />
-                                          )}
-                                        </span>
-                                      </div>
-                                      {scoreNotes.length > 0 ? (
-                                        <div className="score-note-list">
-                                          {scoreNotes.map((note) => (
-                                            <span
-                                              key={note}
-                                              className="score-note"
-                                            >
-                                              {note}
-                                            </span>
-                                          ))}
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                  ) : (
-                                    getMatchTimeOnly(match)
-                                  )}
-                                </div>
-                                <div className="match-team-away-flat">
-                                  <img
-                                    src={`https://images.fotmob.com/image_resources/logo/teamlogo/${match.away.id}.png`}
-                                    alt={match.away.name}
-                                    className="team-logo-flat"
-                                    onError={(e) => {
-                                      e.target.src =
-                                        "/images/football-default.png";
-                                    }}
-                                  />
-                                  <span className="team-name-flat">
-                                    {match.away.name}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Right side: spacer col */}
-                              <div className="match-spacer-col"></div>
-                              </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}

@@ -98,16 +98,55 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 20px;
+}
+
+.football-date-scroller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.football-date-scroller::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.date-pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-pill:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.date-pill.active {
+  background-color: var(--text-color, #03045e);
+  color: #ffffff;
+  border-color: var(--text-color, #03045e);
+  box-shadow: 0 4px 10px rgba(3, 4, 94, 0.2);
 }
 
 .football-date-btn {
   background: var(--secondary-bg);
   border: 1px solid var(--border-color);
   color: var(--text-color);
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -115,6 +154,38 @@
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
+  flex-shrink: 0;
+}
+
+/* ... existing code ... */
+
+/* Match List Transition */
+.match-list-container {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.match-list-container.collapsed {
+  grid-template-rows: 0fr;
+}
+
+.match-list-inner {
+  overflow: hidden;
+}
+
+.late-night-section-container {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.late-night-section-container.collapsed {
+  grid-template-rows: 0fr;
+}
+
+.late-night-inner {
+  overflow: hidden;
 }
 
 .football-date-btn:hover {
