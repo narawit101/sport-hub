@@ -83,12 +83,10 @@ export default function HomePage() {
       const scrollTop = scrollContainer.scrollTop;
       if (scrollTop < 0) return; // Prevent bounce trigger
 
-      if (Math.abs(scrollTop - lastScrollTop.current) > 5) {
-        if (scrollTop > lastScrollTop.current && scrollTop > 40) {
-          setHideTabs(true);
-        } else {
-          setHideTabs(false);
-        }
+      if (scrollTop > lastScrollTop.current) {
+        setHideTabs(true);
+      } else {
+        setHideTabs(false);
       }
       lastScrollTop.current = scrollTop;
     };
