@@ -536,11 +536,11 @@ export default function CheckFieldDetail() {
         averageRating={
           reviewData && reviewData.length > 0
             ? (
-              reviewData.reduce(
-                (acc, curr) => acc + (Number(curr.rating) || 0),
-                0,
-              ) / reviewData.length
-            ).toFixed(1)
+                reviewData.reduce(
+                  (acc, curr) => acc + (Number(curr.rating) || 0),
+                  0,
+                ) / reviewData.length
+              ).toFixed(1)
             : null
         }
         totalReviews={reviewData ? reviewData.length : 0}
@@ -554,7 +554,7 @@ export default function CheckFieldDetail() {
             style={{ cursor: "pointer" }}
           >
             <div className="description-header-profile">
-              <h1>แนะนำสนาม</h1>
+              <h2>แนะนำสนาม</h2>
               <span className="view-more-text">ดูเพิ่มเติม</span>
             </div>
             <div
@@ -568,7 +568,7 @@ export default function CheckFieldDetail() {
 
           {/* รายละเอียดสนามย่อย */}
           <div className="undercontainer-profile">
-            <h1 className="sub-fields-profile">รายละเอียดสนามย่อย</h1>
+            <h2 className="sub-fields-profile">รายละเอียดสนามย่อย</h2>
             <div className="sub-fields-container-profile">
               {fieldData?.sub_fields && fieldData.sub_fields.length > 0 ? (
                 fieldData.sub_fields.map((sub) => (
@@ -601,7 +601,7 @@ export default function CheckFieldDetail() {
 
                     {sub.add_ons && sub.add_ons.length > 0 ? (
                       <div className="add-ons-container-profile">
-                        <h3>ราคาสำหรับจัดกิจกรรมพิเศษ</h3>
+                        <h2>ราคาสำหรับจัดกิจกรรมพิเศษ</h2>
                         {sub.add_ons.map((addon) => (
                           <p key={addon.add_on_id}>
                             {addon.content} - {formatPrice(addon.price)} บาท
@@ -630,7 +630,7 @@ export default function CheckFieldDetail() {
 
           {/* โพสต์ล่าสุดจากสนาม */}
           <div className="post-profile">
-            <h1>โพสต์และประกาศ</h1>
+            <h2>โพสต์และประกาศ</h2>
             {postData.length > 0 && (
               <div className="post-filter-bar">
                 <div className="post-filter-item">
@@ -760,7 +760,7 @@ export default function CheckFieldDetail() {
           {/* รีวิวสนามกีฬา */}
           <div className="reviews-section-profile">
             <div className="reviews-header-profile">
-              <h1>รีวิวสนามกีฬา ({reviewData.length})</h1>
+              <h2>รีวิวสนามกีฬา ({reviewData.length})</h2>
               <div className="reviews-filter-wrapper">
                 <label htmlFor="review-score">คะแนน:</label>
                 <select
@@ -805,8 +805,9 @@ export default function CheckFieldDetail() {
                             {[1, 2, 3, 4, 5].map((num) => (
                               <span
                                 key={num}
-                                className={`star-profile ${num <= review.rating ? "active" : ""
-                                  }`}
+                                className={`star-profile ${
+                                  num <= review.rating ? "active" : ""
+                                }`}
                               >
                                 ★
                               </span>
@@ -855,7 +856,7 @@ export default function CheckFieldDetail() {
         <aside className="profile-sidebar">
           {/* ตำแหน่งสนาม */}
           <div className="location-section-profile">
-            <h1>ตำแหน่งสนาม</h1>
+            <h2>ตำแหน่งสนาม</h2>
             <p>
               <strong>ที่อยู่:</strong> {fieldData?.address}
             </p>
@@ -896,7 +897,7 @@ export default function CheckFieldDetail() {
 
           {/* รายละเอียดสนาม */}
           <div className="detail-field">
-            <h1>รายละเอียดสนาม</h1>
+            <h2>รายละเอียดสนาม</h2>
             <p>
               <strong>วันที่เปิดสนาม</strong>
             </p>
@@ -945,7 +946,7 @@ export default function CheckFieldDetail() {
 
           {/* สิ่งอำนวยความสะดวก */}
           <div className="facilities-section-profile">
-            <h1 className="fac-profile">สิ่งอำนวยความสะดวก</h1>
+            <h2 className="fac-profile">สิ่งอำนวยความสะดวก</h2>
             {dataLoading && (
               <div className="loading-data">
                 <div className="loading-data-spinner"></div>
@@ -1000,7 +1001,7 @@ export default function CheckFieldDetail() {
                             <p className="facility-quantity-profile-vertical">
                               รายละเอียด:{" "}
                               {facility.description &&
-                                facility.description !== "undefined"
+                              facility.description !== "undefined"
                                 ? facility.description
                                 : "ไม่มีรายละเอียด"}
                             </p>

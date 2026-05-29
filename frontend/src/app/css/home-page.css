@@ -2405,3 +2405,19 @@
     }
   }
 }
+
+/* Sidebar country leagues height transition */
+.sidebar-country-leagues-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.sidebar-country-leagues-wrapper.expanded {
+  grid-template-rows: 1fr;
+}
+
+.sidebar-country-leagues {
+  min-height: 0;
+}
