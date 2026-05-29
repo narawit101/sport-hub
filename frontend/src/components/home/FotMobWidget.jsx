@@ -384,6 +384,25 @@ export default function FotMobWidget({
     return { text: status.startDateStr || "เร็วๆ นี้", class: "upcoming" };
   };
 
+  const getScoreNotes = (match) => {
+    const notes = [];
+
+    if (match.status.aggregatedStr) {
+      notes.push(` (${match.status.aggregatedStr})`);
+    }
+
+    if (
+      match.home.penScore !== undefined ||
+      match.away.penScore !== undefined
+    ) {
+      notes.push(
+        `จุดโทษ (${match.home.penScore ?? 0}-${match.away.penScore ?? 0})`,
+      );
+    }
+
+    return notes;
+  };
+
   return (
     <div className="football-widget-container">
       {/* Content Area */}
@@ -625,6 +644,7 @@ export default function FotMobWidget({
                           const isFinished = match.status.finished;
                           const isCancelled = match.status.cancelled;
                           const isStarted = match.status.started;
+                          const scoreNotes = getScoreNotes(match);
 
                           let statusText = status.text;
                           if (isFinished) {
@@ -690,15 +710,16 @@ export default function FotMobWidget({
                                           )}
                                         </span>
                                       </div>
-                                      {match.status.aggregatedStr ? (
-                                        <div className="penalty-shootout-score">
-                                          ({match.status.aggregatedStr})
-                                        </div>
-                                      ) : match.home.penScore !== undefined ||
-                                        match.away.penScore !== undefined ? (
-                                        <div className="penalty-shootout-score">
-                                          ({match.home.penScore ?? 0} -{" "}
-                                          {match.away.penScore ?? 0})
+                                      {scoreNotes.length > 0 ? (
+                                        <div className="score-note-list">
+                                          {scoreNotes.map((note) => (
+                                            <span
+                                              key={note}
+                                              className="score-note"
+                                            >
+                                              {note}
+                                            </span>
+                                          ))}
                                         </div>
                                       ) : null}
                                     </div>

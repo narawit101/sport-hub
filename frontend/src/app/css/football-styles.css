@@ -1245,12 +1245,20 @@
   animation: pulseRedcard 2.5s infinite ease-in-out;
 } */
 
-.penalty-shootout-score {
-  font-size: 0.76rem;
+.score-note-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 3px;
+}
+
+.score-note {
+  font-size: 0.7rem;
   font-weight: 700;
   color: #64748b;
-  margin-top: 3px;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .league-count-badge {
@@ -1385,8 +1393,12 @@
     height: 8px;
   }
 
-  .penalty-shootout-score {
-    font-size: 0.65rem;
+  .score-note-list {
+    gap: 1px;
     margin-top: 1px;
+  }
+
+  .score-note {
+    font-size: 0.65rem;
   }
 }

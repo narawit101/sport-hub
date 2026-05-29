@@ -28,18 +28,6 @@ async function setCachedData(key, value, ttlSeconds) {
   });
 }
 
-const POPULAR_LEAGUES = new Set([
-  42,   // Champions League
-  73,   // Europa League
-  47,   // English Premier League
-  87,   // Spanish La Liga
-  54,   // German Bundesliga
-  55,   // Italian Serie A
-  53,   // French Ligue 1
-  339,  // Thai League 1 (Verify ID)
-  77 // world cup
-]);
-
 async function fetchFromFotmob(url) {
   return fetch(url, {
     headers: {
@@ -65,6 +53,55 @@ async function fetchAllLeagues() {
   const data = await response.json();
   await setCachedData(cacheKey, data, 86400);
   return data;
+}
+
+function getGroupedLeagueName(name) {
+  return String(name || "")
+    .replace(/\s+Grp\.\s+[A-Z0-9]+$/i, "")
+    .trim();
+}
+
+function shouldGroupLeague(league) {
+  return Boolean(
+    league?.parentLeagueId &&
+    league?.primaryId &&
+    league.parentLeagueId === league.primaryId &&
+    /\sGrp\.\s+[A-Z0-9]+$/i.test(league.name || "")
+  );
+}
+
+function groupMatchLeagues(leagues) {
+  const grouped = [];
+  const parentIndex = new Map();
+
+  for (const league of leagues) {
+    if (!shouldGroupLeague(league)) {
+      grouped.push(league);
+      continue;
+    }
+
+    const key = `${league.ccode || ""}:${league.parentLeagueId}`;
+    const existingIndex = parentIndex.get(key);
+
+    if (existingIndex === undefined) {
+      parentIndex.set(key, grouped.length);
+      grouped.push({
+        ...league,
+        id: league.parentLeagueId,
+        name: getGroupedLeagueName(league.name),
+        childLeagueIds: [league.id],
+      });
+      continue;
+    }
+
+    grouped[existingIndex] = {
+      ...grouped[existingIndex],
+      matches: grouped[existingIndex].matches.concat(league.matches),
+      childLeagueIds: grouped[existingIndex].childLeagueIds.concat(league.id),
+    };
+  }
+
+  return grouped;
 }
 
 // 1. Football News Endpoint (Updated with tlnews and pagination)
@@ -162,7 +199,7 @@ router.get("/matches", async (req, res) => {
   const date = req.query.date;
   if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
-  const cacheKey = `fotmob:matches:v5:${date}`;
+  const cacheKey = `fotmob:matches:v6:${date}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
@@ -213,29 +250,19 @@ router.get("/matches", async (req, res) => {
       if (matches.length > 0) {
         filteredLeagues.push(enrichLeagueCountry({
           id: league.id,
+          primaryId: league.primaryId,
+          parentLeagueId: league.parentLeagueId,
           name: league.name,
           ccode: league.ccode,
+          internalRank: league.internalRank,
+          liveRank: league.liveRank,
+          localRank: league.localRank,
           matches
         }, allLeagues));
       }
     });
 
-    // Sort leagues so that popular leagues are at the top, and other leagues are alphabetical
-    filteredLeagues.sort((a, b) => {
-      const aPop = POPULAR_LEAGUES.has(a.id);
-      const bPop = POPULAR_LEAGUES.has(b.id);
-      if (aPop && !bPop) return -1;
-      if (!aPop && bPop) return 1;
-      if (aPop && bPop) {
-        const order = [47, 339, 87, 54, 55, 53, 42, 73]; // EPL, Thai, La Liga, Bundesliga, Serie A, Ligue 1, UCL, UEL
-        const indexA = order.indexOf(a.id);
-        const indexB = order.indexOf(b.id);
-        return (indexA !== -1 ? indexA : 99) - (indexB !== -1 ? indexB : 99);
-      }
-      return a.name.localeCompare(b.name);
-    });
-
-    const result = { leagues: filteredLeagues };
+    const result = { leagues: groupMatchLeagues(filteredLeagues) };
     const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const ttl = (date === todayStr) ? 120 : 3600;
 
