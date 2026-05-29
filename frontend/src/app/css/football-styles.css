@@ -212,6 +212,31 @@
   background-color: #ffffff;
 }
 
+.match-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.match-stage-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px 4px;
+  background-color: #ffffff;
+}
+
+.match-stage-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 9px;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .match-card {
   display: flex;
   align-items: center;
@@ -1172,6 +1197,12 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   margin-right: 8px;
   vertical-align: middle;
+}
+
+.league-header-flag.competition-logo {
+  object-fit: contain;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .league-live-badge {

@@ -388,7 +388,7 @@ export default function FotMobWidget({
     const notes = [];
 
     if (match.status.aggregatedStr) {
-      notes.push(` (${match.status.aggregatedStr})`);
+      notes.push(`รวม ${match.status.aggregatedStr}`);
     }
 
     if (
@@ -396,11 +396,31 @@ export default function FotMobWidget({
       match.away.penScore !== undefined
     ) {
       notes.push(
-        `จุดโทษ (${match.home.penScore ?? 0}-${match.away.penScore ?? 0})`,
+        `จุดโทษ ${match.home.penScore ?? 0}-${match.away.penScore ?? 0}`,
       );
     }
 
     return notes;
+  };
+
+  const getLeagueLogoUrl = (league, leagueCountryInfo) => {
+    if (leagueCountryInfo?.ccode === "INT") {
+      return `https://images.fotmob.com/image_resources/logo/leaguelogo/${league.logoId || league.primaryId || league.parentLeagueId || league.id}.png`;
+    }
+
+    if (leagueCountryInfo?.ccode) {
+      return `https://images.fotmob.com/image_resources/logo/teamlogo/${leagueCountryInfo.ccode.toLowerCase()}.png`;
+    }
+
+    return `https://images.fotmob.com/image_resources/logo/leaguelogo/${league.logoId || league.id}.png`;
+  };
+
+  const getLeagueDisplayName = (league, leagueCountryInfo) => {
+    const leagueName = POPULAR_LEAGUE_NAMES[league.id] || league.name;
+    if (!leagueCountryInfo || leagueCountryInfo.ccode === "INT") {
+      return leagueName;
+    }
+    return `${leagueCountryInfo.name} - ${leagueName}`;
   };
 
   return (
@@ -573,20 +593,24 @@ export default function FotMobWidget({
                         {leagueCountryInfo ? (
                           <>
                             <img
-                              src={
-                                leagueCountryInfo.ccode === "INT"
-                                  ? "https://images.fotmob.com/image_resources/logo/teamlogo/int.png"
-                                  : `https://images.fotmob.com/image_resources/logo/teamlogo/${leagueCountryInfo.ccode.toLowerCase()}.png`
-                              }
-                              alt={leagueCountryInfo.name}
-                              className="league-header-flag"
+                              src={getLeagueLogoUrl(
+                                league,
+                                leagueCountryInfo,
+                              )}
+                              alt={getLeagueDisplayName(
+                                league,
+                                leagueCountryInfo,
+                              )}
+                              className={`league-header-flag ${leagueCountryInfo.ccode === "INT" ? "competition-logo" : ""}`}
                               onError={(e) => {
                                 e.target.style.display = "none";
                               }}
                             />
                             <span>
-                              {leagueCountryInfo.name} -{" "}
-                              {POPULAR_LEAGUE_NAMES[league.id] || league.name}
+                              {getLeagueDisplayName(
+                                league,
+                                leagueCountryInfo,
+                              )}
                             </span>
                           </>
                         ) : (
@@ -639,12 +663,16 @@ export default function FotMobWidget({
                     </div>
                     {!collapsedLeagues[league.id] && (
                       <div className="match-list">
-                        {league.matches.map((match) => {
+                        {league.matches.map((match, matchIndex) => {
                           const status = getMatchStatusLabel(match.status);
                           const isFinished = match.status.finished;
                           const isCancelled = match.status.cancelled;
                           const isStarted = match.status.started;
                           const scoreNotes = getScoreNotes(match);
+                          const previousStage =
+                            league.matches[matchIndex - 1]?.stageName;
+                          const shouldShowStage =
+                            match.stageName && match.stageName !== previousStage;
 
                           let statusText = status.text;
                           if (isFinished) {
@@ -656,7 +684,13 @@ export default function FotMobWidget({
                           }
 
                           return (
-                            <div key={match.id} className="match-card">
+                            <div key={match.id} className="match-block">
+                              {shouldShowStage && (
+                                <div className="match-stage-row">
+                                  <span>{match.stageName}</span>
+                                </div>
+                              )}
+                              <div className="match-card">
                               {/* Left side: Status badge */}
                               <div className="match-status-col">
                                 {statusText && (
@@ -745,6 +779,7 @@ export default function FotMobWidget({
 
                               {/* Right side: spacer col */}
                               <div className="match-spacer-col"></div>
+                              </div>
                             </div>
                           );
                         })}

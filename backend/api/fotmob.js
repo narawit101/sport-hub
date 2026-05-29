@@ -61,6 +61,11 @@ function getGroupedLeagueName(name) {
     .trim();
 }
 
+function getLeagueStageName(name) {
+  const match = String(name || "").match(/\s+Grp\.\s+([A-Z0-9]+)$/i);
+  return match ? `กลุ่ม ${match[1].toUpperCase()}` : null;
+}
+
 function shouldGroupLeague(league) {
   return Boolean(
     league?.parentLeagueId &&
@@ -88,6 +93,7 @@ function groupMatchLeagues(leagues) {
       grouped.push({
         ...league,
         id: league.parentLeagueId,
+        logoId: league.parentLeagueId,
         name: getGroupedLeagueName(league.name),
         childLeagueIds: [league.id],
       });
@@ -221,6 +227,7 @@ router.get("/matches", async (req, res) => {
     leagues.forEach(league => {
       const matches = (league.matches || []).map(match => ({
         id: match.id,
+        stageName: getLeagueStageName(league.name),
         home: { 
           id: match.home.id, 
           name: match.home.name, 
@@ -252,6 +259,7 @@ router.get("/matches", async (req, res) => {
           id: league.id,
           primaryId: league.primaryId,
           parentLeagueId: league.parentLeagueId,
+          logoId: league.parentLeagueId || league.primaryId || league.id,
           name: league.name,
           ccode: league.ccode,
           internalRank: league.internalRank,
