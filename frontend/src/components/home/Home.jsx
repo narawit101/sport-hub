@@ -10,15 +10,15 @@ import FotMobWidget from "@/components/home/FotMobWidget";
 import apiClient from "@/lib/apiClient";
 
 const POPULAR_LEAGUES_LIST = [
-  { id: 47, name: "Premier League" },
-  { id: 77, name: "World Cup" },
-  { id: 8984, name: "Thai League" },
-  { id: 87, name: "La Liga" },
-  { id: 54, name: "Bundesliga" },
-  { id: 55, name: "Serie A" },
-  { id: 53, name: "Ligue 1" },
-  { id: 42, name: "Champions League" },
-  { id: 73, name: "Europa League" },
+  { id: 47, name: "พรีเมียร์ลีก อังกฤษ" },
+  { id: 77, name: "ฟุตบอลโลก" },
+  { id: 8984, name: "ไทยลีก 1" },
+  { id: 87, name: "ลาลีกา สเปน" },
+  { id: 54, name: "บุนเดสลีกา เยอรมัน" },
+  { id: 55, name: "กัลโช่ เซเรีย อา อิตาลี" },
+  { id: 53, name: "ลีกเอิง ฝรั่งเศส" },
+  { id: 42, name: "ยูฟ่า แชมเปียนส์ลีก" },
+  { id: 73, name: "ยูฟ่า ยูโรปาลีก" },
 ];
 
 export default function HomePage() {
@@ -145,7 +145,7 @@ export default function HomePage() {
     );
     if (popLeague) return popLeague.name;
 
-    if (!allLeagues) return "Premier League";
+    if (!allLeagues) return "พรีเมียร์ลีก อังกฤษ";
 
     const intLeague = allLeagues.international?.[0]?.leagues?.find(
       (l) => String(l.id) === selectedLeagueId,
@@ -161,7 +161,7 @@ export default function HomePage() {
       }
     }
 
-    return "Premier League";
+    return "พรีเมียร์ลีก อังกฤษ";
   };
 
   const scrollToBookingSection = () => {
@@ -286,7 +286,7 @@ export default function HomePage() {
                     />
                   </svg>
 
-                  <span className="sidebar-label">ข่าวสารระบบ</span>
+                  <span className="sidebar-label">หน้าแรก</span>
                 </button>
 
                 {/* Tab 2: ผลบอลสด */}

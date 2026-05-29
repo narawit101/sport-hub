@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { getCache, setCache } = require("../config/cache");
-const { enrichLeagueCountry } = require("../utils/fotmobCountryResolver");
+const { enrichLeagueCountry, translateAllLeagues, LEAGUE_ID_TO_NAME, translateTeamDynamic, buildTeamTranslationLookup, TEAM_NAME_MAP } = require("../utils/fotmobCountryResolver");
 
 // Local in-memory cache fallback for local development (no Redis)
 const memoryCache = new Map();
@@ -43,14 +43,17 @@ async function fetchFromFotmob(url) {
 }
 
 async function fetchAllLeagues() {
-  const cacheKey = "fotmob:all-leagues:v3";
+  const cacheKey = "fotmob:all-leagues:v6";
   const cached = await getCachedData(cacheKey);
   if (cached) return cached;
 
-  const response = await fetchFromFotmob("https://www.fotmob.com/api/data/allLeagues?locale=th");
+  // Fetch in English to get English names as keys for translation lookup
+  const response = await fetchFromFotmob("https://www.fotmob.com/api/data/allLeagues");
   if (!response.ok) throw new Error(`Status: ${response.status}`);
 
-  const data = await response.json();
+  let data = await response.json();
+  data = translateAllLeagues(data);
+
   await setCachedData(cacheKey, data, 86400);
   return data;
 }
@@ -233,14 +236,14 @@ router.get("/matches", async (req, res) => {
   const date = req.query.date;
   if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
-  const cacheKey = `fotmob:matches:v15:${date}`;
+  const cacheKey = `fotmob:matches:v25:${date}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
 
-    // Using the new data/matches endpoint discovered
+    // Using the new data/matches endpoint discovered with locale=th
     const [response, allLeagues] = await Promise.all([
-      fetchFromFotmob(`https://www.fotmob.com/api/data/matches?date=${date}&timezone=Asia/Bangkok&ccode3=THA&includeNextDayLateNight=true`),
+      fetchFromFotmob(`https://www.fotmob.com/api/data/matches?date=${date}&timezone=Asia/Bangkok&locale=th&ccode3=THA&includeNextDayLateNight=true`),
       fetchAllLeagues().catch((error) => {
         console.warn("[FotMob Countries Warning]:", error.message);
         return null;
@@ -252,6 +255,7 @@ router.get("/matches", async (req, res) => {
     const leagues = data.leagues || [];
     const filteredLeagues = [];
     const leagueNameLookup = buildLeagueNameLookup(allLeagues);
+    const teamTranslationLookup = buildTeamTranslationLookup(allLeagues);
 
     leagues.forEach(league => {
       const leagueStageName = getLeagueStageName(
@@ -281,14 +285,14 @@ router.get("/matches", async (req, res) => {
           stageName: getMatchStageName(league.name),
           home: {
             id: match.home.id,
-            name: match.home.name,
+            name: translateTeamDynamic(match.home, teamTranslationLookup),
             score: match.home.score,
             redCards: match.home.redCards,
             penScore: match.home.penScore
           },
           away: {
             id: match.away.id,
-            name: match.away.name,
+            name: translateTeamDynamic(match.away, teamTranslationLookup),
             score: match.away.score,
             redCards: match.away.redCards,
             penScore: match.away.penScore
@@ -367,21 +371,26 @@ router.get("/matches", async (req, res) => {
 router.get("/standings", async (req, res) => {
   const leagueId = req.query.leagueId || "47";
   const season = req.query.season || "";
-  const cacheKey = `fotmob:standings:v5:${leagueId}:${season || "current"}`;
+  const cacheKey = `fotmob:standings:v15:${leagueId}:${season || "current"}`;
 
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
 
-    let url = `https://www.fotmob.com/api/data/leagues?id=${leagueId}&ccode3=THA`;
+    // Added locale=th for Thai localization
+    let url = `https://www.fotmob.com/api/data/leagues?id=${leagueId}&locale=th&ccode3=THA`;
     if (season) {
       url += `&season=${encodeURIComponent(season)}`;
     }
 
-    const response = await fetchFromFotmob(url);
+    const [response, allLeagues] = await Promise.all([
+      fetchFromFotmob(url),
+      fetchAllLeagues().catch(() => null),
+    ]);
     if (!response.ok) throw new Error(`Status: ${response.status}`);
 
     const data = await response.json();
+    const teamTranslationLookup = buildTeamTranslationLookup(allLeagues);
 
     const tableObj = data.overview?.table?.[0] || data.table?.[0];
     let tablesResult = [];
@@ -393,7 +402,7 @@ router.get("/standings", async (req, res) => {
         return rawTable.map(team => ({
           idx: team.idx,
           id: team.id,
-          name: team.name,
+          name: translateTeamDynamic(team, teamTranslationLookup),
           played: team.played,
           wins: team.wins,
           draws: team.draws,
