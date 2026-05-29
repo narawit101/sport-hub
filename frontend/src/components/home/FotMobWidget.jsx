@@ -439,8 +439,16 @@ export default function FotMobWidget({
       const formattedDate = date.format("YYYYMMDD");
       const res = await apiClient.get(`/fotmob/matches?date=${formattedDate}`);
       const leagues = res.leagues || [];
+      const todayStart = dayjs().startOf("day");
+      const isPastDate = date.isBefore(todayStart);
+
       leagues.forEach(league => {
         if (league.matches && league.matches.length > 0) {
+          // If the selected date is a past date, filter out matches starting after midnight
+          if (isPastDate) {
+            league.matches = league.matches.filter(m => !m.isNextDayLateNight);
+          }
+
           league.matches.sort((a, b) => {
             if (a.isNextDayLateNight !== b.isNextDayLateNight) {
               return a.isNextDayLateNight ? 1 : -1;
@@ -451,7 +459,10 @@ export default function FotMobWidget({
           });
         }
       });
-      setMatches(leagues);
+
+      // Filter out leagues that have no matches left after filtering
+      const filteredLeagues = leagues.filter(league => league.matches.length > 0);
+      setMatches(filteredLeagues);
     } catch (err) {
       console.error("Error fetching matches:", err);
       setMatches([]);
