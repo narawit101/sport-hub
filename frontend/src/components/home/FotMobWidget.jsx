@@ -644,6 +644,8 @@ export default function FotMobWidget({
         .replace(/WC Qual/gi, "ฟุตบอลโลกรอบคัดเลือก");
     } else if (leagueName.includes("World Cup")) {
       leagueName = leagueName.replace(/World Cup/g, "ฟุตบอลโลก");
+    } else if (leagueName.toLowerCase().includes("club friendlies")) {
+      leagueName = "กระชับมิตรสโมสร";
     } else if (
       leagueName.includes("Friendlies") ||
       leagueName.includes("Friendly")
