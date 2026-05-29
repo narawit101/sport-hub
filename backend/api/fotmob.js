@@ -43,7 +43,7 @@ async function fetchFromFotmob(url) {
 }
 
 async function fetchAllLeagues() {
-  const cacheKey = "fotmob:all-leagues:v2";
+  const cacheKey = "fotmob:all-leagues:v3";
   const cached = await getCachedData(cacheKey);
   if (cached) return cached;
 
@@ -61,9 +61,37 @@ function getGroupedLeagueName(name) {
     .trim();
 }
 
-function getLeagueStageName(name) {
+function getMatchStageName(name) {
   const match = String(name || "").match(/\s+Grp\.\s+([A-Z0-9]+)$/i);
   return match ? `กลุ่ม ${match[1].toUpperCase()}` : null;
+}
+
+function getLeagueStageName(tournamentStage) {
+  const stage = String(tournamentStage || "").toLowerCase();
+  if (stage === "final") return "รอบตัดสิน";
+  if (stage === "semifinal" || stage === "semi-final") return "รอบรองชนะเลิศ";
+  if (stage === "quarterfinal" || stage === "quarter-final") return "รอบก่อนรองชนะเลิศ";
+  if (stage === "roundof16" || stage === "round-of-16") return "รอบ 16 ทีม";
+
+  return null;
+}
+
+function buildLeagueNameLookup(allLeagues) {
+  const byId = new Map();
+
+  for (const group of allLeagues?.international || []) {
+    for (const league of group.leagues || []) {
+      byId.set(String(league.id), league.localizedName || league.name);
+    }
+  }
+
+  for (const country of allLeagues?.countries || []) {
+    for (const league of country.leagues || []) {
+      byId.set(String(league.id), league.localizedName || league.name);
+    }
+  }
+
+  return byId;
 }
 
 function shouldGroupLeague(league) {
@@ -94,7 +122,7 @@ function groupMatchLeagues(leagues) {
         ...league,
         id: league.parentLeagueId,
         logoId: league.parentLeagueId,
-        name: getGroupedLeagueName(league.name),
+        name: league.parentLeagueName || getGroupedLeagueName(league.name),
         childLeagueIds: [league.id],
       });
       continue;
@@ -205,7 +233,7 @@ router.get("/matches", async (req, res) => {
   const date = req.query.date;
   if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
-  const cacheKey = `fotmob:matches:v6:${date}`;
+  const cacheKey = `fotmob:matches:v10:${date}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
@@ -223,11 +251,15 @@ router.get("/matches", async (req, res) => {
     const data = await response.json();
     const leagues = data.leagues || [];
     const filteredLeagues = [];
+    const leagueNameLookup = buildLeagueNameLookup(allLeagues);
 
     leagues.forEach(league => {
+      const leagueStageName = getLeagueStageName(
+        league.matches?.[0]?.tournamentStage,
+      );
       const matches = (league.matches || []).map(match => ({
         id: match.id,
-        stageName: getLeagueStageName(league.name),
+        stageName: getMatchStageName(league.name),
         home: { 
           id: match.home.id, 
           name: match.home.name, 
@@ -249,6 +281,8 @@ router.get("/matches", async (req, res) => {
           liveTime: match.status?.liveTime || null,
           scoreStr: match.status?.scoreStr || null,
           reason: match.status?.reason || null,
+          utcTime: match.status?.utcTime || null,
+          timeTS: match.timeTS || null,
           startDateStr: match.status?.startDateStr || match.time || "",
           aggregatedStr: match.status?.aggregatedStr || null,
         }
@@ -260,7 +294,13 @@ router.get("/matches", async (req, res) => {
           primaryId: league.primaryId,
           parentLeagueId: league.parentLeagueId,
           logoId: league.parentLeagueId || league.primaryId || league.id,
-          name: league.name,
+          name: league.parentLeagueId
+            ? leagueNameLookup.get(String(league.parentLeagueId)) || league.name
+            : leagueNameLookup.get(String(league.id)) || league.name,
+          parentLeagueName: league.parentLeagueId
+            ? leagueNameLookup.get(String(league.parentLeagueId))
+            : null,
+          leagueStageName,
           ccode: league.ccode,
           internalRank: league.internalRank,
           liveRank: league.liveRank,

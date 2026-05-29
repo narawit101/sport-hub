@@ -88,6 +88,15 @@ const getThaiDisplayDate = (d) => {
 };
 
 const getMatchTimeOnly = (matchItem) => {
+  if (matchItem.status?.utcTime) {
+    return new Intl.DateTimeFormat("th-TH", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Bangkok",
+    }).format(new Date(matchItem.status.utcTime));
+  }
+
   const timeStr = matchItem.status?.startDateStr || matchItem.time || "";
   if (timeStr.includes(" ")) {
     return timeStr.split(" ")[1];
@@ -417,10 +426,14 @@ export default function FotMobWidget({
 
   const getLeagueDisplayName = (league, leagueCountryInfo) => {
     const leagueName = POPULAR_LEAGUE_NAMES[league.id] || league.name;
+    const fullLeagueName = league.leagueStageName
+      ? `${leagueName} ${league.leagueStageName}`
+      : leagueName;
+
     if (!leagueCountryInfo || leagueCountryInfo.ccode === "INT") {
-      return leagueName;
+      return fullLeagueName;
     }
-    return `${leagueCountryInfo.name} - ${leagueName}`;
+    return `${leagueCountryInfo.name} - ${fullLeagueName}`;
   };
 
   return (
