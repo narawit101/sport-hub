@@ -438,7 +438,20 @@ export default function FotMobWidget({
     try {
       const formattedDate = date.format("YYYYMMDD");
       const res = await apiClient.get(`/fotmob/matches?date=${formattedDate}`);
-      setMatches(res.leagues || []);
+      const leagues = res.leagues || [];
+      leagues.forEach(league => {
+        if (league.matches && league.matches.length > 0) {
+          league.matches.sort((a, b) => {
+            if (a.isNextDayLateNight !== b.isNextDayLateNight) {
+              return a.isNextDayLateNight ? 1 : -1;
+            }
+            const timeA = a.status?.utcTime ? new Date(a.status.utcTime).getTime() : (a.status?.timeTS || 0);
+            const timeB = b.status?.utcTime ? new Date(b.status.utcTime).getTime() : (b.status?.timeTS || 0);
+            return timeA - timeB;
+          });
+        }
+      });
+      setMatches(leagues);
     } catch (err) {
       console.error("Error fetching matches:", err);
       setMatches([]);
@@ -816,12 +829,20 @@ export default function FotMobWidget({
                             const scoreNotes = getScoreNotes(match);
                             const previousMatch =
                               league.matches[matchIndex - 1];
-                            const previousStage = previousMatch?.stageName;
+                            const isNextDay = match.isNextDayLateNight;
+
+                            let previousMatchSameGroup = null;
+                            for (let i = matchIndex - 1; i >= 0; i--) {
+                              if (league.matches[i].isNextDayLateNight === isNextDay) {
+                                previousMatchSameGroup = league.matches[i];
+                                break;
+                              }
+                            }
+                            const previousStage = previousMatchSameGroup?.stageName;
                             const shouldShowStage =
                               match.stageName &&
                               match.stageName !== previousStage;
 
-                            const isNextDay = match.isNextDayLateNight;
                             const shouldShowNextDaySeparator =
                               isNextDay &&
                               (!previousMatch ||
@@ -905,6 +926,11 @@ export default function FotMobWidget({
                                     className={`late-night-section-container ${isLateNightCollapsed ? "collapsed" : ""}`}
                                   >
                                     <div className="late-night-inner">
+                                      {shouldShowStage && (
+                                        <div className="match-stage-row">
+                                          <span>{match.stageName}</span>
+                                        </div>
+                                      )}
                                       <MatchCard
                                         match={match}
                                         status={status}

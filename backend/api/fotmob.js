@@ -338,6 +338,19 @@ router.get("/matches", async (req, res) => {
       return rankA - rankB;
     });
 
+    groupedLeagues.forEach(league => {
+      if (league.matches && league.matches.length > 0) {
+        league.matches.sort((a, b) => {
+          if (a.isNextDayLateNight !== b.isNextDayLateNight) {
+            return a.isNextDayLateNight ? 1 : -1;
+          }
+          const timeA = a.status?.utcTime ? new Date(a.status.utcTime).getTime() : (a.status?.timeTS || 0);
+          const timeB = b.status?.utcTime ? new Date(b.status.utcTime).getTime() : (b.status?.timeTS || 0);
+          return timeA - timeB;
+        });
+      }
+    });
+
     const result = { leagues: groupedLeagues };
     const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const ttl = (date === todayStr) ? 120 : 3600;
