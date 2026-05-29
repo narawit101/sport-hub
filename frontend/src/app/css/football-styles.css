@@ -48,7 +48,7 @@
   border-radius: var(--pill-radius, 30px);
   border: 1px solid var(--border-color, #e9ecef);
   overflow-x: auto;
-  margin-bottom: 24px;
+  margin-bottom: 2px;
   height: auto;
   position: sticky;
   top: 0;
