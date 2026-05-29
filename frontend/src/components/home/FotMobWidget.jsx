@@ -152,11 +152,16 @@ export default function FotMobWidget({
   const getCountryInfo = (league) => {
     if (!league) return null;
 
-    // 1. Try resolving using countryName and ccode mapping by league ID
+    if (league.countryName || league.countryCode) {
+      return {
+        name: league.countryName,
+        ccode: league.countryCode || league.ccode,
+      };
+    }
+
     const info = getCountryNameAndCodeForLeague(league.id);
     if (info) return info;
 
-    // 2. If not found by league ID but we have league.ccode, try to find the country in allLeagues that matches ccode
     if (league.ccode && allLeagues) {
       if (league.ccode === "INT") {
         return { name: "นานาชาติ", ccode: "INT" };
@@ -170,92 +175,6 @@ export default function FotMobWidget({
           name: foundCountry.localizedName || foundCountry.name,
           ccode: foundCountry.ccode,
         };
-      }
-    }
-
-    // 3. Fallback translation map for common ccode
-    const CCODE_TO_NAME = {
-      ENG: "อังกฤษ",
-      THA: "ไทย",
-      ESP: "สเปน",
-      GER: "เยอรมนี",
-      ITA: "อิตาลี",
-      FRA: "ฝรั่งเศส",
-      INT: "นานาชาติ",
-      COL: "โคลอมเบีย",
-      BRA: "บราซิล",
-      EGY: "อียิปต์",
-      IRQ: "อิรัก",
-      ARG: "อาร์เจนตินา",
-      NED: "เนเธอร์แลนด์",
-      POR: "โปรตุเกส",
-      KOR: "เกาหลีใต้",
-      JPN: "ญี่ปุ่น",
-      USA: "สหรัฐอเมริกา",
-      MEX: "เม็กซิโก",
-      KSA: "ซาอุดีอาระเบีย",
-      CHN: "จีน",
-      AUS: "ออสเตรเลีย",
-      BEL: "เบลเยียม",
-      CRO: "โครเอเชีย",
-      DEN: "เดนมาร์ก",
-      SUI: "สวิตเซอร์แลนด์",
-      SWE: "สวีเดน",
-      TUR: "ตุรกี",
-      UKR: "ยูเครน",
-      URU: "อุรุกวัย",
-      SEN: "เซเนกัล",
-      MAR: "โมร็อกโก",
-      NGA: "ไนจีเรีย",
-      ALG: "แอลจีเรีย",
-      CMR: "แคเมอรูน",
-      GHA: "กานา",
-      CIV: "ไอวอรีโคสต์",
-      RSA: "แอฟริกาใต้",
-      TUN: "ตูนิเซีย",
-      SCO: "สกอตแลนด์",
-      WAL: "เวลส์",
-      NIR: "ไอร์แลนด์เหนือ",
-      IRL: "ไอร์แลนด์",
-      GRE: "กรีซ",
-      AUT: "ออสเตรีย",
-      CZE: "สาธารณรัฐเช็ก",
-      POL: "โปแลนด์",
-      ROU: "โรมาเนีย",
-      RUS: "รัสเซีย",
-      SRB: "เซอร์เบีย",
-      HUN: "ฮังการี",
-      FIN: "ฟินแลนด์",
-      NOR: "นอร์เวย์",
-      CHI: "ชิลี",
-      ECU: "เอกวาดอร์",
-      PAR: "ปารากวัย",
-      PER: "เปรู",
-      VEN: "เวเนซุเอลา",
-      CRC: "คอสตาริกา",
-      HON: "ฮอนดูรัส",
-      JAM: "จาเมกา",
-      PAN: "ปานามา",
-      CAN: "แคนาดา",
-      NZL: "นิวซีแลนด์",
-      QAT: "กาตาร์",
-      UAE: "สหรัฐอาหรับเอมิเรตส์",
-      IND: "อินเดีย",
-      VIE: "เวียดนาม",
-      MAS: "มาเลเซีย",
-      IDN: "อินโดนีเซีย",
-      SGP: "สิงคโปร์",
-      PHI: "ฟิลิปปินส์",
-      MYA: "เมียนมา",
-      CAM: "กัมพูชา",
-      LAO: "ลาว",
-      ZAF: "แอฟริกาใต้",
-    };
-
-    if (league.ccode) {
-      const codeUpper = String(league.ccode).toUpperCase();
-      if (CCODE_TO_NAME[codeUpper]) {
-        return { name: CCODE_TO_NAME[codeUpper], ccode: league.ccode };
       }
     }
 

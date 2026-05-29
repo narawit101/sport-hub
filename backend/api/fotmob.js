@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { getCache, setCache } = require("../config/cache");
+const { enrichLeagueCountry } = require("../utils/fotmobCountryResolver");
 
 // Local in-memory cache fallback for local development (no Redis)
 const memoryCache = new Map();
@@ -51,6 +52,19 @@ async function fetchFromFotmob(url) {
       "Pragma": "no-cache"
     }
   });
+}
+
+async function fetchAllLeagues() {
+  const cacheKey = "fotmob:all-leagues:v2";
+  const cached = await getCachedData(cacheKey);
+  if (cached) return cached;
+
+  const response = await fetchFromFotmob("https://www.fotmob.com/api/data/allLeagues?locale=th");
+  if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+  const data = await response.json();
+  await setCachedData(cacheKey, data, 86400);
+  return data;
 }
 
 // 1. Football News Endpoint (Updated with tlnews and pagination)
@@ -148,13 +162,19 @@ router.get("/matches", async (req, res) => {
   const date = req.query.date;
   if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
-  const cacheKey = `fotmob:matches:v4:${date}`;
+  const cacheKey = `fotmob:matches:v5:${date}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
 
     // Using the new data/matches endpoint discovered
-    const response = await fetchFromFotmob(`https://www.fotmob.com/api/data/matches?date=${date}&timezone=Asia/Bangkok&ccode3=THA&includeNextDayLateNight=true`);
+    const [response, allLeagues] = await Promise.all([
+      fetchFromFotmob(`https://www.fotmob.com/api/data/matches?date=${date}&timezone=Asia/Bangkok&ccode3=THA&includeNextDayLateNight=true`),
+      fetchAllLeagues().catch((error) => {
+        console.warn("[FotMob Countries Warning]:", error.message);
+        return null;
+      }),
+    ]);
     if (!response.ok) throw new Error(`Status: ${response.status}`);
 
     const data = await response.json();
@@ -191,7 +211,12 @@ router.get("/matches", async (req, res) => {
       }));
 
       if (matches.length > 0) {
-        filteredLeagues.push({ id: league.id, name: league.name, ccode: league.ccode, matches });
+        filteredLeagues.push(enrichLeagueCountry({
+          id: league.id,
+          name: league.name,
+          ccode: league.ccode,
+          matches
+        }, allLeagues));
       }
     });
 
@@ -310,18 +335,8 @@ router.get("/standings", async (req, res) => {
 
 // 4. Get all leagues and countries grouped list
 router.get("/all-leagues", async (req, res) => {
-  const cacheKey = "fotmob:all-leagues:v2";
   try {
-    const cached = await getCachedData(cacheKey);
-    if (cached) return res.status(200).json(cached);
-
-    const response = await fetchFromFotmob("https://www.fotmob.com/api/data/allLeagues?locale=th");
-    if (!response.ok) throw new Error(`Status: ${response.status}`);
-
-    const data = await response.json();
-    // Cache for 24 hours (86400 seconds)
-    await setCachedData(cacheKey, data, 86400);
-
+    const data = await fetchAllLeagues();
     res.status(200).json(data);
   } catch (error) {
     console.error("[FotMob All Leagues Error]:", error.message);
