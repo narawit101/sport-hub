@@ -8,15 +8,15 @@ import "@/app/css/football-styles.css";
 import "@/app/css/calendar-styles.css";
 
 const POPULAR_LEAGUE_NAMES = {
-  47: "English Premier League",
-  8984: "Thai League 1",
-  77: "World Cup",
-  87: "La Liga",
-  54: "Bundesliga",
-  55: "Serie A",
-  53: "Ligue 1",
-  42: "Champions League",
-  73: "Europa League",
+  47: "พรีเมียร์ลีก อังกฤษ",
+  77: "ฟุตบอลโลก",
+  8984: "ไทยลีก 1",
+  87: "ลาลีกา สเปน",
+  54: "บุนเดสลีกา เยอรมัน",
+  55: "กัลโช่ เซเรีย อา อิตาลี",
+  53: "ลีกเอิง ฝรั่งเศส",
+  42: "ยูฟ่า แชมเปียนส์ลีก",
+  73: "ยูฟ่า ยูโรปาลีก",
 };
 
 const LEGEND_TRANSLATIONS = {
@@ -587,7 +587,27 @@ export default function FotMobWidget({
   };
 
   const getLeagueDisplayName = (league, leagueCountryInfo) => {
-    const leagueName = POPULAR_LEAGUE_NAMES[league.id] || league.name;
+    let leagueName = POPULAR_LEAGUE_NAMES[league.id] || league.name;
+
+    // Custom translations for World Cup variants that are not in POPULAR_LEAGUE_NAMES
+    if (
+      leagueName.includes("World Cup Qualification") ||
+      leagueName.includes("WC Qual")
+    ) {
+      leagueName = leagueName
+        .replace(/World Cup Qualification/g, "ฟุตบอลโลกรอบคัดเลือก")
+        .replace(/WC Qual/gi, "ฟุตบอลโลกรอบคัดเลือก");
+    } else if (leagueName.includes("World Cup")) {
+      leagueName = leagueName.replace(/World Cup/g, "ฟุตบอลโลก");
+    } else if (
+      leagueName.includes("Friendlies") ||
+      leagueName.includes("Friendly")
+    ) {
+      leagueName = leagueName
+        .replace(/Friendlies/gi, "กระชับมิตร")
+        .replace(/Friendly/gi, "กระชับมิตร");
+    }
+
     const fullLeagueName = league.leagueStageName
       ? `${leagueName} ${league.leagueStageName}`
       : leagueName;
