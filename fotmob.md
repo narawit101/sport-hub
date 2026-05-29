@@ -1,94 +1,93 @@
-# คู่มือระบบ FotMob (Sport Hub)
+# FotMob Integration Manual (Sport Hub)
 
-เอกสารนี้อธิบายการทำงานของระบบดึงข้อมูลฟุตบอลจาก FotMob (Matches, Standings, News, Leagues) ที่ใช้งานในโปรเจกต์ Sport Hub รวมถึงกลไกการแปลภาษาและการจัดการแคช (Cache)
-
----
-
-## 📂 ไฟล์ที่เกี่ยวข้อง
-1. **`backend/api/fotmob.js`**: จัดการ Route API, ดึงข้อมูลจาก FotMob, จัดการแคช และจัดรูปแบบข้อมูลก่อนส่งให้ Frontend
-2. **`backend/utils/fotmobCountryResolver.js`**: จัดการตรรกะการแปลชื่อประเทศ ชื่อลีก และชื่อทีมชาติให้เป็นภาษาไทย
+This document explains the architecture and operation of the football data integration (Matches, Standings, News, Leagues) from FotMob used in the Sport Hub project, including the localization engine and caching strategies.
 
 ---
 
-## 📡 1. การดึงข้อมูลจาก FotMob API (Data Fetching)
-
-ระบบไม่ได้เรียก FotMob API จาก Frontend โดยตรง แต่จะให้ Backend เป็นตัวกลาง (Proxy) เพื่อป้องกันปัญหา CORS และเพื่อลดภาระฝั่ง Client โดยใช้ฟังก์ชัน `fetchFromFotmob(url)` ซึ่งมีการปลอมแปลง Headers (User-Agent, Accept-Language) เพื่อให้ FotMob มองว่าเป็นการเรียกจากเบราว์เซอร์ปกติ
-
-**Endpoints หลักที่เรียกใช้จาก FotMob:**
-* **ผลบอลสด/รายวัน:** `https://www.fotmob.com/api/data/matches?date={YYYYMMDD}&timezone=Asia/Bangkok&locale=th&ccode3=THA`
-* **ตารางคะแนน:** `https://www.fotmob.com/api/data/leagues?id={leagueId}&locale=th&ccode3=THA`
-* **ข่าวฟุตบอล:** `https://www.fotmob.com/api/data/tlnews` (และ fallback ไปใช้ `/api/worldnews` หากดึงไม่ได้)
-* **รายชื่อลีกทั้งหมด:** `https://www.fotmob.com/api/data/allLeagues` (ดึงเป็นภาษาอังกฤษเพื่อนำมาทำเป็น Key แปลภาษา)
+## 📂 Core Files
+1. **`backend/api/fotmob.js`**: Manages API routing, data fetching from FotMob, cache management, and data formatting for the frontend.
+2. **`backend/utils/fotmobCountryResolver.js`**: Contains the logic for translating country, league, and team names into Thai.
 
 ---
 
-## ⚡ 2. ระบบแคช (Caching System)
+## 📡 1. Data Fetching Logic
 
-เพื่อป้องกันการเรียก API ไปยัง FotMob ถี่เกินไปจนถูกบล็อก (Rate Limit) และเพื่อให้หน้าเว็บโหลดไวขึ้น ระบบใช้การแคชแบบ **2 ชั้น (Two-Tier Cache)**:
-1. **Redis Cache:** เก็บข้อมูลข้าม Server (ถ้ามีการต่อ Redis)
-2. **In-Memory Cache (Map):** เก็บข้อมูลไว้ใน RAM ของ Node.js เพื่อความรวดเร็วสูงสุด
+To avoid CORS issues and protect the origin server, the Backend acts as a proxy using the `fetchFromFotmob(url)` function. It impersonates a standard browser by setting specific headers (User-Agent, Accept-Language, Referer).
 
-### ระยะเวลาการเก็บแคช (TTL - Time To Live)
-* **แมทช์วันนี้ (Today's Matches):** เก็บ **120 วินาที (2 นาที)** เพื่อให้ผลบอลสดอัปเดตตลอดเวลา
-* **แมทช์วันอื่นล่วงหน้า/ย้อนหลัง:** เก็บ **3600 วินาที (1 ชั่วโมง)**
-* **ตารางคะแนน (Standings):** เก็บ **3600 วินาที (1 ชั่วโมง)**
-* **ข่าวสาร (News):** เก็บ **3600 วินาที (1 ชั่วโมง)**
-* **รายชื่อลีกทั้งหมด (All Leagues):** เก็บ **86400 วินาที (1 วัน)**
+**Primary Endpoints:**
+* **Live/Daily Matches:** `https://www.fotmob.com/api/data/matches?date={YYYYMMDD}&timezone=Asia/Bangkok&locale=th&ccode3=THA`
+* **League Standings:** `https://www.fotmob.com/api/data/leagues?id={leagueId}&locale=th&ccode3=THA`
+* **Football News:** `https://www.fotmob.com/api/data/tlnews` (Fallbacks to `/api/worldnews` if unavailable).
+* **All Leagues List:** `https://www.fotmob.com/api/data/allLeagues` (Fetched in English to provide stable lookup keys for translation).
 
-### 🛠️ วิธีล้างแคชเพื่อดูผลอัปเดตทันที (Cache Versioning)
-หากมีการแก้ไขข้อมูล (เช่น แก้คำแปลชื่อทีม) และต้องการให้ระบบแสดงผลทันทีโดยไม่ต้องรอแคชหมดอายุ หรือ **ไม่ต้อง Kill Server** สามารถทำได้โดยการ **เปลี่ยนเลขเวอร์ชันแคช** ในไฟล์ `backend/api/fotmob.js`:
+---
+
+## ⚡ 2. Two-Tier Caching System
+
+To prevent being rate-limited by FotMob and to ensure high performance, the system implements a **Two-Tier Cache**:
+1. **Redis Cache:** Shared persistent cache (if configured).
+2. **In-Memory Cache (Map):** High-speed local RAM cache.
+
+### Time To Live (TTL) Configuration
+* **Today's Matches (Live):** **120 Seconds (2 Minutes)**. This ensures scores and live times are near real-time.
+* **Future/Past Matches:** **3600 Seconds (1 Hour)**.
+* **League Standings:** **3600 Seconds (1 Hour)**.
+* **Football News:** **3600 Seconds (1 Hour)**.
+* **All Leagues List:** **86400 Seconds (1 Day)**.
+
+### 🛠️ Manual Cache Refresh (Cache Versioning)
+If you modify translation logic or mapping and want to see changes **immediately without restarting the server** or waiting for TTL to expire, update the **Cache Version** in `backend/api/fotmob.js`:
 
 ```javascript
-// ตัวอย่าง: เปลี่ยนจาก v25 เป็น v26
+// Example: Incrementing v25 to v26
 const cacheKey = `fotmob:matches:v26:${date}`; 
 const cacheKey = `fotmob:standings:v16:${leagueId}:${season}`;
 ```
-เมื่อเปลี่ยนเลขเวอร์ชัน ระบบจะมองว่าไม่เคยมีแคชนี้มาก่อน และจะไปดึงข้อมูลใหม่พร้อมคำแปลล่าสุดทันที
+Changing the version key forces the system to treat existing cache as invalid and fetch fresh, translated data from the source.
 
 ---
 
-## 🇹🇭 3. ระบบการแปลภาษา (Localization & Translation)
+## 🇹🇭 3. Localization & Translation Engine
 
-เนื่องจาก FotMob มักส่งชื่อทีมชาติหรือรายชื่อบางลีกมาเป็นภาษาอังกฤษ ระบบจึงมีกลไกแปลภาษาที่ไฟล์ `backend/utils/fotmobCountryResolver.js` โดยทำงานเรียงตามลำดับความสำคัญ (Priority) ดังนี้:
+The system uses a prioritized translation logic in `backend/utils/fotmobCountryResolver.js` to convert English team/country names into Thai:
 
-### ขั้นตอนการทำงานของ `translateTeamDynamic(team, lookup)`
-1. **ตรวจสอบจาก Manual Mapping (`TEAM_NAME_MAP`):**
-   * ระบบจะเช็คก่อนว่าชื่อทีมภาษาอังกฤษตรงกับที่เราระบุไว้ใน `TEAM_NAME_MAP` หรือไม่
-   * *เหมาะสำหรับ:* การบังคับแปลชื่อที่มักมีปัญหา เช่น `"Cape Verde": "กาบูเวร์ดี"`, `"USA": "สหรัฐอเมริกา"`
-2. **ตรวจสอบจากฐานข้อมูลประเทศแบบไดนามิก (Dynamic Lookup):**
-   * ระบบจะนำชื่อภาษาอังกฤษไปเทียบกับรายชื่อประเทศทั้งหมดที่ได้จาก All Leagues API
-   * ถ้าระบบรู้ว่า "Egypt" ตรงกับรหัสประเทศ "EGY" มันจะไปดึงคำว่า "อียิปต์" จาก `CCODE_TO_NAME` มาให้อัตโนมัติ (ไม่ต้องนั่งพิมพ์ทุกประเทศ)
-3. **ตรวจสอบจากรหัสประเทศ (`ccode`):**
-   * หากทีมนั้นมีรหัส `ccode` แนบมา (เช่น `ccode: "THA"`) ระบบจะแปลงเป็น "ไทย" ทันที
+### `translateTeamDynamic(team, lookup)` Execution Order:
+1. **Manual Mapping (`TEAM_NAME_MAP`):**
+   * Checks if the exact English team name exists in our predefined dictionary.
+   * *Best for:* Handling edge cases or specific naming preferences (e.g., `"Cape Verde": "กาบูเวร์ดี"`, `"USA": "สหรัฐอเมริกา"`).
+2. **Dynamic Country Lookup:**
+   * Compares the English team name against the global country database retrieved from FotMob's "All Leagues" API.
+   * If "Egypt" is identified as a country with code "EGY", it automatically retrieves the Thai name from `CCODE_TO_NAME`.
+3. **Country Code (`ccode`) Check:**
+   * If the API provides a country code (e.g., `ccode: "THA"`), it maps directly to "ไทย".
 4. **Fallback:**
-   * ถ้าหาไม่เจอเลย ระบบจะใช้ชื่อเดิมที่ FotMob ส่งมา (`team.name`)
+   * If no match is found, the system displays the original name provided by FotMob (`team.name`).
 
-### 📝 วิธีเพิ่มหรือแก้ไขชื่อทีมให้เป็นภาษาไทย
-หากพบว่าทีมชาติไหนยังแสดงเป็นภาษาอังกฤษ ให้เปิดไฟล์ `backend/utils/fotmobCountryResolver.js` และเพิ่มชื่อในตัวแปร `TEAM_NAME_MAP`:
+### 📝 How to Add/Edit Team Translations
+To add a new team translation, open `backend/utils/fotmobCountryResolver.js` and update the `TEAM_NAME_MAP` object:
 
 ```javascript
 const TEAM_NAME_MAP = {
-  // ใส่ "ชื่อภาษาอังกฤษ": "ชื่อภาษาไทย",
+  "English Team Name": "Thai Name",
   "Egypt": "อียิปต์",
   "Cape Verde": "กาบูเวร์ดี",
-  "New Team Name": "ชื่อทีมใหม่",
 };
 ```
-*หมายเหตุ: อย่าลืมไปเปลี่ยนเลขเวอร์ชันแคชใน `fotmob.js` เพื่อให้ผลลัพธ์แสดงทันที*
+*Note: Always increment the cache version in `fotmob.js` after editing this map.*
 
 ---
 
-## 🌐 4. Internal API Endpoints (ที่ Frontend เรียกใช้งาน)
+## 🌐 4. Internal API Endpoints (Used by Frontend)
 
-Frontend ของ Sport Hub จะเรียกข้อมูลฟุตบอลผ่าน API ภายในเหล่านี้:
-* `GET /api/fotmob/matches?date=YYYYMMDD`: ดึงผลบอลตามวันที่ระบุ
-* `GET /api/fotmob/standings?leagueId=47`: ดึงตารางคะแนนพรีเมียร์ลีก (สามารถเปลี่ยน leagueId ได้)
-* `GET /api/fotmob/news?startIndex=0`: ดึงข่าวสารฟุตบอล (รองรับ Pagination)
-* `GET /api/fotmob/all-leagues`: ดึงรายชื่อทัวร์นาเมนต์และลีกทั้งหมดเพื่อใช้ทำเมนู
+The Sport Hub frontend consumes the following internal proxy routes:
+* `GET /api/fotmob/matches?date=YYYYMMDD`: Retrieves matches for a specific date.
+* `GET /api/fotmob/standings?leagueId=47`: Retrieves standings (defaults to Premier League).
+* `GET /api/fotmob/news?startIndex=0`: Retrieves news with pagination support.
+* `GET /api/fotmob/all-leagues`: Retrieves the complete league/tournament structure for menus.
 
 ---
 
-## 💡 สรุปสิ่งสำคัญที่ต้องรู้
-- การดึงผลบอล **ไม่เรียลไทม์ 100% แต่ดีเลย์แค่ 2 นาที** (ตามอายุแคช) ช่วยเซฟ Server ไม่ให้ล่ม
-- ถ้าเพิ่มชื่อแปลใหม่ใน `TEAM_NAME_MAP` ให้ไป **อัปเดตเวอร์ชันแคช (v...)** เสมอ ไม่งั้นต้องรอ 1 ชั่วโมงหรือข้ามวันกว่าข้อมูลใหม่จะมา
-- โค้ดถูกออกแบบให้ดึง `allLeagues` เป็นต้นแบบภาษาอังกฤษ เพื่อให้ตัวแปลภาษาทำงานกับชื่อประเทศได้แม่นยำขึ้น
+## 💡 Key Takeaways
+- **Near Real-Time:** Live matches update every 2 minutes via cache expiration.
+- **Clean Code:** Dynamic lookup minimizes the need for a massive manual dictionary.
+- **Stability:** English is used as the internal "All Leagues" key to ensure translation accuracy regardless of FotMob's Thai metadata availability.

@@ -93,68 +93,149 @@
   box-shadow: 0 4px 12px rgba(3, 4, 94, 0.12), 0 1px 3px rgba(3, 4, 94, 0.04);
 }
 
-/* Date Selector */
-.football-date-selector {
+/* Modern Date Selector */
+.football-date-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 24px;
+  background: var(--primary-bg, #ffffff);
+  padding: 12px;
+  border-radius: var(--border-radius, 16px);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color, #e9ecef);
+}
+
+.football-date-scroller-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.football-date-scroller-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  background: linear-gradient(to left, var(--primary-bg, #ffffff), transparent);
+  pointer-events: none;
 }
 
 .football-date-scroller {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
-  padding: 4px 0;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  padding: 4px;
+  padding-right: 40px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
 }
 
 .football-date-scroller::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none;
 }
 
-.date-pill {
-  padding: 8px 16px;
-  border-radius: 20px;
-  background-color: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
-  font-size: 0.85rem;
-  font-weight: 700;
-  white-space: nowrap;
+.date-pill-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  height: 78px;
+  padding: 10px;
+  border-radius: var(--input-radius, 8px);
+  background: var(--secondary-bg, #f8f9fa);
+  border: 1px solid var(--border-color, #e9ecef);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
-.date-pill:hover {
-  background-color: #e2e8f0;
-  color: #1e293b;
+.date-pill-modern .pill-day {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 4px;
+  text-transform: uppercase;
 }
 
-.date-pill.active {
-  background-color: var(--text-color, #03045e);
-  color: #ffffff;
+.date-pill-modern .pill-date {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-color, #03045e);
+  line-height: 1;
+}
+
+.date-pill-modern .pill-month {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+.date-pill-modern:hover {
+  background: #eef2f7;
+  transform: translateY(-2px);
+  border-color: #dee2e6;
+}
+
+.date-pill-modern.active {
+  background: var(--text-color, #03045e);
   border-color: var(--text-color, #03045e);
-  box-shadow: 0 4px 10px rgba(3, 4, 94, 0.2);
+  box-shadow: 0 8px 20px rgba(3, 4, 94, 0.25);
+  transform: translateY(-4px);
 }
 
-.football-date-btn {
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.date-pill-modern.active .pill-day,
+.date-pill-modern.active .pill-date,
+.date-pill-modern.active .pill-month {
+  color: #ffffff;
+}
+
+.football-date-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 16px;
+  border-left: 1px solid var(--border-color, #e9ecef);
+}
+
+.football-action-btn-premium {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--input-radius, 8px);
+  border: 1px solid var(--border-color, #e9ecef);
+  background: var(--primary-bg, #ffffff);
+  color: var(--text-color, #03045e);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 0;
-  flex-shrink: 0;
+}
+
+.football-action-btn-premium:hover {
+  background: var(--secondary-bg, #f8f9fa);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.football-action-btn-premium.calendar-trigger {
+  background: rgba(3, 4, 94, 0.04);
+  border-color: rgba(3, 4, 94, 0.08);
+}
+
+.football-action-btn-premium.expand-toggle {
+  background: #f1f5f9;
+}
+
+/* Date Selector legacy support or removal */
+.football-date-selector {
+  display: none;
 }
 
 /* ... existing code ... */

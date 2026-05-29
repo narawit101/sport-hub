@@ -338,6 +338,55 @@ export default function FotMobWidget({
     setSelectedSeason("");
   };
 
+  // Modern Date Selector Logic
+  const getDatesRange = () => {
+    const dates = [];
+    // Center around the selected date
+    for (let i = -7; i <= 7; i++) {
+      dates.push(date.add(i, "day"));
+    }
+    return dates;
+  };
+
+  const datesRange = getDatesRange();
+
+  const isSelectedDate = (d) => {
+    return d.format("YYYYMMDD") === date.format("YYYYMMDD");
+  };
+
+  const formatPillDay = (d) => {
+    const today = dayjs().startOf("day");
+    const diff = d.startOf("day").diff(today, "day");
+    if (diff === 0) return "วันนี้";
+    if (diff === -1) return "เมื่อวาน";
+    if (diff === 1) return "พรุ่งนี้";
+
+    const days = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+    return days[d.day()];
+  };
+
+  const formatPillDate = (d) => {
+    return d.date();
+  };
+
+  const formatPillMonth = (d) => {
+    const months = [
+      "ม.ค.",
+      "ก.พ.",
+      "มี.ค.",
+      "เม.ย.",
+      "พ.ค.",
+      "มิ.ย.",
+      "ก.ค.",
+      "ส.ค.",
+      "ก.ย.",
+      "ต.ค.",
+      "พ.ย.",
+      "ธ.ค.",
+    ];
+    return months[d.month()];
+  };
+
   const formatRelativeThaiTime = (gmtTimeStr) => {
     if (!gmtTimeStr) return "";
     const now = dayjs();
@@ -528,10 +577,6 @@ export default function FotMobWidget({
     }
   };
 
-  const adjustDate = (days) => {
-    setDate((prev) => prev.add(days, "day"));
-  };
-
   const getMatchStatusLabel = (status) => {
     if (status.cancelled) return { text: "ยกเลิก", class: "finished" };
     if (status.finished) return { text: "จบการแข่งขัน", class: "finished" };
@@ -624,62 +669,73 @@ export default function FotMobWidget({
       {/* Matches Tab */}
       {activeTab === "matches" && (
         <div>
-          <div className="football-date-selector">
-            <button
-              className="football-date-btn"
-              onClick={() => adjustDate(-1)}
-            >
-              &lt;
-            </button>
-            <button
-              className="football-date-display-btn"
-              onClick={() => setShowCalendar(true)}
-              aria-label="เลือกวันที่"
-              style={{ minWidth: "220px" }}
-            >
-              {getThaiDisplayDate(date)}
-            </button>
-            <button className="football-date-btn" onClick={() => adjustDate(1)}>
-              &gt;
-            </button>
-            <button
-              className="expand-toggle-all-btn"
-              onClick={handleToggleAllLeagues}
-              title={
-                isAnyLeagueExpanded ? "ย่อรายการทั้งหมด" : "ขยายรายการทั้งหมด"
-              }
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "36px",
-                height: "36px",
-                borderRadius: "50%",
-                background: "#f1f5f9",
-                border: "1px solid #e2e8f0",
-                cursor: "pointer",
-                color: "#64748b",
-                transition: "all 0.2s ease",
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{
-                  transform: isAnyLeagueExpanded ? "none" : "rotate(180deg)",
-                  transition: "transform 0.3s ease",
-                }}
+          <div className="football-date-container">
+            <div className="football-date-scroller-wrapper">
+              <div className="football-date-scroller">
+                {datesRange.map((d) => (
+                  <button
+                    key={d.format("YYYYMMDD")}
+                    className={`date-pill-modern ${isSelectedDate(d) ? "active" : ""}`}
+                    onClick={() => setDate(d)}
+                  >
+                    <span className="pill-day">{formatPillDay(d)}</span>
+                    <span className="pill-date">{formatPillDate(d)}</span>
+                    <span className="pill-month">{formatPillMonth(d)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="football-date-actions">
+              <button
+                className="football-action-btn-premium calendar-trigger"
+                onClick={() => setShowCalendar(true)}
+                title="เลือกวันที่"
               >
-                <polyline points="18 15 12 9 6 15" />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </button>
+
+              <button
+                className="football-action-btn-premium expand-toggle"
+                onClick={handleToggleAllLeagues}
+                title={
+                  isAnyLeagueExpanded ? "ย่อรายการทั้งหมด" : "ขยายรายการทั้งหมด"
+                }
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    transform: isAnyLeagueExpanded ? "none" : "rotate(180deg)",
+                    transition: "transform 0.3s ease",
+                  }}
+                >
+                  <polyline points="18 15 12 9 6 15" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {showCalendar &&
