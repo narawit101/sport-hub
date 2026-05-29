@@ -620,223 +620,147 @@ export default function HomePage() {
                     {/* Mobile League Selector */}
                     {activeSidebarTab === "standings" && (
                       <div className="mobile-league-selector-container">
-                      <button
-                        className="mobile-league-selector-trigger"
-                        onClick={() => setShowMobileLeagues(!showMobileLeagues)}
-                      >
-                        {/* <span className="selector-icon">🏆</span> */}
-                        <span className="selector-label">
-                          เลือกลีก: <strong>{getSelectedLeagueName()}</strong>
-                        </span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          className={`chevron-icon ${showMobileLeagues ? "expanded" : ""}`}
+                        <button
+                          className="mobile-league-selector-trigger"
+                          onClick={() =>
+                            setShowMobileLeagues(!showMobileLeagues)
+                          }
                         >
-                          <polyline points="6 9 12 15 18 9" />
-                        </svg>
-                      </button>
-
-                      {showMobileLeagues && (
-                        <div
-                          className="mobile-league-dropdown-overlay"
-                          onClick={() => setShowMobileLeagues(false)}
-                        >
-                          <div
-                            className="mobile-league-dropdown-card"
-                            onClick={(e) => e.stopPropagation()}
+                          {/* <span className="selector-icon">🏆</span> */}
+                          <span className="selector-label">
+                            เลือกลีก: <strong>{getSelectedLeagueName()}</strong>
+                          </span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            className={`chevron-icon ${showMobileLeagues ? "expanded" : ""}`}
                           >
-                            <div className="dropdown-card-header">
-                              <h3>เลือกลีกที่ต้องการ</h3>
-                              <button
-                                className="close-dropdown-btn"
-                                onClick={() => setShowMobileLeagues(false)}
-                                aria-label="ปิดเมนู"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="20"
-                                  height="20"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
+                        </button>
+
+                        {showMobileLeagues && (
+                          <div
+                            className="mobile-league-dropdown-overlay"
+                            onClick={() => setShowMobileLeagues(false)}
+                          >
+                            <div
+                              className="mobile-league-dropdown-card"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="dropdown-card-header">
+                                <h3>เลือกลีกที่ต้องการ</h3>
+                                <button
+                                  className="close-dropdown-btn"
+                                  onClick={() => setShowMobileLeagues(false)}
+                                  aria-label="ปิดเมนู"
                                 >
-                                  <line x1="18" y1="6" x2="6" y2="18" />
-                                  <line x1="6" y1="6" x2="18" y2="18" />
-                                </svg>
-                              </button>
-                            </div>
-
-                            <div className="dropdown-card-body">
-                              <div className="mobile-leagues-list">
-                                <div className="sidebar-section-title">
-                                  ลีกติดอันดับ
-                                </div>
-                                <div className="sidebar-popular-list">
-                                  {POPULAR_LEAGUES_LIST.map((league) => (
-                                    <div
-                                      key={league.id}
-                                      className={`sidebar-league-item ${selectedLeagueId === String(league.id) ? "active" : ""}`}
-                                      onClick={() => {
-                                        handleLeagueSelect(league.id);
-                                        setShowMobileLeagues(false);
-                                      }}
-                                    >
-                                      <img
-                                        src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
-                                        alt={league.name}
-                                        className="sidebar-league-logo"
-                                        onError={(e) => {
-                                          e.target.style.display = "none";
-                                        }}
-                                      />
-                                      <span className="sidebar-league-name">
-                                        {league.name}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-
-                                <div className="sidebar-section-title">
-                                  ลีกทั้งหมด
-                                </div>
-                                <div className="sidebar-search-wrapper">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
-                                    width="14"
-                                    height="14"
+                                    width="20"
+                                    height="20"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
                                     strokeWidth="2.5"
-                                    className="search-icon-svg"
                                   >
-                                    <circle cx="11" cy="11" r="8" />
-                                    <line
-                                      x1="21"
-                                      y1="21"
-                                      x2="16.65"
-                                      y2="16.65"
-                                    />
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
                                   </svg>
-                                  <input
-                                    type="text"
-                                    placeholder="ตัวกรอง..."
-                                    className="sidebar-search-input"
-                                    value={leagueFilter}
-                                    onChange={(e) =>
-                                      setLeagueFilter(e.target.value)
-                                    }
-                                  />
-                                </div>
+                                </button>
+                              </div>
 
-                                {leaguesLoading ? (
-                                  <div className="sidebar-leagues-loading">
-                                    กำลังโหลดรายชื่อลีก...
+                              <div className="dropdown-card-body">
+                                <div className="mobile-leagues-list">
+                                  <div className="sidebar-section-title">
+                                    ลีกติดอันดับ
                                   </div>
-                                ) : (
-                                  <div className="sidebar-leagues-scroll">
-                                    {/* International List */}
-                                    {filteredInternational.length > 0 && (
-                                      <div className="sidebar-country-group">
-                                        <div
-                                          className="sidebar-country-row"
-                                          onClick={() =>
-                                            toggleCountryExpand("INT")
-                                          }
-                                        >
-                                          <div className="sidebar-country-left">
-                                            <img
-                                              src="https://images.fotmob.com/image_resources/logo/teamlogo/int.png"
-                                              alt="International"
-                                              className="sidebar-country-flag"
-                                            />
-                                            <span className="sidebar-country-name">
-                                              นานาชาติ
-                                            </span>
-                                          </div>
-                                          <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="14"
-                                            height="14"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2.5"
-                                            className={`sidebar-chevron ${expandedCountries["INT"] ? "expanded" : ""}`}
-                                          >
-                                            <polyline points="6 9 12 15 18 9" />
-                                          </svg>
-                                        </div>
-                                        {expandedCountries["INT"] && (
-                                          <div className="sidebar-country-leagues">
-                                            {filteredInternational.map(
-                                              (league) => (
-                                                <div
-                                                  key={league.id}
-                                                  className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
-                                                  onClick={() => {
-                                                    handleLeagueSelect(
-                                                      league.id,
-                                                    );
-                                                    setShowMobileLeagues(false);
-                                                  }}
-                                                >
-                                                  <img
-                                                    src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
-                                                    alt={league.name}
-                                                    className="subitem-logo"
-                                                    onError={(e) => {
-                                                      e.target.style.display =
-                                                        "none";
-                                                    }}
-                                                  />
-                                                  <span className="sidebar-league-name">
-                                                    {league.localizedName ||
-                                                      league.name}
-                                                  </span>
-                                                </div>
-                                              ),
-                                            )}
-                                          </div>
-                                        )}
+                                  <div className="sidebar-popular-list">
+                                    {POPULAR_LEAGUES_LIST.map((league) => (
+                                      <div
+                                        key={league.id}
+                                        className={`sidebar-league-item ${selectedLeagueId === String(league.id) ? "active" : ""}`}
+                                        onClick={() => {
+                                          handleLeagueSelect(league.id);
+                                          setShowMobileLeagues(false);
+                                        }}
+                                      >
+                                        <img
+                                          src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                                          alt={league.name}
+                                          className="sidebar-league-logo"
+                                          onError={(e) => {
+                                            e.target.style.display = "none";
+                                          }}
+                                        />
+                                        <span className="sidebar-league-name">
+                                          {league.name}
+                                        </span>
                                       </div>
-                                    )}
+                                    ))}
+                                  </div>
 
-                                    {/* Country Groups */}
-                                    {filteredCountries.map((country) => {
-                                      const isExpanded =
-                                        expandedCountries[country.ccode];
-                                      return (
-                                        <div
-                                          key={country.ccode}
-                                          className="sidebar-country-group"
-                                        >
+                                  <div className="sidebar-section-title">
+                                    ลีกทั้งหมด
+                                  </div>
+                                  <div className="sidebar-search-wrapper">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2.5"
+                                      className="search-icon-svg"
+                                    >
+                                      <circle cx="11" cy="11" r="8" />
+                                      <line
+                                        x1="21"
+                                        y1="21"
+                                        x2="16.65"
+                                        y2="16.65"
+                                      />
+                                    </svg>
+                                    <input
+                                      type="text"
+                                      placeholder="ตัวกรอง..."
+                                      className="sidebar-search-input"
+                                      value={leagueFilter}
+                                      onChange={(e) =>
+                                        setLeagueFilter(e.target.value)
+                                      }
+                                    />
+                                  </div>
+
+                                  {leaguesLoading ? (
+                                    <div className="sidebar-leagues-loading">
+                                      กำลังโหลดรายชื่อลีก...
+                                    </div>
+                                  ) : (
+                                    <div className="sidebar-leagues-scroll">
+                                      {/* International List */}
+                                      {filteredInternational.length > 0 && (
+                                        <div className="sidebar-country-group">
                                           <div
                                             className="sidebar-country-row"
                                             onClick={() =>
-                                              toggleCountryExpand(country.ccode)
+                                              toggleCountryExpand("INT")
                                             }
                                           >
                                             <div className="sidebar-country-left">
                                               <img
-                                                src={`https://images.fotmob.com/image_resources/logo/teamlogo/${country.ccode.toLowerCase()}.png`}
-                                                alt={country.name}
+                                                src="https://images.fotmob.com/image_resources/logo/teamlogo/int.png"
+                                                alt="International"
                                                 className="sidebar-country-flag"
-                                                onError={(e) => {
-                                                  e.target.src =
-                                                    "/images/football-default.png";
-                                                }}
                                               />
                                               <span className="sidebar-country-name">
-                                                {country.localizedName ||
-                                                  country.name}
+                                                นานาชาติ
                                               </span>
                                             </div>
                                             <svg
@@ -847,52 +771,138 @@ export default function HomePage() {
                                               fill="none"
                                               stroke="currentColor"
                                               strokeWidth="2.5"
-                                              className={`sidebar-chevron ${isExpanded ? "expanded" : ""}`}
+                                              className={`sidebar-chevron ${expandedCountries["INT"] ? "expanded" : ""}`}
                                             >
                                               <polyline points="6 9 12 15 18 9" />
                                             </svg>
                                           </div>
-                                          {isExpanded && (
+                                          {expandedCountries["INT"] && (
                                             <div className="sidebar-country-leagues">
-                                              {country.leagues.map((league) => (
-                                                <div
-                                                  key={league.id}
-                                                  className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
-                                                  onClick={() => {
-                                                    handleLeagueSelect(
-                                                      league.id,
-                                                    );
-                                                    setShowMobileLeagues(false);
-                                                  }}
-                                                >
-                                                  <img
-                                                    src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
-                                                    alt={league.name}
-                                                    className="subitem-logo"
-                                                    onError={(e) => {
-                                                      e.target.style.display =
-                                                        "none";
+                                              {filteredInternational.map(
+                                                (league) => (
+                                                  <div
+                                                    key={league.id}
+                                                    className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
+                                                    onClick={() => {
+                                                      handleLeagueSelect(
+                                                        league.id,
+                                                      );
+                                                      setShowMobileLeagues(
+                                                        false,
+                                                      );
                                                     }}
-                                                  />
-                                                  <span className="sidebar-league-name">
-                                                    {league.localizedName ||
-                                                      league.name}
-                                                  </span>
-                                                </div>
-                                              ))}
+                                                  >
+                                                    <img
+                                                      src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                                                      alt={league.name}
+                                                      className="subitem-logo"
+                                                      onError={(e) => {
+                                                        e.target.style.display =
+                                                          "none";
+                                                      }}
+                                                    />
+                                                    <span className="sidebar-league-name">
+                                                      {league.localizedName ||
+                                                        league.name}
+                                                    </span>
+                                                  </div>
+                                                ),
+                                              )}
                                             </div>
                                           )}
                                         </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
+                                      )}
+
+                                      {/* Country Groups */}
+                                      {filteredCountries.map((country) => {
+                                        const isExpanded =
+                                          expandedCountries[country.ccode];
+                                        return (
+                                          <div
+                                            key={country.ccode}
+                                            className="sidebar-country-group"
+                                          >
+                                            <div
+                                              className="sidebar-country-row"
+                                              onClick={() =>
+                                                toggleCountryExpand(
+                                                  country.ccode,
+                                                )
+                                              }
+                                            >
+                                              <div className="sidebar-country-left">
+                                                <img
+                                                  src={`https://images.fotmob.com/image_resources/logo/teamlogo/${country.ccode.toLowerCase()}.png`}
+                                                  alt={country.name}
+                                                  className="sidebar-country-flag"
+                                                  onError={(e) => {
+                                                    e.target.src =
+                                                      "/images/football-default.png";
+                                                  }}
+                                                />
+                                                <span className="sidebar-country-name">
+                                                  {country.localizedName ||
+                                                    country.name}
+                                                </span>
+                                              </div>
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="14"
+                                                height="14"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2.5"
+                                                className={`sidebar-chevron ${isExpanded ? "expanded" : ""}`}
+                                              >
+                                                <polyline points="6 9 12 15 18 9" />
+                                              </svg>
+                                            </div>
+                                            {isExpanded && (
+                                              <div className="sidebar-country-leagues">
+                                                {country.leagues.map(
+                                                  (league) => (
+                                                    <div
+                                                      key={league.id}
+                                                      className={`sidebar-league-subitem ${selectedLeagueId === String(league.id) ? "active" : ""}`}
+                                                      onClick={() => {
+                                                        handleLeagueSelect(
+                                                          league.id,
+                                                        );
+                                                        setShowMobileLeagues(
+                                                          false,
+                                                        );
+                                                      }}
+                                                    >
+                                                      <img
+                                                        src={`https://images.fotmob.com/image_resources/logo/leaguelogo/${league.id}.png`}
+                                                        alt={league.name}
+                                                        className="subitem-logo"
+                                                        onError={(e) => {
+                                                          e.target.style.display =
+                                                            "none";
+                                                        }}
+                                                      />
+                                                      <span className="sidebar-league-name">
+                                                        {league.localizedName ||
+                                                          league.name}
+                                                      </span>
+                                                    </div>
+                                                  ),
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
                     )}
 
                     <FotMobWidget
