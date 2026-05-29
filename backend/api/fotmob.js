@@ -276,37 +276,37 @@ router.get("/matches", async (req, res) => {
         }
 
         return {
-        id: match.id,
-        isNextDayLateNight,
-        stageName: getMatchStageName(league.name),
-        home: { 
-          id: match.home.id, 
-          name: match.home.name, 
-          score: match.home.score,
-          redCards: match.home.redCards,
-          penScore: match.home.penScore
-        },
-        away: { 
-          id: match.away.id, 
-          name: match.away.name, 
-          score: match.away.score,
-          redCards: match.away.redCards,
-          penScore: match.away.penScore
-        },
-        status: {
-          finished: match.status?.finished || false,
-          started: match.status?.started || false,
-          cancelled: match.status?.cancelled || false,
-          liveTime: match.status?.liveTime || null,
-          scoreStr: match.status?.scoreStr || null,
-          reason: match.status?.reason || null,
-          utcTime: match.status?.utcTime || null,
-          timeTS: match.timeTS || null,
-          startDateStr: match.status?.startDateStr || match.time || "",
-          aggregatedStr: match.status?.aggregatedStr || null,
-        }
-      };
-    });
+          id: match.id,
+          isNextDayLateNight,
+          stageName: getMatchStageName(league.name),
+          home: {
+            id: match.home.id,
+            name: match.home.name,
+            score: match.home.score,
+            redCards: match.home.redCards,
+            penScore: match.home.penScore
+          },
+          away: {
+            id: match.away.id,
+            name: match.away.name,
+            score: match.away.score,
+            redCards: match.away.redCards,
+            penScore: match.away.penScore
+          },
+          status: {
+            finished: match.status?.finished || false,
+            started: match.status?.started || false,
+            cancelled: match.status?.cancelled || false,
+            liveTime: match.status?.liveTime || null,
+            scoreStr: match.status?.scoreStr || null,
+            reason: match.status?.reason || null,
+            utcTime: match.status?.utcTime || null,
+            timeTS: match.timeTS || null,
+            startDateStr: match.status?.startDateStr || match.time || "",
+            aggregatedStr: match.status?.aggregatedStr || null,
+          }
+        };
+      });
 
       if (matches.length > 0) {
         filteredLeagues.push(enrichLeagueCountry({
