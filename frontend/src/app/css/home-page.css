@@ -428,7 +428,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 6px 0 12px 0;
+  margin: 6px 0 6px 0;
   width: 100%;
 }
 
@@ -453,7 +453,7 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  margin-top: 10px;
+  /* margin-top: 10px; */
   border-top: 1px solid #f1f3f5;
   padding-top: 12px;
 }
@@ -707,7 +707,7 @@
 }
 
 .reviwe-container-home {
-  margin: 5px auto 20px auto;
+  margin: 5px auto 6px auto;
 }
 
 
@@ -1777,18 +1777,31 @@
   .homepage-sidebar-left {
     display: flex !important;
     flex-direction: row !important;
-    justify-content: center !important;
-    padding: 10px 20px !important;
+    justify-content: flex-start !important;
+    /* Scroll starts from the left */
+    padding: 10px 16px !important;
     border-right: none !important;
     border-bottom: 1px solid var(--border-color, #e9ecef);
-    gap: 15px !important;
+    gap: 10px !important;
+    /* Tighter gap */
     position: sticky;
     top: 0;
     background: white;
     z-index: 10;
     width: 100% !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
+    overflow-x: auto !important;
+    /* Enable horizontal scrolling */
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth iOS scrolling */
+    scrollbar-width: none;
+    /* Hide scrollbar for Firefox */
+  }
+
+  /* Hide scrollbar for Chrome, Safari, and Opera */
+  .homepage-sidebar-left::-webkit-scrollbar {
+    display: none;
   }
 
   .sidebar-toggle-button {
@@ -1796,10 +1809,10 @@
   }
 
   .homepage-sidebar-left.collapsed {
-    padding: 10px 20px !important;
+    padding: 10px 16px !important;
     align-items: center !important;
     flex-direction: row !important;
-    gap: 15px !important;
+    gap: 10px !important;
   }
 
   .homepage-sidebar-left.collapsed .sidebar-label {
@@ -1808,7 +1821,7 @@
 
   .homepage-sidebar-left.collapsed .sidebar-left-item {
     justify-content: flex-start !important;
-    padding: 8px 16px !important;
+    padding: 6px 12px !important;
     width: auto !important;
     height: auto !important;
     border-radius: var(--border-radius, 12px) !important;
@@ -1821,8 +1834,10 @@
 
   .sidebar-left-item {
     width: auto !important;
-    padding: 8px 16px !important;
-    font-size: 0.95rem !important;
+    padding: 6px 12px !important;
+    /* Tighter padding for mobile items */
+    font-size: 0.88rem !important;
+    /* Tighter font size */
     flex-shrink: 0;
     white-space: nowrap !important;
   }

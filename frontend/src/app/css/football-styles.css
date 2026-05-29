@@ -279,6 +279,7 @@
   gap: 10px;
   flex: 1;
   text-align: right;
+  min-width: 0; /* Allow shrinking */
 }
 
 .match-team-away-flat {
@@ -288,12 +289,16 @@
   gap: 10px;
   flex: 1;
   text-align: left;
+  min-width: 0; /* Allow shrinking */
 }
 
 .team-name-flat {
   font-weight: 700;
   font-size: 0.95rem;
   color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .team-logo-flat {
@@ -1159,9 +1164,9 @@
 /* Matches UI Enhancements (Phase 9) */
 .league-header-flag {
   width: 22px;
-  height: 15px;
+  height: 22px;
   object-fit: cover;
-  border-radius: 2px;
+  border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   margin-right: 8px;
   vertical-align: middle;
@@ -1171,7 +1176,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #22c55e; /* Vibrant Green */
+  background-color: #22c55e;
+  /* Vibrant Green */
   color: #ffffff;
   font-size: 0.78rem;
   font-weight: 800;
@@ -1207,21 +1213,26 @@
 
 .red-card-indicator {
   position: absolute;
-  top: -8px; /* Offset to float nicely above the score */
+  top: -8px;
+  /* Offset to float nicely above the score */
   right: -3px;
   width: 6px;
   height: 9px;
-  background-color: #ef4444; /* Clean solid red card color */
+  background-color: #ef4444;
+  /* Clean solid red card color */
   border-radius: 1px;
   box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
   z-index: 5;
 }
 
 @keyframes pulseRedcard {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
   }
+
   50% {
     transform: scale(1.15);
     box-shadow: 0 1px 6px rgba(239, 68, 68, 0.7);
@@ -1238,4 +1249,119 @@
   color: #64748b;
   margin-top: 3px;
   line-height: 1;
+}
+
+.league-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #cbd5e1;
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments for matches lists on smaller screens (Phase 9) */
+@media (max-width: 768px) {
+  .league-header {
+    font-size: 0.9rem;
+    padding: 11px 16px;
+  }
+  .league-count-badge {
+    font-size: 0.72rem;
+    width: 20px;
+    height: 20px;
+  }
+  .league-live-badge {
+    font-size: 0.72rem;
+    padding: 2px 6px;
+    min-width: 28px;
+    height: 20px;
+  }
+  .match-card {
+    padding: 12px 14px;
+  }
+  .match-status-col {
+    width: 60px;
+  }
+  .match-spacer-col {
+    width: 60px;
+  }
+  .match-teams-score-col {
+    gap: 10px;
+  }
+  .match-team-home-flat,
+  .match-team-away-flat {
+    gap: 8px;
+  }
+  .team-name-flat {
+    font-size: 0.85rem;
+  }
+  .match-score-flat {
+    font-size: 0.95rem;
+    min-width: 52px;
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .league-header {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+  .league-count-badge {
+    font-size: 0.65rem;
+    width: 18px;
+    height: 18px;
+  }
+  .league-live-badge {
+    font-size: 0.65rem;
+    padding: 1px 5px;
+    min-width: 26px;
+    height: 16px;
+  }
+  .match-card {
+    padding: 10px 8px;
+    gap: 4px;
+  }
+  .match-status-col {
+    width: 36px;
+  }
+  .match-spacer-col {
+    width: 36px;
+  }
+  .match-status-badge-flat {
+    font-size: 0.62rem;
+    padding: 2px 4px;
+    min-width: 28px;
+  }
+  .match-teams-score-col {
+    gap: 6px;
+  }
+  .match-team-home-flat,
+  .match-team-away-flat {
+    gap: 6px;
+  }
+  .team-name-flat {
+    font-size: 0.75rem; /* Smaller font on mobile */
+  }
+  .match-score-flat {
+    font-size: 0.8rem; /* Smaller score font */
+    min-width: 44px;
+    padding: 3px 5px;
+  }
+  .red-card-indicator {
+    top: -7px;
+    right: -2px;
+    width: 5px;
+    height: 8px;
+  }
+  .penalty-shootout-score {
+    font-size: 0.65rem;
+    margin-top: 1px;
+  }
 }

@@ -674,20 +674,7 @@ export default function FotMobWidget({
                             {liveMatchesCount}/{league.matches.length}
                           </span>
                         ) : (
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              backgroundColor: "#cbd5e1",
-                              color: "#475569",
-                              fontSize: "0.78rem",
-                              fontWeight: 800,
-                              borderRadius: "50%",
-                              width: "22px",
-                              height: "22px",
-                            }}
-                          >
+                          <span className="league-count-badge">
                             {league.matches.length}
                           </span>
                         )}
@@ -779,13 +766,17 @@ export default function FotMobWidget({
                                           )}
                                         </span>
                                       </div>
-                                      {(match.home.penScore !== undefined ||
-                                        match.away.penScore !== undefined) && (
+                                      {match.status.aggregatedStr ? (
+                                        <div className="penalty-shootout-score">
+                                          ({match.status.aggregatedStr})
+                                        </div>
+                                      ) : (match.home.penScore !== undefined ||
+                                        match.away.penScore !== undefined) ? (
                                         <div className="penalty-shootout-score">
                                           ({match.home.penScore ?? 0} -{" "}
                                           {match.away.penScore ?? 0})
                                         </div>
-                                      )}
+                                      ) : null}
                                     </div>
                                   ) : (
                                     getMatchTimeOnly(match)

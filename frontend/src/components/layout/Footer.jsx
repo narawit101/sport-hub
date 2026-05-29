@@ -94,10 +94,7 @@ export default function Footer() {
                 </li>
               </>
             )}
-
-            <li>
-              <Link href="/register-field">ลงทะเบียนสนามกีฬา</Link>
-            </li>
+            {user && <Link href="/register-field">ลงทะเบียนสนามกีฬา</Link>}
           </ul>
         </div>
       </div>

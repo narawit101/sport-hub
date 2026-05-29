@@ -148,7 +148,7 @@ router.get("/matches", async (req, res) => {
   const date = req.query.date;
   if (!date) return res.status(400).json({ message: "Date parameter is required" });
 
-  const cacheKey = `fotmob:matches:v2:${date}`;
+  const cacheKey = `fotmob:matches:v4:${date}`;
   try {
     const cached = await getCachedData(cacheKey);
     if (cached) return res.status(200).json(cached);
@@ -186,6 +186,7 @@ router.get("/matches", async (req, res) => {
           scoreStr: match.status?.scoreStr || null,
           reason: match.status?.reason || null,
           startDateStr: match.status?.startDateStr || match.time || "",
+          aggregatedStr: match.status?.aggregatedStr || null,
         }
       }));
 
