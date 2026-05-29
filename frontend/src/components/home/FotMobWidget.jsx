@@ -574,7 +574,7 @@ export default function FotMobWidget({
 
           {loading ? (
             <div className="football-loading-view">
-              {Array.from({ length: 10 }).map((_, i) => (
+              {Array.from({ length: 20 }).map((_, i) => (
                 <div
                   key={i}
                   className="football-skeleton football-skeleton-card"
@@ -898,7 +898,7 @@ export default function FotMobWidget({
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.from({ length: 12 }).map((_, idx) => (
+                  {Array.from({ length: 20 }).map((_, idx) => (
                     <tr key={idx}>
                       <td style={{ textAlign: "center" }}>
                         <div
@@ -1159,7 +1159,7 @@ export default function FotMobWidget({
         <div className="football-news-list">
           {loading ? (
             <div className="football-loading-view">
-              {Array.from({ length: 4 }).map((_, i) => (
+              {Array.from({ length: 20 }).map((_, i) => (
                 <div
                   key={i}
                   className="football-skeleton football-skeleton-news"

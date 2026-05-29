@@ -280,19 +280,14 @@ export default function HomePage() {
                     width="22"
                     height="22"
                     viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="sidebar-icon"
                   >
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <path d="M16 8h2" />
-                    <path d="M16 12h2" />
-                    <path d="M16 16h2" />
-                    <path d="M6 8h6v8H6z" />
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path
+                      fill="currentColor"
+                      d="M6 19h3v-5q0-.425.288-.712T10 13h4q.425 0 .713.288T15 14v5h3v-9l-6-4.5L6 10zm-2 0v-9q0-.475.213-.9t.587-.7l6-4.5q.525-.4 1.2-.4t1.2.4l6 4.5q.375.275.588.7T20 10v9q0 .825-.588 1.413T18 21h-4q-.425 0-.712-.288T13 20v-5h-2v5q0 .425-.288.713T10 21H6q-.825 0-1.412-.587T4 19m8-6.75"
+                    />
                   </svg>
+
                   <span className="sidebar-label">ข่าวสารระบบ</span>
                 </button>
 
@@ -362,9 +357,10 @@ export default function HomePage() {
                     className="sidebar-icon"
                   >
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <line x1="8" y1="9" x2="16" y2="9" />
-                    <line x1="8" y1="13" x2="14" y2="13" />
-                    <line x1="8" y1="17" x2="12" y2="17" />
+                    <path d="M16 8h2" />
+                    <path d="M16 12h2" />
+                    <path d="M16 16h2" />
+                    <path d="M6 8h6v8H6z" />
                   </svg>
                   <span className="sidebar-label">ข่าวฟุตบอล</span>
                 </button>
