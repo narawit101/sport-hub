@@ -63,15 +63,18 @@ router.post(
            p.field_id,
            p.title,
            p.content,
+           f.field_name,
+           f.img_field,
            p.created_at,
            COALESCE(
              json_agg(json_build_object('image_url', pi.image_url)) 
              FILTER (WHERE pi.image_url IS NOT NULL), '[]'
            ) AS images
          FROM posts p
+         LEFT JOIN field f ON p.field_id = f.field_id
          LEFT JOIN post_images pi ON p.post_id = pi.post_id
          WHERE p.post_id = $1
-         GROUP BY p.post_id`,
+         GROUP BY p.post_id, f.field_name, f.img_field`,
         [postId]
       );
 
@@ -360,6 +363,8 @@ router.patch(
         p.field_id,
         p.title,
         p.content,
+        f.field_name,
+        f.img_field,
         p.created_at,
         COALESCE(
           json_agg(
@@ -367,9 +372,10 @@ router.patch(
           ) FILTER (WHERE pi.image_url IS NOT NULL), '[]'
         ) AS images
       FROM posts p
+      LEFT JOIN field f ON p.field_id = f.field_id
       LEFT JOIN post_images pi ON p.post_id = pi.post_id
       WHERE p.post_id = $1
-      GROUP BY p.post_id
+      GROUP BY p.post_id, f.field_name, f.img_field
     `,
         [post_id]
       );

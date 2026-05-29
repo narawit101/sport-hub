@@ -128,7 +128,7 @@ export default function PostCard({
               className="post-img-field-home"
             />
             <div className="field-name-created-at-home">
-              <h2 className="post-field-name-home text-lg">{post.field_name}</h2>
+              <p className="post-field-name-home text-lg">{post.field_name}</p>
               <div className="time text-sm text-gray-500 mt-1 flex items-center gap-1">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -169,7 +169,9 @@ export default function PostCard({
             }
           >
             <div
-              className={isHome ? "ig-carousel-track-home" : "ig-carousel-track"}
+              className={
+                isHome ? "ig-carousel-track-home" : "ig-carousel-track"
+              }
               style={{
                 transform: `translateX(-${activeIdx * 100}%)`,
               }}
@@ -179,7 +181,9 @@ export default function PostCard({
                   key={idx}
                   src={`${img.image_url}`}
                   alt="รูปโพสต์"
-                  className={isHome ? "ig-carousel-image-home" : "ig-carousel-image"}
+                  className={
+                    isHome ? "ig-carousel-image-home" : "ig-carousel-image"
+                  }
                   onClick={() => setSelectedImage?.(`${img.image_url}`)}
                   style={{ cursor: "zoom-in", flexShrink: 0, width: "100%" }}
                 />
@@ -192,7 +196,19 @@ export default function PostCard({
                   className={isHome ? "arrow-btn left-home" : "arrow-btn left"}
                   onClick={handlePrev}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
                 </button>
                 <button
                   className={
@@ -200,7 +216,19 @@ export default function PostCard({
                   }
                   onClick={handleNext}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
                 </button>
               </>
             )}
