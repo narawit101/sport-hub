@@ -256,7 +256,7 @@
   background-color: #fee2e2;
   color: #dc2626;
   font-weight: 800;
-  animation: pulseLive 1.5s infinite;
+  /* animation: pulseLive 1.5s infinite; */
 }
 
 .match-status-badge-flat.upcoming {
@@ -279,7 +279,8 @@
   gap: 10px;
   flex: 1;
   text-align: right;
-  min-width: 0; /* Allow shrinking */
+  min-width: 0;
+  /* Allow shrinking */
 }
 
 .match-team-away-flat {
@@ -289,7 +290,8 @@
   gap: 10px;
   flex: 1;
   text-align: left;
-  min-width: 0; /* Allow shrinking */
+  min-width: 0;
+  /* Allow shrinking */
 }
 
 .team-name-flat {
@@ -1239,9 +1241,9 @@
   }
 }
 
-.animate-redcard {
+/* .animate-redcard {
   animation: pulseRedcard 2.5s infinite ease-in-out;
-}
+} */
 
 .penalty-shootout-score {
   font-size: 0.76rem;
@@ -1271,36 +1273,45 @@
     font-size: 0.9rem;
     padding: 11px 16px;
   }
+
   .league-count-badge {
     font-size: 0.72rem;
     width: 20px;
     height: 20px;
   }
+
   .league-live-badge {
     font-size: 0.72rem;
     padding: 2px 6px;
     min-width: 28px;
     height: 20px;
   }
+
   .match-card {
     padding: 12px 14px;
   }
+
   .match-status-col {
     width: 60px;
   }
+
   .match-spacer-col {
     width: 60px;
   }
+
   .match-teams-score-col {
     gap: 10px;
   }
+
   .match-team-home-flat,
   .match-team-away-flat {
     gap: 8px;
   }
+
   .team-name-flat {
     font-size: 0.85rem;
   }
+
   .match-score-flat {
     font-size: 0.95rem;
     min-width: 52px;
@@ -1313,53 +1324,67 @@
     font-size: 0.8rem;
     padding: 8px 10px;
   }
+
   .league-count-badge {
     font-size: 0.65rem;
     width: 18px;
     height: 18px;
   }
+
   .league-live-badge {
     font-size: 0.65rem;
     padding: 1px 5px;
     min-width: 26px;
     height: 16px;
   }
+
   .match-card {
     padding: 10px 8px;
     gap: 4px;
   }
+
   .match-status-col {
     width: 36px;
   }
+
   .match-spacer-col {
     width: 36px;
   }
+
   .match-status-badge-flat {
     font-size: 0.62rem;
     padding: 2px 4px;
     min-width: 28px;
   }
+
   .match-teams-score-col {
     gap: 6px;
   }
+
   .match-team-home-flat,
   .match-team-away-flat {
     gap: 6px;
   }
+
   .team-name-flat {
-    font-size: 0.75rem; /* Smaller font on mobile */
+    font-size: 0.75rem;
+    /* Smaller font on mobile */
   }
+
   .match-score-flat {
-    font-size: 0.8rem; /* Smaller score font */
+    font-size: 0.8rem;
+    /* Smaller score font */
     min-width: 44px;
     padding: 3px 5px;
   }
+
   .red-card-indicator {
     top: -7px;
     right: -2px;
     width: 5px;
     height: 8px;
   }
+
   .penalty-shootout-score {
     font-size: 0.65rem;
     margin-top: 1px;

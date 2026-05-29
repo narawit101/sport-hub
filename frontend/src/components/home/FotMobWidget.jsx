@@ -151,7 +151,7 @@ export default function FotMobWidget({
 
   const getCountryInfo = (league) => {
     if (!league) return null;
-    
+
     // 1. Try resolving using countryName and ccode mapping by league ID
     const info = getCountryNameAndCodeForLeague(league.id);
     if (info) return info;
@@ -162,7 +162,8 @@ export default function FotMobWidget({
         return { name: "นานาชาติ", ccode: "INT" };
       }
       const foundCountry = allLeagues.countries?.find(
-        (c) => String(c.ccode).toUpperCase() === String(league.ccode).toUpperCase()
+        (c) =>
+          String(c.ccode).toUpperCase() === String(league.ccode).toUpperCase(),
       );
       if (foundCountry) {
         return {
@@ -248,7 +249,7 @@ export default function FotMobWidget({
       MYA: "เมียนมา",
       CAM: "กัมพูชา",
       LAO: "ลาว",
-      ZAF: "แอฟริกาใต้"
+      ZAF: "แอฟริกาใต้",
     };
 
     if (league.ccode) {
@@ -280,7 +281,9 @@ export default function FotMobWidget({
     }));
   };
 
-  const isAnyLeagueExpanded = matches.some((league) => !collapsedLeagues[league.id]);
+  const isAnyLeagueExpanded = matches.some(
+    (league) => !collapsedLeagues[league.id],
+  );
 
   const handleToggleAllLeagues = () => {
     if (isAnyLeagueExpanded) {
@@ -455,7 +458,7 @@ export default function FotMobWidget({
         liveTimeStr = liveTimeStr.slice(0, -1);
       }
       return {
-        text: liveTimeStr ? `สด ${liveTimeStr}'` : "สด",
+        text: liveTimeStr ? ` ${liveTimeStr}'` : "",
         class: "live",
       };
     }
@@ -489,7 +492,9 @@ export default function FotMobWidget({
             <button
               className="expand-toggle-all-btn"
               onClick={handleToggleAllLeagues}
-              title={isAnyLeagueExpanded ? "ย่อรายการทั้งหมด" : "ขยายรายการทั้งหมด"}
+              title={
+                isAnyLeagueExpanded ? "ย่อรายการทั้งหมด" : "ขยายรายการทั้งหมด"
+              }
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -501,7 +506,7 @@ export default function FotMobWidget({
                 border: "1px solid #e2e8f0",
                 cursor: "pointer",
                 color: "#64748b",
-                transition: "all 0.2s ease"
+                transition: "all 0.2s ease",
               }}
             >
               <svg
@@ -770,8 +775,8 @@ export default function FotMobWidget({
                                         <div className="penalty-shootout-score">
                                           ({match.status.aggregatedStr})
                                         </div>
-                                      ) : (match.home.penScore !== undefined ||
-                                        match.away.penScore !== undefined) ? (
+                                      ) : match.home.penScore !== undefined ||
+                                        match.away.penScore !== undefined ? (
                                         <div className="penalty-shootout-score">
                                           ({match.home.penScore ?? 0} -{" "}
                                           {match.away.penScore ?? 0})
