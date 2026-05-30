@@ -2,13 +2,15 @@
 
 Sport Hub is a high-performance, full-stack sports venue booking ecosystem designed to bridge the gap between sports enthusiasts, venue owners, and administrators. The platform delivers a seamless, real-time experience for discovering venues, managing slots, and handling secure payments within a single, integrated workflow.
 
+---
+
 ## 🚀 Resume-Ready Summary
 
-*   **Architected a dual-application ecosystem** (Next.js 15 & Express.js) supporting three distinct user personas: Customers, Field Owners, and Administrators.
+*   **Architected a dual-application ecosystem** (Next.js 15 & Express.js) supporting three distinct user roles: Customers, Field Owners, and Administrators.
 *   **Engineered a Real-Time Synchronization Engine** using Socket.IO to eliminate double-booking conflicts and provide live status updates across the platform.
 *   **Integrated a Robust Payment Lifecycle** featuring dynamic PromptPay QR generation, automated slip verification workflows, and Excel-based financial reporting.
-*   **Refactored to a Service-Oriented Architecture (SOA)** on the backend and a **Composition-based Component Pattern** on the frontend, reducing technical debt and improving maintainability by 40%.
-*   **Implemented Enterprise-Grade Security** including JWT via HTTP-only cookies, OTP email verification (Brevo API), and multi-layered rate limiting.
+*   **Refactored to a Service-Oriented Architecture (SOA)** on the backend and a **Composition-based Component Pattern** on the frontend, reducing technical debt and improving maintainability.
+*   **Implemented Enterprise-Grade Security & Performance** including JWT via HTTP-only cookies, OTP email verification (Brevo API), multi-layered rate limiting, and Redis caching.
 
 ---
 
@@ -19,7 +21,7 @@ graph TD
     subgraph Client_Layer [Frontend - Next.js 15]
         UI[React 19 Components]
         Context[Socket & Notification Contexts]
-        ClientAPI[Axios API Client]
+        ClientAPI[Fetch-based API Client]
     end
 
     subgraph API_Layer [Backend - Node.js/Express]
@@ -27,6 +29,7 @@ graph TD
         Booking[Booking & Payment Logic]
         Notify[Real-Time & Email Notifications]
         Stats[XLSX Export & Analytics]
+        Cache[Redis Caching]
     end
 
     subgraph Data_Layer [Infrastructure]
@@ -34,6 +37,7 @@ graph TD
         Cloud[Cloudinary Media]
         Email[Brevo API]
         Maps[Longdo Map API]
+        Redis[(Redis Cache)]
     end
 
     UI --> Context
@@ -44,6 +48,8 @@ graph TD
     Booking --> Cloud
     Booking --> Email
     Booking --> Notify
+    Booking --> Cache
+    Cache --> Redis
     Notify --> Context
 ```
 
@@ -84,6 +90,7 @@ graph TD
 ### Backend (Node.js / Express)
 *   **PostgreSQL:** Relational data modeling for complex booking relationships.
 *   **Controller-Service Pattern:** Business logic is decoupled from HTTP concerns for high testability.
+*   **Redis Caching:** High-performance caching layer powered by `ioredis` for fast data retrieval.
 *   **Security Stack:** 
     *   `jsonwebtoken` for stateless auth.
     *   `express-rate-limit` to prevent brute-force attacks.
@@ -98,17 +105,20 @@ graph TD
 sport-hub/
 ├── frontend/               # Next.js 15 Application
 │   ├── src/
-│   │   ├── app/           # App Router (Shared, Dashboard, Auth)
-│   │   ├── components/    # Decomposed UI Components (Field, Admin, Search)
-│   │   ├── contexts/      # SocketContext, NotificationContext
-│   │   ├── utils/         # apiClient, constants, formatters
-│   │   └── hooks/         # Custom hooks for fetching and socket events
+│   │   ├── app/           # App Router (Shared, Dashboard, Auth Route Groups)
+│   │   │   ├── contexts/  # React Contexts (Auth, Socket, Notification)
+│   │   │   ├── css/       # Custom CSS modules for styling
+│   │   │   ├── hooks/     # Custom hooks for fetching and socket events
+│   │   │   └── utils/     # format.js
+│   │   ├── components/    # Decomposed UI Components (Field, Admin, Search, etc.)
+│   │   ├── constants/     # status.js (system statuses & roles)
+│   │   └── lib/           # apiClient.js (Fetch API Client), socket.js
 ├── backend/                # Express.js API
 │   ├── controllers/       # Request handling logic
 │   ├── services/          # Core business logic (Service Layer)
 │   ├── api/               # Route definitions
 │   ├── middlewares/       # Auth, Role-check, Validation, Rate-limit
-│   ├── config/            # Database and Cloudinary configuration
+│   ├── config/            # Database, Cloudinary, and Redis configurations
 │   ├── utils/             # Helpers (OTP, QR, XLSX, Email)
 │   └── cron/              # Scheduled tasks
 ```
@@ -130,6 +140,7 @@ sport-hub/
 *   PostgreSQL
 *   Cloudinary Account
 *   Brevo API Key
+*   Redis Instance (e.g., Upstash)
 
 ### 2. Installation
 ```bash
@@ -157,9 +168,11 @@ JWT_SECRET=your_super_secret_key
 BREVO_API_KEY=your_brevo_api_key
 SENDER_EMAIL=noreply@sporthub.com
 SENDER_NAME="Sport Hub"
+FONT_END_URL=http://localhost:3000
 CLOUND_NAME=your_cloudinary_name
 CLOUND_API_KEY=your_cloudinary_key
 CLOUND_API_SECRET=your_cloudinary_secret
+REDIS_URL=redis://:password@host:port
 ```
 
 **`frontend/.env`**
@@ -182,11 +195,9 @@ npm run dev
 
 ---
 
-## 📈 Future Roadmap
-- [ ] **Mobile App:** React Native port for on-the-go booking.
-- [ ] **AI-Powered Recommendations:** Venue suggestions based on user behavior.
-- [ ] **Direct Payment Integration:** Stripe/Omise integration for instant checkout.
-- [ ] **PWA Support:** Offline access for venue owners' dashboards.
+## 📄 AI Onboarding
+
+For detailed AI agent onboarding guidelines, database schema, entity-relationship descriptions, API routes, and code styling rules, please refer to the onboarding document: [agent.md](file:///C:/D/sport/sport-hub/agent.md).
 
 ---
 
