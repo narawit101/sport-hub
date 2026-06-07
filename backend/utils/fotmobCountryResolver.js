@@ -124,7 +124,6 @@ const CCODE_TO_NAME = {
   BAN: "บังกลาเทศ",
   SRI: "ศรีลังกา",
   ISR: "อิสราเอล",
-  SGP: "สิงคโปร์",
 
   // Africa
   EGY: "อียิปต์",
@@ -303,6 +302,28 @@ const TEAM_NAME_MAP = {
   Bahrain: "บาห์เรน",
   "Cayman Islands": "เคย์แมนไอแลนด์ส",
   "San Marino": "ซานมาริโน",
+  Uganda: "ยูกันดา",
+  Niger: "ไนเจอร์",
+  Botswana: "บอตสวานา",
+  "Central African Republic": "สาธารณรัฐแอฟริกากลาง",
+  Angola: "แองโกลา",
+  Ethiopia: "เอธิโอเปีย",
+  Malawi: "มาลาวี",
+  Rwanda: "รวันดา",
+  Tajikistan: "ทาจิกิสถาน",
+  Vanuatu: "วานูอาตู",
+  Fiji: "ฟิจิ",
+  Philippines: "ฟิลิปปินส์",
+  Myanmar: "เมียนมาร์",
+  Indonesia: "อินโดนีเซีย",
+  Cambodia: "กัมพูชา",
+  "Hong Kong": "ฮ่องกง",
+  Mozambique: "โมซัมบิก",
+  Kyrgyzstan: "คีร์กีซสถาน",
+  "Equatorial Guinea": "อิเควทอเรียลกินี",
+  Comoros: "คอโมโรส",
+  Aruba: "อารูบา",
+  "Sierra Leone": "เซียร์ราลีโอน",
 };
 
 const LEAGUE_ID_TO_NAME = {
