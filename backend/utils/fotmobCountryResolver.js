@@ -324,6 +324,12 @@ const TEAM_NAME_MAP = {
   Comoros: "คอโมโรส",
   Aruba: "อารูบา",
   "Sierra Leone": "เซียร์ราลีโอน",
+  Liberia: "ไลบีเรีย",
+  Kazakhstan: "คาซัคสถาน",
+  Eswatini: "เอสวาตีนี",
+  Montenegro: "มอนเตเนโกร",
+  "St Vincent and the Grenadines": "เซนต์วินเซนต์และเกรนาดีนส์",
+
 };
 
 const LEAGUE_ID_TO_NAME = {
