@@ -1,6 +1,6 @@
 const express = require("express");
 const pool = require("../config/db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const router = express.Router();
 const { sendEmail } = require("../utils/email");
 const { otpVerification } = require("../utils/emailTemplates");
