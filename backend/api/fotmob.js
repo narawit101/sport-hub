@@ -44,19 +44,22 @@ router.get("/news", async (req, res) => {
   }
 });
 
-// 4. Get league standings
-router.get("/league-standings", async (req, res) => {
+// 4. Get league standings (supports /standings and /league-standings)
+const handleStandings = async (req, res) => {
   try {
-    const { leagueId } = req.query;
+    const { leagueId, season } = req.query;
     if (!leagueId) {
       return res.status(400).json({ message: "leagueId is required" });
     }
-    const data = await sportsDataProvider.getLeagueDetails(leagueId);
+    const data = await sportsDataProvider.getLeagueDetails(leagueId, season);
     res.status(200).json(data);
   } catch (error) {
     console.error("[FotMob Standings Error]:", error.message);
     res.status(500).json({ message: "Failed to fetch standings" });
   }
-});
+};
+
+router.get("/standings", handleStandings);
+router.get("/league-standings", handleStandings);
 
 module.exports = router;

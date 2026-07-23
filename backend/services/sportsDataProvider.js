@@ -2,23 +2,9 @@ const { getCache, setCache } = require("../config/cache");
 const {
   enrichLeagueCountry,
   translateAllLeagues,
-  LEAGUE_ID_TO_NAME,
   translateTeamDynamic,
   buildTeamTranslationLookup,
-  TEAM_NAME_MAP,
 } = require("../utils/fotmobCountryResolver");
-
-const LEGEND_TRANSLATIONS = {
-  "champions league": "แชมเปียนส์ลีก",
-  "europa league": "ยูโรปาลีก",
-  "conference league qualification": "รอบคัดเลือกคอนเฟอเรนซ์ลีก",
-  "europa conference league qualification": "รอบคัดเลือกยูโรปาคอนเฟอเรนซ์ลีก",
-  "champions league qualification": "รอบคัดเลือกแชมเปียนส์ลีก",
-  relegation: "การตกชั้น",
-  "relegation play-off": "เพลย์ออฟตกชั้น",
-  promotion: "การเลื่อนชั้น",
-  "promotion play-off": "เพลย์ออฟเลื่อนชั้น",
-};
 
 /**
  * SportsDataProvider Module
@@ -46,7 +32,7 @@ class SportsDataProvider {
   }
 
   async getAllLeagues() {
-    const cacheKey = "fotmob:all-leagues:v7";
+    const cacheKey = "fotmob:all-leagues:v9";
     const cached = await getCache(cacheKey);
     if (cached) return cached;
 
@@ -58,13 +44,15 @@ class SportsDataProvider {
   }
 
   async getMatchesByDate(dateStr) {
-    const cacheKey = `fotmob:matches:${dateStr}:v7`;
+    const cacheKey = `fotmob:matches:${dateStr}:v9`;
     const cached = await getCache(cacheKey);
     if (cached) return cached;
 
+    const targetUrl = `https://www.fotmob.com/api/data/matches?date=${dateStr}&timezone=Asia/Bangkok&locale=th&ccode3=THA`;
+
     const [rawAllLeagues, rawMatchesData] = await Promise.all([
       this.getAllLeagues().catch(() => null),
-      this.fetchFromFotmob(`https://www.fotmob.com/api/matches?date=${dateStr}`),
+      this.fetchFromFotmob(targetUrl),
     ]);
 
     const teamLookup = rawAllLeagues ? buildTeamTranslationLookup(rawAllLeagues) : null;
@@ -94,49 +82,98 @@ class SportsDataProvider {
     return rawMatchesData;
   }
 
-  async getLeagueDetails(leagueId) {
-    const cacheKey = `fotmob:league:${leagueId}:v7`;
+  async getLeagueDetails(leagueId, season = "") {
+    const cacheKey = `fotmob:standings:${leagueId}:${season}:v9`;
     const cached = await getCache(cacheKey);
     if (cached) return cached;
+
+    let targetUrl = `https://www.fotmob.com/api/data/leagues?id=${leagueId}&locale=th&ccode3=THA`;
+    if (season) {
+      targetUrl += `&season=${encodeURIComponent(season)}`;
+    }
 
     const [allLeagues, data] = await Promise.all([
       this.getAllLeagues().catch(() => null),
-      this.fetchFromFotmob(`https://www.fotmob.com/api/leagues?id=${leagueId}`),
+      this.fetchFromFotmob(targetUrl),
     ]);
 
     const teamLookup = allLeagues ? buildTeamTranslationLookup(allLeagues) : null;
+    const tableObj = data.overview?.table?.[0] || data.table?.[0];
+    let tablesResult = [];
 
-    if (data && data.table && Array.isArray(data.table)) {
-      data.table = data.table.map((tableItem) => {
-        if (tableItem.data && Array.isArray(tableItem.data.table?.all)) {
-          tableItem.data.table.all = tableItem.data.table.all.map((row) => ({
-            ...row,
-            name: translateTeamDynamic({ name: row.name, id: row.id }, teamLookup),
-          }));
-        }
-        if (tableItem.data && Array.isArray(tableItem.data.legend)) {
-          tableItem.data.legend = tableItem.data.legend.map((leg) => ({
-            ...leg,
-            title: LEGEND_TRANSLATIONS[leg.title?.toLowerCase()?.trim()] || leg.title,
-          }));
-        }
-        return tableItem;
-      });
+    if (tableObj) {
+      const teamForm = tableObj.teamForm || {};
+
+      const processTable = (rawTable) => {
+        return rawTable.map((team) => ({
+          idx: team.idx,
+          id: team.id,
+          name: translateTeamDynamic(team, teamLookup),
+          played: team.played,
+          wins: team.wins,
+          draws: team.draws,
+          losses: team.losses,
+          pts: team.pts,
+          goalConDiff: team.goalConDiff,
+          scoresStr: team.scoresStr,
+          qualColor: team.qualColor,
+          form: teamForm[team.id] || [],
+        }));
+      };
+
+      if (tableObj.data?.tables) {
+        tableObj.data.tables.forEach((tGroup) => {
+          const rawTable = tGroup.table?.all || [];
+          tablesResult.push({
+            groupName: tGroup.leagueName || "",
+            standings: processTable(rawTable),
+            legend: tGroup.legend || [],
+          });
+        });
+      } else if (tableObj.data?.table?.all) {
+        const rawTable = tableObj.data.table.all;
+        const legendArr = tableObj.data.legend || [];
+        tablesResult.push({
+          groupName: "",
+          standings: processTable(rawTable),
+          legend: legendArr,
+        });
+      } else if (tableObj.table?.all) {
+        const rawTable = tableObj.table.all;
+        const legendArr = tableObj.legend || [];
+        tablesResult.push({
+          groupName: "",
+          standings: processTable(rawTable),
+          legend: legendArr,
+        });
+      }
     }
 
-    await setCache(cacheKey, data, 300); // 5 minutes TTL
-    return data;
+    const result = {
+      tables: tablesResult,
+      allAvailableSeasons: data.allAvailableSeasons || [],
+      leagueName: data.details?.name || data.overview?.leagueName || data.table?.[0]?.leagueName || "",
+    };
+
+    await setCache(cacheKey, result, 3600); // 1 Hour TTL
+    return result;
   }
 
   async getNews() {
-    const cacheKey = "fotmob:news:v7";
+    const cacheKey = "fotmob:news:v9";
     const cached = await getCache(cacheKey);
     if (cached) return cached;
 
-    const data = await this.fetchFromFotmob("https://www.fotmob.com/api/worldnews?lang=en");
+    let rawNews = [];
+    try {
+      rawNews = await this.fetchFromFotmob("https://www.fotmob.com/api/worldnews?lang=en");
+    } catch (err) {
+      console.error("[SportsDataProvider] News fetch fallback error:", err.message);
+    }
 
-    await setCache(cacheKey, data, 600); // 10 minutes TTL
-    return data;
+    const result = { news: Array.isArray(rawNews) ? rawNews : [] };
+    await setCache(cacheKey, result, 600); // 10 minutes TTL
+    return result;
   }
 }
 
