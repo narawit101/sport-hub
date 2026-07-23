@@ -5,8 +5,9 @@ This document explains the architecture and operation of the football data integ
 ---
 
 ## 📂 Core Files
-1. **`backend/api/fotmob.js`**: Manages API routing, data fetching from FotMob, cache management, and data formatting for the frontend.
-2. **`backend/utils/fotmobCountryResolver.js`**: Contains the logic for translating country, league, and team names into Thai.
+1. **`backend/services/sportsDataProvider.js`**: Deep Domain Adapter encapsulating FotMob data fetching, caching via `backend/config/cache.js`, Thai localization, and DTO normalization.
+2. **`backend/api/fotmob.js`**: Thin HTTP proxy routes delegating data requests directly to `SportsDataProvider`.
+3. **`backend/utils/fotmobCountryResolver.js`**: Comprehensive dictionary engine translating country, league, and team names into Thai.
 
 ---
 

@@ -288,7 +288,12 @@ The backend is built as a **Node.js/Express.js** REST API applying the **Control
 - `db.js`: Database configuration using `pg.Pool`.
 - `config/`: Initializations for database (`db.js`), cloud storage (`cloudinary.js`), and caching (`cache.js`).
 - `api/`: Endpoint mappings. Responsible only for route handling, parsing requests, and sending HTTP responses.
-- `services/`: Business Logic layer (e.g., `bookingService.js`, `fieldService.js`). API routes call services to interact with DB and third parties.
+- `services/`: Core Business Logic & Deep Domain Modules:
+  - `bookingService.js`: Core booking transactions and user order queries.
+  - `fieldService.js`: Venue registration, document uploads, and facility management.
+  - `slotLockEngine.js`: Deep module for booking slot concurrency, `Asia/Bangkok` timezone math, Redis/PG locks, and automated 60-minute expiry cleanup.
+  - `sportsDataProvider.js`: Deep domain adapter for fetching, caching, translating, and normalizing FotMob live sports data into Thai DTOs.
+  - `venueAggregateService.js`: Deep domain aggregate for venues, sub-fields, facilities, and real-time aggregate court availability.
 - `middlewares/`: Interceptors including `auth.js` (JWT parsing), rate limiting, and roles authorization.
 - `cron/`: Scheduled tasks (e.g. `bookingCron.js` to automatically release pending reservations without payment).
 - `utils/`: Common utilities (e.g. Brevo-powered emails, PromptPay QR generators, Fotmob scrapers/resolvers, Excel statistics generator).
@@ -385,9 +390,10 @@ As an AI agent, you must strict-comply with the following guidelines:
 1. Draft the changes in `backend/store/schema.sql` (if writing migrations/reference updates).
 2. Remember to run schema changes against the local PostgreSQL client before testing your code changes.
 
-### 7.4. After Completing a Feature
+### 7.4. After Completing a Feature or Architecture Change
 
-- Update CONTEXT.md to reflect any changes made
-- If a new table was added, update the schema section in CONTEXT.md
-- If a new route was added, document it in CONTEXT.md
-- If a new library was installed, update the dependencies section
+- **Mandatory Documentation Update:** Whenever any significant architecture, service, API endpoint, or UI design change occurs, you MUST update all relevant Markdown files (`AGENTS.md`, `CONTEXT.md`, `DESIGN.md`, `FOTMOB.md`, `README.md`) to reflect exact code structure and keep system documentation 100% synchronized.
+- Update `CONTEXT.md` to reflect any new modules, services, or architecture patterns.
+- If a new table was added, update the schema section in `CONTEXT.md` and `schema.sql`.
+- If a new route or deep service was added, document it in `AGENTS.md`, `CONTEXT.md`, and `README.md`.
+- If a new library was installed or removed, update the dependencies section in `package.json`, `AGENTS.md`, and `CONTEXT.md`.

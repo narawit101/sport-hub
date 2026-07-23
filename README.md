@@ -89,13 +89,16 @@ graph TD
 
 ### Backend (Node.js / Express)
 *   **PostgreSQL:** Relational data modeling for complex booking relationships.
-*   **Controller-Service Pattern:** Business logic is decoupled from HTTP concerns for high testability.
+*   **Controller-Service Pattern & Deep Domain Modules:** Business logic is decoupled from HTTP concerns for high testability and clean architecture:
+    *   `SlotLockEngine`: Manages real-time booking slot concurrency, timezone math (`Asia/Bangkok`), Redis/PG lock fallbacks, and automated expiry.
+    *   `SportsDataProvider`: Domain adapter for normalizing, caching, and localizing live sports data.
+    *   `VenueAggregateService`: Domain aggregate for venues, sub-fields, facilities, and aggregate availability.
 *   **Redis Caching:** High-performance caching layer powered by `ioredis` for fast data retrieval.
 *   **Security Stack:** 
     *   `jsonwebtoken` for stateless auth.
     *   `express-rate-limit` to prevent brute-force attacks.
     *   `multer-storage-cloudinary` for secure media handling.
-*   **Cron Jobs:** Automated cleanup of expired booking slots and reminders.
+*   **Cron Jobs:** Automated cleanup of expired booking slots via `SlotLockEngine`.
 
 ---
 
