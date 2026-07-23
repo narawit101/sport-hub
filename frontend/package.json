@@ -14,16 +14,12 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@tinymce/tinymce-react": "^6.3.0",
-    "cookie-parser": "^1.4.7",
     "dayjs": "^1.11.13",
-    "dotenv": "^16.4.7",
     "js-cookie": "^3.0.5",
-    "jsonwebtoken": "^9.0.2",
     "next": "^16.2.6",
     "react": "^19.0.0",
     "react-calendar": "^5.1.0",
     "react-dom": "^19.0.0",
-    "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {

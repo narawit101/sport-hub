@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
@@ -41,7 +40,8 @@ app.use(
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(compression());
 app.use(cookieParser());
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const registerRoute = require("./api/register");
 const loginRoute = require("./api/login");

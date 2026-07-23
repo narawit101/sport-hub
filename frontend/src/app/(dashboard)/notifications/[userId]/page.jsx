@@ -5,15 +5,10 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import "@/app/css/notifications.css";
 import "@/app/css/navbar.css";
 import { useSocket } from "@/app/contexts/SocketContext";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/th";
+import { formatRelativeTime } from "@/app/utils/format";
 import apiClient from "@/lib/apiClient";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { USER_STATUS } from "@/constants/status";
-
-dayjs.extend(relativeTime);
-dayjs.locale("th");
 
 export default function Page() {
   const { userId } = useParams();
@@ -489,7 +484,7 @@ export default function Page() {
               {renderNotificationContent(n)}
               <div className="noti-footer">
                 <span className="noti-created-at">
-                  {n.created_at ? dayjs(n.created_at).fromNow() : ""}
+                  {formatRelativeTime(n.created_at)}
                 </span>
               </div>
             </div>

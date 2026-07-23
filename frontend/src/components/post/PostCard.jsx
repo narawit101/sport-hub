@@ -2,12 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/th";
-
-dayjs.extend(relativeTime);
-dayjs.locale("th");
+import { formatRelativeTime } from "@/app/utils/format";
 
 export default function PostCard({
   post,
@@ -109,7 +104,7 @@ export default function PostCard({
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              <span>{dayjs(post.created_at).fromNow()}</span>
+              <span>{formatRelativeTime(post.created_at)}</span>
             </div>
           </div>
         </div>
@@ -145,7 +140,7 @@ export default function PostCard({
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                <span>{dayjs(post.created_at).fromNow()}</span>
+                <span>{formatRelativeTime(post.created_at)}</span>
               </div>
             </div>
           </div>

@@ -38,35 +38,13 @@ const translateLegendTitle = (title) => {
 };
 
 const formatThaiFullDate = (d) => {
-  const dayNames = [
-    "วันอาทิตย์",
-    "วันจันทร์",
-    "วันอังคาร",
-    "วันพุธ",
-    "วันพฤหัสบดี",
-    "วันศุกร์",
-    "วันเสาร์",
-  ];
-  const monthNames = [
-    "มกราคม",
-    "กุมภาพันธ์",
-    "มีนาคม",
-    "เมษายน",
-    "พฤษภาคม",
-    "มิถุนายน",
-    "กรกฎาคม",
-    "สิงหาคม",
-    "กันยายน",
-    "ตุลาคม",
-    "พฤศจิกายน",
-    "ธันวาคม",
-  ];
-
-  const dayOfWeek = dayNames[d.day()];
-  const dateNum = d.date();
-  const monthName = monthNames[d.month()];
-
-  return `${dayOfWeek}ที่ ${dateNum} ${monthName}`;
+  if (!d) return "";
+  const dateObj = typeof d.toDate === "function" ? d.toDate() : new Date(d);
+  return new Intl.DateTimeFormat("th-TH", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(dateObj);
 };
 
 const getThaiDisplayDate = (d) => {

@@ -5,6 +5,7 @@ const promptpay = require("promptpay-qr");
 const { invalidatePattern } = require("../config/cache");
 const { sendEmail } = require("../utils/email");
 const { BOOKING_STATUS, PAYMENT_METHOD, USER_ROLE } = require("../utils/constants");
+const slotLockEngine = require("./slotLockEngine");
 const {
   bookingNewOrder,
   bookingApproved,
@@ -38,17 +39,13 @@ class BookingService {
     try {
       await client.query("BEGIN");
 
-      const overlapResult = await client.query(
-        `SELECT * FROM bookings
-        WHERE sub_field_id = $1
-          AND status NOT IN ('${BOOKING_STATUS.REJECTED}', '${BOOKING_STATUS.CANCELLED}')
-          AND (
-            (start_date || ' ' || start_time)::timestamp < $3::timestamp
-            AND (end_date || ' ' || end_time)::timestamp > $2::timestamp
-          )
-        FOR UPDATE`,
-        [subFieldId, `${startDate} ${startTime}`, `${endDate} ${endTime}`]
-      );
+      const isOverlapped = await slotLockEngine.checkSlotOverlap(client, {
+        subFieldId,
+        startDate,
+        startTime,
+        endDate,
+        endTime,
+      });
 
       const timeNow = DateTime.now().setZone("Asia/Bangkok");
       const timeSubmitDate = DateTime.fromISO(`${startDate}T${startTime}`, {
@@ -59,7 +56,7 @@ class BookingService {
         throw new Error("ไม่สามารถเลือกเวลาที่ผ่านไปแล้วได้");
       }
 
-      if (overlapResult.rows.length > 0) {
+      if (isOverlapped) {
         throw new Error("ช่วงเวลาที่เลือกมีผู้จองแล้ว กรุณาเลือกเวลาใหม่");
       }
 
@@ -152,7 +149,7 @@ class BookingService {
         });
       }
 
-      await invalidatePattern(`statistics:field:${fieldId}:*`);
+      await slotLockEngine.invalidateSlotCache(subFieldId, fieldId);
       return { success: true, bookingId };
     } catch (error) {
       await client.query("ROLLBACK");
@@ -163,11 +160,7 @@ class BookingService {
   }
 
   async getBookedBlock(subFieldId, startDate, endDate) {
-    const result = await pool.query(
-      `SELECT * FROM bookings WHERE sub_field_id = $1 AND booking_date >= $2 AND booking_date < $3 AND status IN ('${BOOKING_STATUS.PENDING}', '${BOOKING_STATUS.APPROVED}', '${BOOKING_STATUS.COMPLETE}', '${BOOKING_STATUS.VERIFIED}')`,
-      [subFieldId, startDate, endDate]
-    );
-    return result.rows;
+    return await slotLockEngine.getSlotAvailability(subFieldId, startDate, endDate);
   }
 
   async getBookingsByUserId(userId, { date, status }) {

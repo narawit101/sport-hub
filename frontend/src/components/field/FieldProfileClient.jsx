@@ -5,8 +5,6 @@ import NotFoundCard from "@/components/ui/NotFoundCard";
 import "@/app/css/field-profile.css";
 import Post from "@/components/post/Post";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/th";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useSocket } from "@/app/contexts/SocketContext";
@@ -20,11 +18,7 @@ import LongdoMapPicker from "@/components/shared/LongdoMapPicker";
 import apiClient from "@/lib/apiClient";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { USER_STATUS, USER_ROLE, FIELD_STATUS } from "@/constants/status";
-
 import FieldHeader from "@/components/field/FieldHeader";
-
-dayjs.extend(relativeTime);
-dayjs.locale("th");
 
 export default function CheckFieldDetail() {
   const { notify } = useNotification();

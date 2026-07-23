@@ -7,15 +7,9 @@ import { useNotification } from "@/app/contexts/NotificationContext";
 import { useSocket } from "@/app/contexts/SocketContext";
 import LogoutButton from "@/components/auth/Logout";
 import "@/app/css/navbar.css";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/th";
-import { formatDateToThai } from "@/app/utils/format";
+import { formatDateToThai, formatRelativeTime } from "@/app/utils/format";
 import apiClient from "@/lib/apiClient";
 import { USER_ROLE } from "@/constants/status";
-
-dayjs.extend(relativeTime);
-dayjs.locale("th");
 
 export default function Navbar() {
   const socket = useSocket();
@@ -709,7 +703,7 @@ export default function Navbar() {
                             )}
 
                           <span className="notification-time">
-                            {dayjs(notification.created_at).fromNow()}
+                            {formatRelativeTime(notification.created_at)}
                           </span>
                         </li>
                       );

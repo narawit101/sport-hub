@@ -103,7 +103,9 @@ sport-hub/
 │   ├── middlewares/               # Express filters (auth.js, rate limiters)
 │   ├── services/                  # Transaction logic & database write executions
 │   │   ├── bookingService.js
-│   │   └── fieldService.js
+│   │   ├── fieldService.js
+│   │   ├── slotLockEngine.js      # Deep module for booking concurrency & lock expiry
+│   │   └── sportsDataProvider.js  # Deep domain adapter for localized live sports data
 │   ├── store/                     # Schema definition and database seed datasets
 │   │   ├── schema.sql             # SSOT for Postgres tables, indexes, and constraints
 │   │   └── seed.sql               # Seeding script for test roles and master data

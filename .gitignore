@@ -9,6 +9,7 @@ frontend/.env
 # Dependencies
 node_modules/
 
-# OS files
+# OS files & generated reports
 .DS_Store
 Thumbs.db
+docs/*.html
