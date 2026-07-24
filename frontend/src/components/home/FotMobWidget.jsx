@@ -300,6 +300,7 @@ export default function FotMobWidget({
   const [selectedSeason, setSelectedSeason] = useState("");
   const [loading, setLoading] = useState(false);
   const [newsLoadingMore, setNewsLoadingMore] = useState(false);
+  const [hasMoreNews, setHasMoreNews] = useState(true);
   const [showCalendar, setShowCalendar] = useState(false);
   const [collapsedLeagues, setCollapsedLeagues] = useState({});
   const [collapsedLateNights, setCollapsedLateNights] = useState({});
@@ -533,22 +534,40 @@ export default function FotMobWidget({
     setLoading(true);
     try {
       const res = await apiClient.get("/fotmob/news?startIndex=0");
-      setNews(res.news || []);
+      const initialNews = res.news || [];
+      setNews(initialNews);
+      setHasMoreNews(initialNews.length >= 20);
     } catch (err) {
       console.error("Error fetching news:", err);
       setNews([]);
+      setHasMoreNews(false);
     } finally {
       setLoading(false);
     }
   };
 
   const loadMoreNews = async () => {
-    if (newsLoadingMore) return;
+    if (newsLoadingMore || !hasMoreNews) return;
     setNewsLoadingMore(true);
     try {
       const res = await apiClient.get(`/fotmob/news?startIndex=${news.length}`);
       const newItems = res.news || [];
-      setNews((prev) => [...prev, ...newItems]);
+      if (newItems.length === 0) {
+        setHasMoreNews(false);
+      } else {
+        setNews((prev) => {
+          const existingKeys = new Set(
+            prev.map((item) => String(item.id || item.title).toLowerCase())
+          );
+          const filteredNew = newItems.filter(
+            (item) => item && !existingKeys.has(String(item.id || item.title).toLowerCase())
+          );
+          if (filteredNew.length === 0 || newItems.length < 20) {
+            setHasMoreNews(false);
+          }
+          return [...prev, ...filteredNew];
+        });
+      }
     } catch (err) {
       console.error("Error loading more news:", err);
     } finally {
@@ -1607,15 +1626,17 @@ export default function FotMobWidget({
               )}
 
               {/* Pagination Load More Button */}
-              <div className="news-load-more-container">
-                <button
-                  className="btn-load-more-news"
-                  onClick={loadMoreNews}
-                  disabled={newsLoadingMore}
-                >
-                  {newsLoadingMore ? "กำลังโหลดข่าว..." : "ดูข่าวเพิ่มเติม ↗"}
-                </button>
-              </div>
+              {hasMoreNews && (
+                <div className="news-load-more-container">
+                  <button
+                    className="btn-load-more-news"
+                    onClick={loadMoreNews}
+                    disabled={newsLoadingMore}
+                  >
+                    {newsLoadingMore ? "กำลังโหลดข่าว..." : "ดูข่าวเพิ่มเติม ↗"}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

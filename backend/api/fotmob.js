@@ -36,7 +36,15 @@ router.get("/matches", async (req, res) => {
 // 3. Get world news
 router.get("/news", async (req, res) => {
   try {
-    const data = await sportsDataProvider.getNews();
+    const { startIndex, page } = req.query;
+    let pageNum = 1;
+    if (page) {
+      pageNum = parseInt(page) || 1;
+    } else if (startIndex !== undefined) {
+      const idx = parseInt(startIndex) || 0;
+      pageNum = Math.floor(idx / 20) + 1;
+    }
+    const data = await sportsDataProvider.getNews(pageNum);
     res.status(200).json(data);
   } catch (error) {
     console.error("[FotMob News Error]:", error.message);

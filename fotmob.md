@@ -83,7 +83,7 @@ const TEAM_NAME_MAP = {
 The Sport Hub frontend consumes the following internal proxy routes:
 * `GET /api/fotmob/matches?date=YYYYMMDD`: Retrieves matches for a specific date.
 * `GET /api/fotmob/standings?leagueId=47`: Retrieves standings (defaults to Premier League).
-* `GET /api/fotmob/news?startIndex=0`: Retrieves news with pagination support.
+* `GET /api/fotmob/news?startIndex=0` or `GET /api/fotmob/news?page=1`: Retrieves news with pagination support (`startIndex` mapped to `page` or explicit `page` param).
 * `GET /api/fotmob/all-leagues`: Retrieves the complete league/tournament structure for menus.
 
 ---

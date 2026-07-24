@@ -159,14 +159,17 @@ class SportsDataProvider {
     return result;
   }
 
-  async getNews() {
-    const cacheKey = "fotmob:news:v10";
+  async getNews(page = 1) {
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const cacheKey = `fotmob:news:v11:page:${pageNum}`;
     const cached = await getCache(cacheKey);
     if (cached) return cached;
 
     let rawNews = [];
     try {
-      rawNews = await this.fetchFromFotmob("https://www.fotmob.com/api/worldnews?lang=en");
+      rawNews = await this.fetchFromFotmob(
+        `https://www.fotmob.com/api/worldnews?lang=en&page=${pageNum}`
+      );
     } catch (err) {
       console.error("[SportsDataProvider] News fetch fallback error:", err.message);
     }
@@ -191,7 +194,7 @@ class SportsDataProvider {
         })
       : [];
 
-    const result = { news: newsList };
+    const result = { news: newsList, page: pageNum };
     await setCache(cacheKey, result, 600); // 10 minutes TTL
     return result;
   }
