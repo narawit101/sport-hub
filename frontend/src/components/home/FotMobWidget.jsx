@@ -37,6 +37,29 @@ const translateLegendTitle = (title) => {
   return LEGEND_TRANSLATIONS[lower] || title;
 };
 
+const getNewsUrl = (item) => {
+  if (!item) return "#";
+  if (item.pageUrl) return item.pageUrl;
+  if (item.page?.url) {
+    return item.page.url.startsWith("http")
+      ? item.page.url
+      : `https://www.fotmob.com${item.page.url}`;
+  }
+  if (item.link) return item.link;
+  if (item.url) return item.url;
+  return "#";
+};
+
+const getNewsSource = (item) => {
+  if (!item) return "FotMob";
+  return item.source || item.sourceStr || "FotMob";
+};
+
+const getNewsTime = (item) => {
+  if (!item) return "";
+  return item.time || item.gmtTime || "";
+};
+
 const formatThaiFullDate = (d) => {
   if (!d) return "";
   const dateObj = typeof d.toDate === "function" ? d.toDate() : new Date(d);
@@ -1432,7 +1455,7 @@ export default function FotMobWidget({
                   <div className="football-news-featured-wrapper">
                     {/* Left featured card */}
                     <a
-                      href={news[0].pageUrl}
+                      href={getNewsUrl(news[0])}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="news-featured-big"
@@ -1466,10 +1489,10 @@ export default function FotMobWidget({
                         </h3>
                         <div className="news-featured-big-meta">
                           <span className="news-featured-source-badge">
-                            {news[0].source}
+                            {getNewsSource(news[0])}
                           </span>
                           <span className="news-featured-time">
-                            {formatRelativeThaiTime(news[0].time)}
+                            {formatRelativeThaiTime(getNewsTime(news[0]))}
                           </span>
                         </div>
                       </div>
@@ -1480,7 +1503,7 @@ export default function FotMobWidget({
                       {news.slice(1, 5).map((item, idx) => (
                         <a
                           key={item.id || idx}
-                          href={item.pageUrl}
+                          href={getNewsUrl(item)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="news-featured-list-item"
@@ -1490,9 +1513,9 @@ export default function FotMobWidget({
                               {item.title}
                             </h4>
                             <div className="news-featured-list-item-meta">
-                              <span className="news-source">{item.source}</span>
+                              <span className="news-source">{getNewsSource(item)}</span>
                               <span className="news-time">
-                                {formatRelativeThaiTime(item.time)}
+                                {formatRelativeThaiTime(getNewsTime(item))}
                               </span>
                             </div>
                           </div>
@@ -1517,7 +1540,7 @@ export default function FotMobWidget({
                       {news.slice(5).map((item, idx) => (
                         <a
                           key={item.id || idx}
-                          href={item.pageUrl}
+                          href={getNewsUrl(item)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="football-news-card-grid"
@@ -1527,9 +1550,9 @@ export default function FotMobWidget({
                               {item.title}
                             </h4>
                             <div className="football-news-card-grid-meta">
-                              <span className="news-source">{item.source}</span>
+                              <span className="news-source">{getNewsSource(item)}</span>
                               <span className="news-time">
-                                {formatRelativeThaiTime(item.time)}
+                                {formatRelativeThaiTime(getNewsTime(item))}
                               </span>
                             </div>
                           </div>
@@ -1554,7 +1577,7 @@ export default function FotMobWidget({
                   {news.map((item, idx) => (
                     <a
                       key={idx}
-                      href={item.pageUrl}
+                      href={getNewsUrl(item)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="football-news-card"
@@ -1573,9 +1596,9 @@ export default function FotMobWidget({
                         <h3 className="football-news-title">{item.title}</h3>
                         <div className="football-news-meta">
                           <span className="football-news-source">
-                            {item.source}
+                            {getNewsSource(item)}
                           </span>
-                          <span>{formatRelativeThaiTime(item.time)}</span>
+                          <span>{formatRelativeThaiTime(getNewsTime(item))}</span>
                         </div>
                       </div>
                     </a>
